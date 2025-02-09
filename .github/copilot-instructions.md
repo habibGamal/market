@@ -1,0 +1,5 @@
+- this project use arabic language , so any labels or texts that appear to end users should be in arabic
+- but in any console logs , any info that appear to the developer use english language
+- use guide.md to know filament style
+- before any edit in filamentphp code look for its documentaion frist https://filamentphp.com/docs
+- when testing a filamentphp resource then follow the filament testing guide from the docs https://filamentphp.com/docs
