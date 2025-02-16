@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
+use App\Enums\InvoiceStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +19,9 @@ class PurchaseInvoiceFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'total' => fake()->randomFloat(2, 100, 10000),
+            'status' => fake()->randomElement([InvoiceStatus::DRAFT, InvoiceStatus::CLOSED]),
+            'officer_id' => User::factory(),
         ];
     }
 }

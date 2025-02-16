@@ -14,16 +14,20 @@ class ProductExporter extends Exporter
     public static function getColumns(): array
     {
         return [
+            ExportColumn::make('id')->label('معرف المنتج'),
             ExportColumn::make('name')->label('اسم المنتج'),
-            // ExportColumn::make('image')->label('صورة'),
-            ExportColumn::make('barcode')->label('الباركود'),
+            ExportColumn::make('barcode')->label('الباركود')
+                // ->formatStateUsing(function (string $state) {
+                //     return "'$state";
+                // })
+                ,
             ExportColumn::make('packet_cost')->label('تكلفة العبوة'),
             ExportColumn::make('packet_price')->label('سعر العبوة'),
             ExportColumn::make('piece_price')->label('سعر القطعة'),
+            ExportColumn::make('before_discount.packet_price')->label('سعر العبوة قبل الخصم'),
+            ExportColumn::make('before_discount.piece_price')->label('سعر القطعة قبل الخصم'),
             ExportColumn::make('expiration')->label('مدة الصلاحية'),
-            // ExportColumn::make('before_discount')->label('قبل الخصم'),
             ExportColumn::make('packet_to_piece')->label('عدد القطع في العبوة'),
-            // ExportColumn::make('limits')->label('الحدود'),
             ExportColumn::make('brand.name')->label('العلامة التجارية'),
             ExportColumn::make('category.name')->label('الفئة'),
         ];
@@ -40,3 +44,5 @@ class ProductExporter extends Exporter
         return $body;
     }
 }
+
+

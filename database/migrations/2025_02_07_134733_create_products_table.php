@@ -24,7 +24,6 @@ return new class extends Migration
             $table->enum('expiration_unit', ExpirationUnit::values());
             $table->text('before_discount');
             $table->integer('packet_to_piece');
-            $table->text('limits');
             $table->foreignId('brand_id')->constrained();
             $table->foreignId('category_id')->constrained();
             $table->unique(['name', 'barcode']);

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Exports\ProductExporter;
+use App\Filament\Imports\ProductImporter;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
@@ -11,15 +12,17 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ImportAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-cube';
 
     protected static ?string $modelLabel = 'منتج';
 
@@ -29,14 +32,25 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\FileUpload::make('image')
+                    ->label('الصورة')
+                    ->image()
+                    ->imageResizeMode('cover')
+                    ->imageResizeTargetWidth('200')
+                    ->imageResizeTargetHeight('200')
+                    ->directory('product-images')
+                    ->imageEditor()
+                    ->imageCropAspectRatio('1:1')
+                    ->columnSpanFull(),
                 Forms\Components\TextInput::make('name')
                     ->label('الاسم')
                     ->required(),
-                Forms\Components\TextInput::make('image')
-                    ->label('الصورة')
-                    ->nullable(),
                 Forms\Components\TextInput::make('barcode')
                     ->label('الباركود')
+                    ->required(),
+                Forms\Components\TextInput::make('packet_to_piece')
+                    ->label('عدد القطع في العبوة')
+                    ->numeric()
                     ->required(),
                 Forms\Components\TextInput::make('packet_cost')
                     ->label('تكلفة العبوة')
@@ -50,6 +64,14 @@ class ProductResource extends Resource
                     ->label('سعر القطعة')
                     ->numeric()
                     ->required(),
+                Forms\Components\TextInput::make('before_discount.packet_price')
+                    ->label('سعر العبوة قبل الخصم')
+                    ->numeric()
+                    ->required(),
+                Forms\Components\TextInput::make('before_discount.piece_price')
+                    ->label('سعر القطعة قبل الخصم')
+                    ->numeric()
+                    ->required(),
                 Forms\Components\TextInput::make('expiration_duration')
                     ->label('مدة الصلاحية')
                     ->numeric()
@@ -58,23 +80,17 @@ class ProductResource extends Resource
                     ->label('وحدة الصلاحية')
                     ->options(\App\Enums\ExpirationUnit::values())
                     ->required(),
-                Forms\Components\Textarea::make('before_discount')
-                    ->label('قبل الخصم')
-                    ->required(),
-                Forms\Components\TextInput::make('packet_to_piece')
-                    ->label('عدد القطع في العبوة')
-                    ->numeric()
-                    ->required(),
-                Forms\Components\Textarea::make('limits')
-                    ->label('الحدود')
-                    ->required(),
                 Forms\Components\Select::make('brand_id')
                     ->label('العلامة التجارية')
                     ->relationship('brand', 'name')
+                    ->searchable()
+                    ->preload()
                     ->required(),
                 Forms\Components\Select::make('category_id')
                     ->label('الفئة')
                     ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload()
                     ->required(),
             ]);
     }
@@ -84,7 +100,9 @@ class ProductResource extends Resource
         return $table
             ->headerActions([
                 ExportAction::make()
-                    ->exporter(ProductExporter::class)
+                    ->exporter(ProductExporter::class),
+                ImportAction::make()
+                    ->importer(ProductImporter::class)
             ])
             ->columns([
                 Tables\Columns\TextColumn::make('name')
@@ -110,6 +128,16 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('category.name')
                     ->label('الفئة')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('تاريخ الإنشاء')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('تاريخ التحديث')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('brand')
@@ -132,7 +160,7 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\LimitsRelationManager::class,
         ];
     }
 

@@ -1,23 +1,23 @@
 <?php
 
+use App\Enums\InvoiceStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('purchase_invoice_items', function (Blueprint $table) {
+        Schema::create('issue_notes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained();
-            $table->integer('packets_quantity');
-            $table->decimal('packet_cost', 8, 2);
-            $table->foreignId('purchase_invoice_id')->constrained();
             $table->decimal('total', 8, 2);
+            $table->string('status')->default(InvoiceStatus::DRAFT->value);
+            $table->foreignId('officer_id')->constrained('users');
+            $table->string('note_type');
+            $table->text('notes');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('purchase_invoice_items');
+        Schema::dropIfExists('issue_notes');
     }
 };

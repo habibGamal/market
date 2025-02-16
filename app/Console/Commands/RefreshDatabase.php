@@ -25,7 +25,7 @@ class RefreshDatabase extends Command
      */
     public function handle()
     {
-        $this->call('app:take-database-snapshot');
+        // $this->call('app:take-database-snapshot');
         $this->call('db:wipe');
         $this->call('migrate');
         $this->call('db:seed');

@@ -2,7 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductLimit;
 use App\Enums\ExpirationUnit;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -34,14 +37,8 @@ class ProductFactory extends Factory
                 'piece_price' => $this->faker->randomFloat(2, 1, 10),
             ],
             'packet_to_piece' => $this->faker->numberBetween(1, 24),
-            'limits' => [
-                'min_packets' => $this->faker->numberBetween(1, 10),
-                'max_packets' => $this->faker->numberBetween(10, 100),
-                'min_pieces' => $this->faker->numberBetween(1, 10),
-                'max_pieces' => $this->faker->numberBetween(10, 100),
-            ],
-            'brand_id' => \App\Models\Brand::factory(),
-            'category_id' => \App\Models\Category::factory(),
+            'brand_id' => Brand::first() ?? Brand::factory()->create(),
+            'category_id' => Category::first() ?? Category::factory()->create(),
         ];
     }
 }

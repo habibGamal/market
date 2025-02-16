@@ -4,6 +4,9 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\App\Profile;
 use App\Filament\Pages\Auth\Login;
+use App\Filament\Resources\ActivityLogResource;
+use App\Filament\Resources\CustomActivityLogResource;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -19,6 +22,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Rmsramos\Activitylog\ActivitylogPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -32,7 +36,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('Market')
             ->passwordReset()
             ->sidebarCollapsibleOnDesktop()
-//            ->sidebarFullyCollapsibleOnDesktop()
+            //            ->sidebarFullyCollapsibleOnDesktop()
             ->spa()
             ->profile(Profile::class, false)
             ->viteTheme('resources/css/filament/admin/theme.css')
@@ -52,6 +56,7 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\FilamentInfoWidget::class,
             ])
             ->databaseNotifications()
+            ->databaseNotificationsPolling(null)
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -65,6 +70,13 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->plugins([
+                FilamentShieldPlugin::make(),
+                ActivitylogPlugin::make()
+                    ->label('سجل')
+                    ->pluralLabel('السجلات')
+                ->resource(CustomActivityLogResource::class),
             ]);
     }
 }

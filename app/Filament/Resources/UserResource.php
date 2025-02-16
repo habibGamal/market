@@ -13,8 +13,11 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
+use Spatie\Activitylog\Models\Activity;
 
 class UserResource extends Resource
 {
@@ -60,12 +63,12 @@ class UserResource extends Resource
                         TextInput::make('password')
                             ->label('كلمة المرور')
                             ->password()
-                            ->required(fn ($livewire) => $livewire instanceof Pages\CreateUser)
+                            ->required(fn($livewire) => $livewire instanceof Pages\CreateUser)
                             ->revealable(filament()->arePasswordsRevealable())
                             ->rule(Password::default())
                             ->autocomplete('new-password')
-                            ->dehydrated(fn ($state): bool => filled($state))
-                            ->dehydrateStateUsing(fn ($state): string => Hash::make($state))
+                            ->dehydrated(fn($state): bool => filled($state))
+                            ->dehydrateStateUsing(fn($state): string => Hash::make($state))
                             ->live(debounce: 500)
                             ->same('passwordConfirmation')
                             ->suffixActions([
@@ -76,8 +79,14 @@ class UserResource extends Resource
                             ->password()
                             ->revealable(filament()->arePasswordsRevealable())
                             ->required()
-                            ->visible(fn (Get $get): bool => filled($get('password')))
+                            ->visible(fn(Get $get): bool => filled($get('password')))
                             ->dehydrated(false),
+                        Forms\Components\Select::make('roles')
+                            ->label('الأدوار')
+                            ->multiple()
+                            ->relationship('roles', 'name')
+                            ->preload()
+                            ->required(),
                     ]),
             ]);
     }
@@ -110,6 +119,27 @@ class UserResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                // ActivityLogTimelineTableAction::make('Activities')
+                //     ->query(function (?Model $record) {
+                //         return Activity::query()
+                //             ->where(function (Builder $query) use ($record) {
+                //                 $query->where(function (Builder $query) use ($record) {
+                //                     $query->where('causer_type', User::class)
+                //                         ->where('causer_id', $record->id);
+                //                 });
+
+                //             });
+
+                //     })
+                //     ->timelineIcons([
+                //         'created' => 'heroicon-m-check-badge',
+                //         'updated' => 'heroicon-m-pencil-square',
+                //     ])
+                //     ->timelineIconColors([
+                //         'created' => 'info',
+                //         'updated' => 'warning',
+                //     ])
+                //     ->label('الأنشطة'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
