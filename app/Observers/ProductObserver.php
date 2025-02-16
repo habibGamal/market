@@ -12,10 +12,7 @@ class ProductObserver
      */
     public function created(Product $product): void
     {
-        $product->stockItem()->create([
-            'warehouse_id' => Warehouse::getWarehouse()->id,
-            'piece_quantity' => 0,
-        ]);
+
     }
 
     /**

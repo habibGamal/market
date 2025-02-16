@@ -57,14 +57,9 @@ class Product extends Model
         return $this->hasMany(ProductLimit::class);
     }
 
-    /**
-     * for now the business planed to use only one warehouse
-     * so we will return the first stock item
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne<StockItem, Product>
-     */
-    public function stockItem()
+    public function stockItems()
     {
-        return $this->hasOne(StockItem::class);
+        return $this->hasMany(StockItem::class);
     }
 
     public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions

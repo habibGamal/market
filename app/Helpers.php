@@ -29,7 +29,7 @@ if (!function_exists('printAction')) {
             // ->url(fn() => route('print', ['model' => get_class($this->record), 'id' => $this->record->id]))
             ->url(fn($record) => route('print', ['model' => get_class($record), 'id' => $record->id]))
             ->openUrlInNewTab()
-            ->visible(fn($record) => $record->items()->count() > 0)
+            ->visible(fn($record) => $record->items->count() > 0)
             ->color('gray');
     }
 }

@@ -7,7 +7,7 @@ use Filament\Tables;
 use Filament\Forms;
 use Illuminate\Database\Eloquent\Builder;
 
-trait InvoiceFilters
+trait InvoiceLikeFilters
 {
     public static function filters()
     {

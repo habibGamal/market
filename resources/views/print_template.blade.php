@@ -58,7 +58,35 @@
                 background-color: #f2f2f2;
             }
         }
+
+        .sortable:after {
+            content: ' \25B2'; /* Up arrow */
+        }
+        .sortable.desc:after {
+            content: ' \25BC'; /* Down arrow */
+        }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+            const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
+                v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+            )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+
+            document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
+                const table = th.closest('table');
+                Array.from(table.querySelectorAll('tr:nth-child(n+2)'))
+                    .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
+                    .forEach(tr => table.appendChild(tr));
+
+                // Toggle sorting direction class
+                document.querySelectorAll('th').forEach(header => header.classList.remove('desc', 'sortable'));
+                th.classList.toggle('desc', !this.asc);
+                th.classList.add('sortable');
+            })));
+        });
+    </script>
 </head>
 
 <body class="bg-gray-100 p-8">
@@ -78,7 +106,7 @@
                 <thead class="bg-gray-200">
                     <tr>
                         @foreach ($template->getItemHeaders() as $header)
-                            <th class="py-3 px-4 border-b">{{ $header }}</th>
+                            <th class="py-3 px-4 border-b cursor-pointer">{{ $header }}</th>
                         @endforeach
                     </tr>
                 </thead>

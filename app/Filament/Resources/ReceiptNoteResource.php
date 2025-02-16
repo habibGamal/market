@@ -6,9 +6,13 @@ use App\Enums\InvoiceStatus;
 use App\Enums\ReceiptNoteType;
 use App\Filament\Interfaces\InvoiceResource;
 use App\Filament\Resources\ReceiptNoteResource\Pages;
+use App\Filament\Traits\InvoiceActions;
+use App\Filament\Traits\InvoiceLikeFilters;
+use App\Filament\Traits\InvoiceLikeFormFields;
 use App\Models\ReceiptNote;
 use App\Filament\Actions\Forms\ReleaseDatesFormAction;
 use Awcodes\TableRepeater\Components\TableRepeater;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Grid;
@@ -20,8 +24,10 @@ use Filament\Tables\Table;
 use Awcodes\TableRepeater\Header;
 
 
-class ReceiptNoteResource extends InvoiceResource
+class ReceiptNoteResource extends Resource implements HasShieldPermissions
 {
+    use InvoiceLikeFormFields, InvoiceLikeFilters , InvoiceActions;
+
     protected static ?string $model = ReceiptNote::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -30,23 +36,14 @@ class ReceiptNoteResource extends InvoiceResource
 
     protected static ?string $pluralModelLabel = 'اذونات الاستلام';
 
-
     public static function csvTitles(): array
     {
         return [
             'product_id' => 'الرقم المرجعي للمنتج',
             'product_name' => 'المنتج',
-            'quantity' => 'الكمية',
-            'price' => 'سعر العبوة',
-            'total' => 'الإجمالي',
-        ];
-    }
-
-    public static function itemKeysAliases(): array
-    {
-        return [
-            'quantity' => 'packets_quantity',
-            'price' => 'packet_cost',
+            'packets_quantity' => 'عدد العبوات',
+            'piece_quantity' => 'عدد القطع',
+            'packet_cost' => 'سعر العبوة',
         ];
     }
 
@@ -72,12 +69,23 @@ class ReceiptNoteResource extends InvoiceResource
                     ->label('عناصر اذن الاستلام')
                     ->relationship('items')
                     ->extraActions([
-                        self::exportCSVAction(),
+                        self::exportCSVAction(
+                            fn($item, $product) => [
+                                'product_id' => $product->id,
+                                'product_name' => $product->name,
+                                'packets_quantity' => $item['packets_quantity'],
+                                'piece_quantity' => $item['piece_quantity'],
+                                'packet_cost' => $item['packet_cost'],
+                                // 'release_date' => $item['release_date'],
+                                // 'release_dates' => $item['release_dates'],
+                            ]
+                        ),
                     ])
                     ->headers([
                         Header::make('product_name')->label('المنتج')->width('150px'),
                         Header::make('packets_quantity')->label('عدد العبوات')->width('150px'),
                         Header::make('piece_quantity')->label('عدد القطع')->width('150px'),
+                        Header::make('packet_cost')->label('سعر العبوة')->width('150px'),
                         Header::make('release_date')->label('تاريخ انتاج')->width('150px'),
                         Header::make('release_dates')->label('اكثر من تاريخ انتاج')->width('150px'),
                     ])
@@ -102,6 +110,9 @@ class ReceiptNoteResource extends InvoiceResource
                             ->maxValue(
                                 fn($state, $record) => $record ? $record->reference_state['piece_quantity'] : $state
                             ),
+                        Forms\Components\TextInput::make('packet_cost')
+                            ->numeric()
+                            ->disabled(),
                         Forms\Components\DatePicker::make('release_dates.0.release_date')
                             ->label('تاريخ الإنتاج')
                             ->required(),
@@ -114,6 +125,20 @@ class ReceiptNoteResource extends InvoiceResource
                     ])
                     ->dehydrated(true)
                     ->columnSpan('full')
+                    ->mutateRelationshipDataBeforeFillUsing(
+                        function (array $data) {
+                            if (auth()->user()->can('show_costs_receipt::note'))
+                                return $data;
+                            $hiddens = [
+                                'packet_cost',
+                                'reference_state',
+                            ];
+                            foreach ($hiddens as $hidden) {
+                                unset($data[$hidden]);
+                            }
+                            return $data;
+                        }
+                    )
                     ->deletable(false)
                     ->addable(false),
             ]);
@@ -153,9 +178,9 @@ class ReceiptNoteResource extends InvoiceResource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
@@ -163,6 +188,19 @@ class ReceiptNoteResource extends InvoiceResource
     {
         return [
             //
+        ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'show_costs',
         ];
     }
 

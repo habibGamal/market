@@ -71,7 +71,7 @@ class ReceiptNote extends Model
                     $item->packets_quantity,
                     $item->piece_quantity,
                 ];
-            }));
+            })->toArray());
     }
 
     public function getClosedAttribute()

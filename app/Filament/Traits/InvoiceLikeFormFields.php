@@ -6,30 +6,11 @@ use App\Models\Product;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Set;
-use Filament\Forms\Get;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
 
-trait InvoiceFormFields
+trait InvoiceLikeFormFields
 {
-    /**
-     * Calculate the total amount of the invoice.
-     *
-     * @param Get $get
-     * @return float
-     */
-    abstract protected static function invoiceTotal(Get $get): float;
-
-    /**
-     * Handle the selection of products and update the invoice items.
-     *
-     * @param Set $set
-     * @param Get $get
-     * @param $products
-     * @return void
-     */
-    abstract protected static function handleProductsSelection(Set $set, Get $get, $products);
 
     /**
      * Create a placeholder for the invoice ID.
@@ -128,31 +109,6 @@ trait InvoiceFormFields
         ];
     }
 
-    /**
-     * Create a searchable select component for selecting products.
-     *
-     * @return Select
-     */
-    public static function productSelectSearch()
-    {
-        return Select::make('product_id')
-            ->hiddenLabel()
-            ->searchable(['name', 'barcode'])
-            ->getSearchResultsUsing(fn(string $search): array => Product::where('name', 'like', "%$search%")->orWhere('barcode', 'like', "%$search%")->limit(10)->get()->pluck('name', 'id')->toArray())
-            ->getOptionLabelUsing(fn($value): ?string => Product::find($value)?->name)
-            ->searchDebounce(200)
-            // ->options(Product::all()->pluck('name', 'id')->toArray())
-            ->columnSpan(4)
-            ->reactive()
-            ->afterStateUpdated(
-                function (Set $set, Get $get, ?int $state): void {
-                    if ($state) {
-                        $product = Product::find($state);
-                        self::handleProductsSelection($set, $get, collect([$product]));
-                    }
-                }
-            )
-            ->autofocus();
-    }
+
 
 }

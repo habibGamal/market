@@ -39,13 +39,6 @@ class IssueNoteResource extends InvoiceResource
         ];
     }
 
-    public static function itemKeysAliases(): array
-    {
-        return [
-            'quantity' => 'packets_quantity',
-            'price' => 'packet_cost',
-        ];
-    }
 
     public static function form(Form $form): Form
     {

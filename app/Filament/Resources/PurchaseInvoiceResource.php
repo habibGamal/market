@@ -35,19 +35,31 @@ class PurchaseInvoiceResource extends InvoiceResource
         return [
             'product_id' => 'الرقم المرجعي للمنتج',
             'product_name' => 'المنتج',
-            'quantity' => 'الكمية',
-            'price' => 'سعر العبوة',
+            'packets_quantity' => 'الكمية',
+            'packet_cost' => 'سعر العبوة',
             'total' => 'الإجمالي',
         ];
     }
 
-    public static function itemKeysAliases(): array
+
+    public static function incrementQuantity($item)
+    {
+        $item['packets_quantity'] += 1;
+        $item['total'] = $item['packets_quantity'] * $item['packet_cost'];
+        return $item;
+    }
+
+    public static function addProduct($product)
     {
         return [
-            'quantity' => 'packets_quantity',
-            'price' => 'packet_cost',
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'packets_quantity' => 1,
+            'packet_cost' => $product->packet_cost,
+            'total' => $product->packet_cost,
         ];
     }
+
 
     public static function form(Form $form): Form
     {
@@ -72,10 +84,16 @@ class PurchaseInvoiceResource extends InvoiceResource
                 Section::make('المنتجات')
                     ->columns(6)
                     ->schema([
-                        self::productSelectSearch()->dehydrated(false),
+                        self::productSelectSearch(
+                            [self::class, 'incrementQuantity'],
+                            [self::class, 'addProduct']
+                        )->dehydrated(false),
                         Actions::make(
                             [
-                                self::importProductsByBrandAction()
+                                self::importProductsByBrandAction(
+                                    [self::class, 'incrementQuantity'],
+                                    [self::class, 'addProduct']
+                                )
                             ]
                         )->columnSpan(2),
                     ]),
@@ -83,8 +101,24 @@ class PurchaseInvoiceResource extends InvoiceResource
                     ->label('عناصر الفاتورة')
                     ->relationship('items', fn($query) => $query->with('product:id,name'))
                     ->extraActions([
-                        self::exportCSVAction(),
-                        self::importCSVAction(),
+                        self::exportCSVAction(
+                            fn($item, $product) => [
+                                $product->id,
+                                $product->name,
+                                $item['packets_quantity'],
+                                $item['packet_cost'],
+                                $item['total'],
+                            ]
+                        ),
+                        self::importCSVAction(
+                            fn($item, $product) => [
+                                'product_id' => $product->id,
+                                'product_name' => $product->name,
+                                'packets_quantity' => (float) $record[static::csvTitles()['quantity']],
+                                'packet_cost' => (float) $record[static::csvTitles()['quantity']],
+                                'total' => $record[static::csvTitles()['quantity']] * $record[static::csvTitles()['price']],
+                            ]
+                        ),
                     ])
                     ->headers([
                         Header::make('product_name')->label('المنتج')->width('150px'),
@@ -150,7 +184,7 @@ class PurchaseInvoiceResource extends InvoiceResource
             ->filters(static::filters())
             ->headerActions([
                 Tables\Actions\ExportAction::make()
-                ->exporter(PurchaseInvoiceExporter::class),
+                    ->exporter(PurchaseInvoiceExporter::class),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

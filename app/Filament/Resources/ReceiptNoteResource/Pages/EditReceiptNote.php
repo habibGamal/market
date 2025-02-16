@@ -13,14 +13,15 @@ use Filament\Support\Exceptions\Halt;
 
 class EditReceiptNote extends EditRecord
 {
-    use InvoiceLikeEditActions , InvoiceLikeEditCloseHandler, InvoiceLikeTrackChanges;
+    use InvoiceLikeEditActions, InvoiceLikeEditCloseHandler, InvoiceLikeTrackChanges;
     protected static string $resource = ReceiptNoteResource::class;
 
 
     protected function afterValidate(): void
     {
         foreach ($this->data['items'] as $item) {
-            if(count($item['release_dates']) === 1) continue;
+            if (count($item['release_dates']) === 1)
+                continue;
             $sumPieceQuantity = array_sum(array_column($item['release_dates'], 'piece_quantity'));
 
             $packetsQuantity = $item['packets_quantity'];

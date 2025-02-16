@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use App\Observers\StockItemObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[ObservedBy([StockItemObserver::class])]
 class StockItem extends Model
 {
 

@@ -13,76 +13,29 @@ use App\Services\InvoiceItemsCSVService;
 
 trait InvoiceActions
 {
-    protected static $brands = null;
-
-    abstract protected static function handleProductsSelection(Set $set, Get $get, $products);
 
     abstract public static function csvTitles(): array;
 
-    abstract public static function itemKeysAliases(): array;
 
-    abstract public static function invoiceItemTotal($record): float;
-
-    public static function importProductsByBrandAction()
-    {
-        return Actions\Action::make('select_products')
-            ->label('إضافة مجموعة من المنتجات')
-            ->modal()
-            ->form(
-                function () {
-                    static::$brands ??= Brand::with('products:id,name,brand_id')->get();
-                    return [
-                        Section::make('products')
-                            ->columns(4)
-                            ->schema(
-                                static::$brands->mapWithKeys(function ($brand) {
-                                    return [$brand->name => $brand->products->pluck('name', 'id')->toArray()];
-                                })->map(function ($products, $brand) {
-                                    return Section::make($brand)
-                                        ->schema([
-                                            CheckboxList::make($brand)
-                                                ->options($products)
-                                                ->bulkToggleable()
-                                        ])
-                                        ->collapsed()
-                                        ->columnSpan(1);
-                                })->toArray()
-                            )
-                    ];
-                }
-            )
-            ->action(function (array $data, Get $get, Set $set): void {
-                $product_ids = array_merge(...array_values($data));
-                $products = Product::select(['id','name','packet_cost','packet_price'])->find($product_ids);
-                static::handleProductsSelection($set, $get, $products);
-            })
-            ->modalSubmitActionLabel('إضافة المنتجات');
-    }
-
-    public static function exportCSVAction()
+    public static function exportCSVAction(callable $mapColumns)
     {
 
         return Actions\Action::make('exportItems')
             ->label('تصدير العناصر')
             ->icon('heroicon-o-arrow-down-tray')
-            ->action(function (Get $get) {
+            ->action(function (Get $get) use ($mapColumns) {
                 $items = collect($get('items'));
-                $products = Product::select(['name','id'])->whereIn('id', $items->pluck('product_id'))->get();
+                $products = Product::select(['name', 'id'])->whereIn('id', $items->pluck('product_id'))->get();
                 $csvService = app(InvoiceItemsCSVService::class);
-                $csv = $csvService->export(items: $items, titles: array_values(static::csvTitles()), mapperCallback: function ($item) use ($products) {
-                    return [
-                        $item['product_id'],
-                        $products->where('id', $item['product_id'])->first()->name ?? null,
-                        $item[static::itemKeysAliases()['quantity']],
-                        $item[static::itemKeysAliases()['price']],
-                        $item['total'],
-                    ];
+                $csv = $csvService->export(items: $items, titles: array_values(static::csvTitles()), mapperCallback: function ($item) use ($products, $mapColumns) {
+                    $product = $products->where('id', $item['product_id'])->first();
+                    return $mapColumns($item, $product);
                 });
                 return static::download($csv);
             });
     }
 
-    public static function importCSVAction()
+    public static function importCSVAction($mapColumns)
     {
         return Actions\Action::make('importItems')
             ->label('استيراد من ملف')
@@ -93,7 +46,7 @@ trait InvoiceActions
                     ->acceptedFileTypes(['text/csv'])
                     ->required()
             ])
-            ->action(function (array $data, Get $get, Set $set) {
+            ->action(function (array $data, Get $get, Set $set) use ($mapColumns) {
                 try {
                     // Read uploaded file
                     $path = storage_path('app/public/' . $data['csv_file']);
@@ -112,16 +65,11 @@ trait InvoiceActions
                             ->send();
                         return;
                     }
-
+                    $products = Product::select(['name', 'id'])->whereIn('id', $records->pluck(static::csvTitles()['product_id']))->get();
                     // Process CSV records
-                    $records = $records->map(function ($record) {
-                        return [
-                            'product_id' => $record[static::csvTitles()['product_id']],
-                            'product_name' => Product::find($record[static::csvTitles()['product_id']])->name ?? null,
-                            static::itemKeysAliases()['quantity'] => (float) $record[static::csvTitles()['quantity']],
-                            static::itemKeysAliases()['price'] => (float) $record[static::csvTitles()['price']],
-                            'total' => static::invoiceItemTotalForCsv($record),
-                        ];
+                    $records = $records->map(function ($record) use ($products, $mapColumns) {
+                        $product = $products->where('id', $record[static::csvTitles()['product_id']])->first();
+                        return $mapColumns($record, $product);
                     })->filter(callback: function ($record) {
                         return $record['product_id'] !== null && $record['product_id'] !== '';
                     });
