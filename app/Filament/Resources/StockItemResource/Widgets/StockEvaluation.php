@@ -14,6 +14,8 @@ class StockEvaluation extends BaseWidget
 {
     use InteractsWithPageTable;
 
+    protected static ?string $pollingInterval = null;
+
     protected function getTablePage(): string
     {
         return ListStockItems::class;
@@ -22,7 +24,7 @@ class StockEvaluation extends BaseWidget
     protected function getStats(): array
     {
         $stockStats = app(\App\Services\Stats\StockStatService::class);
-        $ids = $this->getPageTableQuery()->select('id')->get()->pluck('id')->toArray();
+        $ids = $this->getPageTableQuery()->reorder()->select('id')->get()->pluck('id')->toArray();
         return [
             Stat::make(
                 'تقييم المخزون (بسعر البيع)',

@@ -18,15 +18,18 @@ use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Awcodes\TableRepeater\Header;
+use App\Filament\Exports\ReceiptNoteExporter;
 
 
 class ReceiptNoteResource extends Resource implements HasShieldPermissions
 {
-    use InvoiceLikeFormFields, InvoiceLikeFilters , InvoiceActions;
+    use InvoiceLikeFormFields, InvoiceLikeFilters, InvoiceActions;
 
     protected static ?string $model = ReceiptNote::class;
 
@@ -173,6 +176,10 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                     ->sortable(),
             ])
             ->filters(static::filters())
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->exporter(ReceiptNoteExporter::class),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
@@ -182,6 +189,36 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
             ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist->schema([
+            \Filament\Infolists\Components\Actions::make([
+                printAction(\Filament\Infolists\Components\Actions\Action::make('print')),
+            ])->columnSpanFull()
+                ->alignEnd(),
+            TextEntry::make('id')
+                ->label('رقم الإذن'),
+            TextEntry::make('total')
+                ->label('المجموع')
+                ->visible(fn() => auth()->user()->can('show_costs_receipt::note')),
+            TextEntry::make('status')
+                ->badge()
+                ->label('الحالة'),
+            TextEntry::make('note_type')
+                ->badge()
+                ->label('نوع الإذن'),
+            TextEntry::make('officer.name')
+                ->label('المسؤول'),
+            TextEntry::make('created_at')
+                ->label('تاريخ الإنشاء')
+                ->dateTime(),
+            TextEntry::make('updated_at')
+                ->label('تاريخ التحديث')
+                ->dateTime(),
+        ])
+            ->columns(3);
     }
 
     public static function getRelations(): array

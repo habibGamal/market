@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Customer;
 use App\Models\Warehouse;
 use Illuminate\Database\Seeder;
 
@@ -14,10 +15,13 @@ class DatabaseSeeder extends Seeder
             'address' => '123 Fake St.',
         ]);
 
+
+
         $this->call([
             UserSeeder::class,
             ProductSeeder::class,
             ShieldSeeder::class,
+            PendingOrderSeeder::class,
         ]);
     }
 }

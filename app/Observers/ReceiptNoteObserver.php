@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\ReceiptNote;
+use App\Services\ReceiptNoteServices;
 
 class ReceiptNoteObserver
 {
@@ -33,6 +34,11 @@ class ReceiptNoteObserver
         // this unset items from the model attributes
         // as we dehydrate it in the form to trigger the observer
         $receiptNote->offsetUnset('items');
+
+        if (!$receiptNote->closed)
+            return;
+        $services = app(ReceiptNoteServices::class);
+        $services->toStock($receiptNote);
     }
 
     /**

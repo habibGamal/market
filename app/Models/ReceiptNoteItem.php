@@ -41,4 +41,17 @@ class ReceiptNoteItem extends Model
     {
         return $this->packets_quantity + ($this->piece_quantity / $this->reference_state['product']['packet_to_piece']);
     }
+
+    public function getQuantityReleasesAttribute()
+    {
+        if (count($this->release_dates) === 1) {
+            return [
+                $this->release_dates[0]['release_date'] => $this->totalQuantityByPiece,
+            ];
+        }
+
+        return collect($this->release_dates)->mapWithKeys(function ($item) {
+            return [$item['release_date'] => $item['piece_quantity']];
+        })->toArray();
+    }
 }

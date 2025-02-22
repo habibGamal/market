@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('reserved_quantity');
             $table->date('release_date');
             $table->timestamps();
+            $table->unique(['product_id', 'release_date']);
         });
     }
 

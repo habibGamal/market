@@ -3,18 +3,26 @@
 namespace App\Models;
 
 use App\Enums\InvoiceStatus;
+use App\Enums\IssueNoteType;
 use App\Traits\InvoiceHistory;
+use App\Observers\IssueNoteObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
+#[ObservedBy([IssueNoteObserver::class])]
 class IssueNote extends Model
 {
     use LogsActivity, InvoiceHistory, HasFactory;
 
     protected $casts = [
+        'total' => 'decimal:2',
         'status' => InvoiceStatus::class,
+        'note_type' => IssueNoteType::class,
     ];
 
     public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
@@ -32,15 +40,19 @@ class IssueNote extends Model
         ]);
     }
 
-
-    public function officer()
+    public function officer(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'officer_id');
     }
 
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(IssueNoteItem::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 
     public function printTemplate()

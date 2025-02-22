@@ -83,4 +83,9 @@ class ReceiptNote extends Model
     {
         return $this->status->value;
     }
+
+    public function getRawNoteTypeAttribute()
+    {
+        return $this->note_type->value;
+    }
 }

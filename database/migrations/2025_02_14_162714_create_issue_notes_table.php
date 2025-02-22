@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->string('status')->default(InvoiceStatus::DRAFT->value);
             $table->foreignId('officer_id')->constrained('users');
             $table->string('note_type');
-            $table->text('notes');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

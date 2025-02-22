@@ -10,10 +10,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use NotificationChannels\WebPush\HasPushSubscriptions;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use HasFactory, Notifiable , HasPushSubscriptions ,HasRoles;
+    use HasFactory, Notifiable, HasPushSubscriptions, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -51,7 +53,30 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        /* TODO: Please implement your own logic here. */
-        return true; // str_ends_with($this->email, '@larament.test');
+        if ($panel->getId() === 'admin' && !$this->isDriver) {
+            return true;
+        }
+
+        if ($panel->getId() === 'driver' && $this->isDriver) {
+            return true;
+        }
+
+        return false;
     }
+
+    public function assignedDriverTasks(): HasMany
+    {
+        return $this->hasMany(DriverTask::class, 'driver_assisment_officer_id');
+    }
+
+    public function account(): HasOne
+    {
+        return $this->hasOne(DriverAccount::class, 'driver_id');
+    }
+
+    public function getIsDriverAttribute(): bool
+    {
+        return $this->account()->exists();
+    }
+
 }

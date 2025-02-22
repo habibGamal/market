@@ -10,7 +10,7 @@ class StockStatService
     {
         return Product::select(DB::raw('sum(products.packet_price * (stock_items.piece_quantity / products.packet_to_piece)) as total_price'))
             ->leftJoin('stock_items', 'stock_items.product_id', '=', 'products.id')
-            ->whereIn('stock_items.id', $stockItemIds)
+            ->whereIn('products.id', $stockItemIds)
             ->get()
             ->first()
             ->total_price;
@@ -20,7 +20,7 @@ class StockStatService
     {
         return Product::select(DB::raw('sum(products.packet_cost * (stock_items.piece_quantity / products.packet_to_piece)) as total_price'))
             ->leftJoin('stock_items', 'stock_items.product_id', '=', 'products.id')
-            ->whereIn('stock_items.id', $stockItemIds)
+            ->whereIn('products.id', $stockItemIds)
             ->get()
             ->first()
             ->total_price;

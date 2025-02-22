@@ -56,22 +56,19 @@ class IssueNoteResource extends InvoiceResource
                         Header::make('product_name')->label('المنتج')->width('150px'),
                         Header::make('packets_quantity')->label('عدد العبوات')->width('150px'),
                         Header::make('piece_quantity')->label('عدد القطع')->width('150px'),
+                        Header::make('release_date')->label('تاريخ الانتاج')->width('150px'),
                     ])
                     ->schema([
                         Forms\Components\Hidden::make('product_id'),
                         Forms\Components\TextInput::make('product_name')
-                            ->formatStateUsing(fn($state, $record) => $record ? $record->product_name : $state)
-                            ->disabled(),
+                            ->formatStateUsing(fn($state, $record) => $record ? $record->product_name : $state),
                         Forms\Components\TextInput::make('packets_quantity')
-                            ->numeric()
-                            ->required()
-                            ->minValue(0),
+                            ->numeric(),
                         Forms\Components\TextInput::make('piece_quantity')
-                            ->numeric()
-                            ->required()
-                            ->minValue(0)
+                            ->numeric(),
+                        Forms\Components\TextInput::make('release_date'),
                     ])
-                    ->dehydrated(true)
+                    ->disabled()
                     ->mutateRelationshipDataBeforeCreateUsing(fn(array $data) => static::mutateItemsBeforeSaving($data))
                     ->mutateRelationshipDataBeforeSaveUsing(fn(array $data) => static::mutateItemsBeforeSaving($data))
                     ->columnSpan('full')

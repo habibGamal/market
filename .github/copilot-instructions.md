@@ -3,3 +3,6 @@
 - use guide.md to know filament style
 - before any edit in filamentphp code look for its documentaion frist https://filamentphp.com/docs
 - when testing a filamentphp resource then follow the filament testing guide from the docs https://filamentphp.com/docs
+- when asking you for a testing follow the project convention of other test files
+- #file:guide.md for any needed commands
+- when you implement Observer use laravel ObservedBy attribute don't register it in event service provider

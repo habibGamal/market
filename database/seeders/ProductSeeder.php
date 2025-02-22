@@ -20,7 +20,7 @@ class ProductSeeder extends Seeder
         $catgories = \App\Models\Category::all();
         // \App\Models\Product::factory(1000)->create();
         \App\Models\Product::factory()
-            ->count(1000)
+            ->count(100)
             ->make()
             ->each(function ($product) use ($brands, $catgories) {
                 $product->brand_id = $brands->random()->id;

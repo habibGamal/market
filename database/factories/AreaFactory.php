@@ -20,7 +20,7 @@ class AreaFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->unique(true)->word,
+            'name' => $this->faker->unique(true)->sentence(2),
         ];
     }
 }

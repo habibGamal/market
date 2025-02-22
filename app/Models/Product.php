@@ -17,6 +17,12 @@ class Product extends Model
         'before_discount' => 'array',
     ];
 
+    public function getPacketsQuantityAttribute()
+    {
+        if ($this->stock_items_sum_piece_quantity === null) return null;
+        return $this->stock_items_sum_piece_quantity / $this->packet_to_piece;
+    }
+
     public function getExpirationAttribute()
     {
         // Assuming 'expiration_duration' and 'expiration_unit' are columns in your products table

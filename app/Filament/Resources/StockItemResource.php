@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\StockItemResource\Pages;
+use App\Models\Product;
 use App\Models\StockItem;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\ImageEntry;
@@ -15,7 +16,7 @@ use Filament\Tables\Table;
 
 class StockItemResource extends Resource
 {
-    protected static ?string $model = StockItem::class;
+    protected static ?string $model = Product::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -47,26 +48,31 @@ class StockItemResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('product.id')
+                Tables\Columns\TextColumn::make('id')
                     ->label('رقم المنتج'),
-                Tables\Columns\TextColumn::make('product.barcode')
+                Tables\Columns\TextColumn::make('barcode')
                     ->label('الباركود')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('product.name')
+                Tables\Columns\TextColumn::make('name')
                     ->label('اسم')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('piece_quantity')
+                Tables\Columns\TextColumn::make('stock_items_sum_piece_quantity')
+                    ->sum('stockItems', 'piece_quantity')
                     ->label('عدد القطع')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('packets_quantity')
-                    ->formatStateUsing(fn($state) => number_format($state, 2))
+                    ->formatStateUsing(fn($record) => number_format(
+                        $record->packets_quantity,
+                        2
+                    ))
                     ->label('عدد العبوات')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('product.packet_cost')
+                    // ->sortable()
+                    ,
+                Tables\Columns\TextColumn::make('packet_cost')
                     ->label('تكلفة العبوة')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('product.packet_price')
+                Tables\Columns\TextColumn::make('packet_price')
                     ->label('سعر العبوة')
                     ->sortable(),
                 // Tables\Columns\TextColumn::make('cost_evaluation')
@@ -79,25 +85,15 @@ class StockItemResource extends Resource
                 //     ->formatStateUsing(fn($state) => number_format($state, 2))
                 //     // ->summarize(Sum::make())
                 //     ,
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('تاريخ الإنشاء')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->label('تاريخ التحديث')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('brand')
-                    ->relationship('product.brand', 'name')
+                    ->relationship('brand', 'name')
                     ->searchable()
                     ->preload()
                     ->label('العلامة التجارية'),
                 Tables\Filters\SelectFilter::make('category')
-                    ->relationship('product.category', 'name')
+                    ->relationship('category', 'name')
                     ->searchable()
                     ->preload()
                     ->label('الفئة'),
@@ -120,32 +116,32 @@ class StockItemResource extends Resource
                 Section::make('بيانات المنتج')
                     ->columns(6)
                     ->schema([
-                        ImageEntry::make('product.image')
+                        ImageEntry::make('image')
                             ->label('صورة المنتج')
                             ->columnSpanFull(),
-                        TextEntry::make('product.id')
+                        TextEntry::make('id')
                             ->label('رقم المنتج'),
-                        TextEntry::make('product.barcode')
+                        TextEntry::make('barcode')
                             ->label('الباركود'),
-                        TextEntry::make('product.name')
+                        TextEntry::make('name')
                             ->label('اسم المنتج'),
-                        TextEntry::make('product.packet_cost')
+                        TextEntry::make('packet_cost')
                             ->label('تكلفة العبوة'),
-                        TextEntry::make('product.packet_price')
+                        TextEntry::make('packet_price')
                             ->label('سعر العبوة'),
-                        TextEntry::make('product.piece_price')
+                        TextEntry::make('piece_price')
                             ->label('سعر القطعة'),
-                        TextEntry::make('product.expiration')
+                        TextEntry::make('expiration')
                             ->label('مدة الصلاحية'),
-                        TextEntry::make('product.before_discount.packet_price')
+                        TextEntry::make('before_discount.packet_price')
                             ->label('سعر العبوة قبل الخصم'),
-                        TextEntry::make('product.before_discount.piece_price')
+                        TextEntry::make('before_discount.piece_price')
                             ->label('سعر القطعة قبل الخصم'),
-                        TextEntry::make('product.packet_to_piece')
+                        TextEntry::make('packet_to_piece')
                             ->label('عدد القطع في العبوة'),
-                        TextEntry::make('product.brand.name')
+                        TextEntry::make('brand.name')
                             ->label('العلامة التجارية'),
-                        TextEntry::make('product.category.name')
+                        TextEntry::make('category.name')
                             ->label('الفئة'),
                     ])
             ]);
