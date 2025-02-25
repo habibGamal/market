@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('driver_receipts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('driver_id')->constrained('users');
-            $table->foreignId('receipt_note_id')->unique()->constrained();
+            $table->foreignId('receipt_note_id')->unique()->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

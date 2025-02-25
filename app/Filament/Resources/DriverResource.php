@@ -20,6 +20,8 @@ class DriverResource extends Resource
 {
     protected static ?string $model = Driver::class;
 
+    protected static ?string $navigationGroup = 'إدارة الطلبيات';
+
     protected static ?string $navigationIcon = 'heroicon-o-truck';
 
     protected static ?string $recordTitleAttribute = 'name';

@@ -23,6 +23,8 @@ class AreaResource extends Resource
 {
     protected static ?string $model = Area::class;
 
+    protected static ?string $navigationGroup = 'إدارة النظام';
+
     protected static ?string $navigationIcon = 'heroicon-o-map';
 
     protected static ?string $modelLabel = 'منطقة';

@@ -7,6 +7,7 @@ use App\Filament\Resources\IssueNoteResource\Pages;
 use App\Filament\Resources\IssueNoteResource\RelationManagers;
 use App\Models\IssueNote;
 use Awcodes\TableRepeater\Components\TableRepeater;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Section;
@@ -17,12 +18,17 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Awcodes\TableRepeater\Header;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
+use App\Filament\Exports\IssueNoteExporter;
 
-class IssueNoteResource extends InvoiceResource
+class IssueNoteResource extends InvoiceResource implements HasShieldPermissions
 {
     protected static ?string $model = IssueNote::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'إدارة المخزن';
+
+    protected static ?string $navigationIcon = 'heroicon-o-document';
 
     protected static ?string $modelLabel = 'اذن صرف';
 
@@ -80,26 +86,87 @@ class IssueNoteResource extends InvoiceResource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('id')
+                    ->label('رقم الإذن')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('total')
+                    ->label('المجموع')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->label('الحالة')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('officer.name')
+                    ->label('المسؤول')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('تاريخ الإنشاء')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('تاريخ التحديث')
+                    ->dateTime()
+                    ->sortable(),
             ])
-            ->filters([
-                //
+            ->filters([])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->exporter(IssueNoteExporter::class),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist->schema([
+            \Filament\Infolists\Components\Actions::make([
+                printAction(\Filament\Infolists\Components\Actions\Action::make('print')),
+            ])->columnSpanFull()
+                ->alignEnd(),
+            TextEntry::make('id')
+                ->label('رقم الإذن'),
+            TextEntry::make('total')
+                ->label('المجموع')
+                ->visible(fn() => auth()->user()->can('show_costs_issue::note')),
+            TextEntry::make('status')
+                ->badge()
+                ->label('الحالة'),
+            TextEntry::make('officer.name')
+                ->label('المسؤول'),
+            TextEntry::make('created_at')
+                ->label('تاريخ الإنشاء')
+                ->dateTime(),
+            TextEntry::make('updated_at')
+                ->label('تاريخ التحديث')
+                ->dateTime(),
+        ])
+            ->columns(3);
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'show_costs',
+        ];
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\ItemsRelationManager::class,
         ];
     }
 

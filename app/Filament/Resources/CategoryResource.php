@@ -23,6 +23,8 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
+    protected static ?string $navigationGroup = 'إدارة المنتجات';
+
     protected static ?string $navigationIcon = 'heroicon-o-folder';
 
     protected static ?string $label = 'الفئة';

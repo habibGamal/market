@@ -28,7 +28,7 @@ class Driver extends User
 
     public function receipts(): BelongsToMany
     {
-        return $this->belongsToMany(ReceiptNote::class, 'driver_receipts', 'driver_id', 'receipt_note_id');
+        return $this->belongsToMany(ReceiptNote::class, 'driver_receipts', 'driver_id', 'receipt_note_id')->withTimestamps();
     }
 
     public function returnedProducts(): BelongsToMany

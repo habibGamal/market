@@ -14,11 +14,12 @@ use App\Services\ReceiptNoteServices;
 use Filament\Forms\Components\Select;
 use Filament\Actions;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateReceiptNote extends CreateRecord
 {
-    use CreateAssignOfficer,InvoiceLikeCreateCloseHandler,InvoiceLikeCreateActions;
+    use CreateAssignOfficer, InvoiceLikeCreateCloseHandler, InvoiceLikeCreateActions;
     protected static string $resource = ReceiptNoteResource::class;
 
     protected function getHeaderActions(): array
@@ -63,9 +64,27 @@ class CreateReceiptNote extends CreateRecord
                         })
                         ->required()
                 ])
-                ->action(function (array $data) {
-                    $driver = Driver::with('returnedProducts')
-                        ->findOrFail($data['driver_id']);
+                ->action(function (array $data, $action) {
+                    $driver = Driver::query()
+                        ->driversOnly()
+                        ->where('id', '=', $data['driver_id'])
+                        ->firstOrFail();
+                    $driverDraftReceiptsCount = $driver
+                        ->receipts()
+                        ->where('status', InvoiceStatus::DRAFT)
+                        ->count();
+
+                    if ($driverDraftReceiptsCount > 0) {
+                        $action->failureNotification(
+                            Notification::make()
+                                ->title(
+                                    'السائق لديه اذن استلام معلق'
+                                )
+                                ->danger()
+                                ->send()
+                        )->halt()->failure();
+                        return;
+                    }
 
                     $receipt = app(ReceiptNoteServices::class)
                         ->createFromDriverReturns($driver);

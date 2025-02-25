@@ -2,6 +2,7 @@
 
 namespace App\Filament\Driver\Resources\OrderResource\Pages;
 
+use App\Enums\OrderStatus;
 use App\Filament\Driver\Resources\OrderResource;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -33,6 +34,7 @@ class ViewOrder extends ViewRecord
                         ])->toArray()
                     ];
                 })
+                ->visible(fn($record) => $record->status === OrderStatus::OUT_FOR_DELIVERY)
                 ->form(fn() => [
                     Repeater::make('items')
                         ->label('الأصناف المستلمة')
@@ -65,7 +67,7 @@ class ViewOrder extends ViewRecord
                 ->action(function ($record, array $data, $action) {
                     try {
                         app(DriverServices::class)->deliverOrder($record, $record->items, $data['items']);
-                        
+
                         Notification::make()
                             ->title('تم تسليم الأصناف وإرجاع الكميات المتبقية بنجاح')
                             ->success()

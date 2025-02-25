@@ -33,7 +33,9 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
 
     protected static ?string $model = ReceiptNote::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'إدارة المخزن';
+
+    protected static ?string $navigationIcon = 'heroicon-o-document';
 
     protected static ?string $modelLabel = 'اذن استلام';
 
@@ -183,6 +185,7 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([

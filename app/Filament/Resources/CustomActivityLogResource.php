@@ -22,6 +22,8 @@ class CustomActivityLogResource extends ActivitylogResource
 {
     protected static ?string $slug = 'activitylogs';
 
+    protected static ?string $navigationGroup = 'إدارة النظام';
+
     public static function getCauserNameColumnCompoment(): Column
     {
         return parent::getCauserNameColumnCompoment()->sortable();

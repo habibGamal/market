@@ -23,6 +23,8 @@ class BrandResource extends Resource
 {
     protected static ?string $model = Brand::class;
 
+    protected static ?string $navigationGroup = 'إدارة المنتجات';
+
     protected static ?string $navigationIcon = 'heroicon-o-bookmark';
 
     protected static ?string $label = 'العلامة التجارية';

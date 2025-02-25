@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\ReceiptNoteType;
 use App\Models\ReceiptNote;
 use App\Services\ReceiptNoteServices;
 
@@ -39,6 +40,8 @@ class ReceiptNoteObserver
             return;
         $services = app(ReceiptNoteServices::class);
         $services->toStock($receiptNote);
+        if($receiptNote->note_type === ReceiptNoteType::RETURN_ORDERS)
+            $services->removeQuantitiesFromDriverProducts($receiptNote);
     }
 
     /**

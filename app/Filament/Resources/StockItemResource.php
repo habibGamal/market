@@ -18,8 +18,9 @@ class StockItemResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'إدارة المخزن';
 
+    protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
 
     protected static ?string $modelLabel = 'مستوى المخزن';
 

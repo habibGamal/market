@@ -22,6 +22,8 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
+    protected static ?string $navigationGroup = 'إدارة المنتجات';
+
     protected static ?string $navigationIcon = 'heroicon-o-cube';
 
     protected static ?string $modelLabel = 'منتج';
@@ -113,6 +115,9 @@ class ProductResource extends Resource
                     ->label('الباركود')
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('packet_cost')
+                    ->label('تكلفة العبوة')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('packet_price')
                     ->label('سعر العبوة')
                     ->sortable(),

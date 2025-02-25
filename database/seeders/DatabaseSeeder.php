@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Customer;
+use App\Models\Driver;
 use App\Models\Warehouse;
 use Illuminate\Database\Seeder;
 
@@ -15,7 +16,7 @@ class DatabaseSeeder extends Seeder
             'address' => '123 Fake St.',
         ]);
 
-
+        Driver::factory(3)->create();
 
         $this->call([
             UserSeeder::class,

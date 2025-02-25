@@ -66,14 +66,15 @@ class IssueNote extends Model
             ->info('تاريخ اخر تحديث', $this->updated_at->format('Y-m-d h:i:s A'))
             ->info('المسؤول', auth()->user()->name)
             ->total($this->total)
-            ->itemHeaders(['المنتج', 'عدد العبوات', 'عدد القطع'])
+            ->itemHeaders(['المنتج', 'عدد العبوات', 'عدد القطع', 'تاريخ الانتاج'])
             ->items($this->items->map(function ($item) {
                 return [
                     $item->product->name,
                     $item->packets_quantity,
                     $item->piece_quantity,
+                    $item->release_date,
                 ];
-            }));
+            })->toArray());
     }
 
     public function getClosedAttribute()

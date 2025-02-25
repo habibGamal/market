@@ -10,6 +10,7 @@ use App\Models\DriverTask;
 use App\Enums\OrderStatus;
 use App\Enums\DriverStatus;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -23,6 +24,8 @@ use App\Services\DriverServices;
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
+
+    protected static ?string $navigationGroup = 'إدارة الطلبيات';
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static ?string $modelLabel = 'طلب';
     protected static ?string $pluralModelLabel = 'الطلبات';
@@ -125,7 +128,23 @@ class OrderResource extends Resource
                             ->options(Driver::driversOnly()->select(['id', 'name'])->get()->pluck('name', 'id'))
                             ->required()
                     ])
-                    ->action(function ($records, array $data) {
+                    ->action(function ($records, array $data, $action) {
+                        $filteredRecords = $records->filter(
+                            fn($order) =>
+                            $order->status !== OrderStatus::DELIVERED &&
+                            $order->created_at->startOfDay()->lt(now()->startOfDay())
+                        );
+
+                        if ($filteredRecords->count() !== $records->count()) {
+                            $action->failureNotification(
+                                Notification::make()
+                                    ->title(
+                                        'لا يمكن تعيين سائق للطلبات المحددة'
+                                    )
+                                    ->danger()
+                                    ->send()
+                            )->halt()->failure();
+                        }
                         app(DriverServices::class)->assignOrdersToDriver($records, $data['driver_id']);
                     })
                     ->deselectRecordsAfterCompletion()
@@ -136,7 +155,25 @@ class OrderResource extends Resource
                 Tables\Actions\BulkAction::make('createIssueNote')
                     ->label('إنشاء اذن صرف')
                     ->icon('heroicon-o-document-text')
-                    ->action(function ($records) {
+                    ->action(function ($records, $action) {
+                        $filteredRecords = $records->filter(
+                            fn($order) =>
+                            $order->driverTask &&
+                            $order->issue_note_id === null &&
+                            $order->created_at->startOfDay()->lt(now()->startOfDay())
+                        );
+
+                        if ($filteredRecords->count() !== $records->count()) {
+                            $action->failureNotification(
+                                Notification::make()
+                                    ->title(
+                                        'لا يمكن إنشاء إذن صرف للطلبات المحددة'
+                                    )
+                                    ->danger()
+                                    ->send()
+                            )->halt()->failure();
+                        }
+
                         $issueNote = \App\Models\IssueNote::create([
                             'officer_id' => auth()->id(),
                             'status' => \App\Enums\InvoiceStatus::DRAFT,

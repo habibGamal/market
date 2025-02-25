@@ -32,7 +32,7 @@ class StockServices
                 ];
             })->toArray();
 
-            StockItem::upsert($data, ['product_id', 'release_date'], ['piece_quantity' => DB::raw('piece_quantity + VALUES(piece_quantity)')]);
+            StockItem::upsert($data, ['product_id', 'release_date'], ['piece_quantity' => DB::raw('piece_quantity + VALUES(piece_quantity)'), 'reserved_quantity' => DB::raw('reserved_quantity + VALUES(reserved_quantity)'), 'unavailable_quantity' => DB::raw('unavailable_quantity + VALUES(unavailable_quantity)')]);
         });
     }
 

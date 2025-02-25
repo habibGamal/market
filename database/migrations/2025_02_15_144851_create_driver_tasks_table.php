@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('driver_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('driver_assisment_officer_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('order_id')->unique()->constrained()->cascadeOnDelete();
             $table->string('status')->default('pending');
             $table->timestamps();
         });

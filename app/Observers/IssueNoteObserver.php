@@ -16,5 +16,6 @@ class IssueNoteObserver
             // Get the service instance and process the closing
             app(IssueNoteServices::class)->closeOrdersIssueNote($issueNote);
         }
+        $issueNote->total = $issueNote->items->sum('total');
     }
 }

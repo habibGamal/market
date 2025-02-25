@@ -6,12 +6,21 @@
     <title>{{ $template->getTitle() }}</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --text-color: #374151;
+            --border-color: #e5e7eb;
+        }
 
         body {
             font-family: 'Tajawal', sans-serif;
             direction: rtl;
             text-align: right;
+            color: var(--text-color);
+            line-height: 1.6;
         }
 
         @media print {
@@ -33,19 +42,23 @@
             }
 
             .print-container {
+                position: absolute;
+                left: 0;
+                top: 0;
                 margin: 0;
-                padding: 0;
+                padding: 2rem;
                 box-shadow: none;
+                width: 100%;
             }
 
             .print-container img {
-                width: 50px;
-                height: 50px;
+                width: 80px;
+                height: 80px;
             }
 
             .print-container h1 {
-                font-size: 24px;
-                color: black;
+                font-size: 28px;
+                color: var(--primary-color);
             }
 
             .print-container p,
@@ -55,15 +68,103 @@
             }
 
             .print-container th {
-                background-color: #f2f2f2;
+                background-color: #f8fafc;
+                font-weight: 600;
+            }
+
+            table {
+                page-break-inside: auto;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            .info-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .info-item {
+                flex: 1 1 200px;
+                min-width: 200px;
+                padding: 0.5rem;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .info-item:last-child {
+                border-bottom: none;
+            }
+
+            .info-section {
+                break-inside: avoid;
+                margin-bottom: 1.5rem;
+            }
+
+            .info-label {
+                background-color: #f8fafc !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .info-label, .info-value {
+                padding: 0.4rem 0.8rem;
+                font-size: 12px;
             }
         }
 
         .sortable:after {
-            content: ' \25B2'; /* Up arrow */
+            content: ' \25B2';
+            opacity: 0.5;
+            font-size: 0.8em;
         }
         .sortable.desc:after {
-            content: ' \25BC'; /* Down arrow */
+            content: ' \25BC';
+        }
+
+        .data-table {
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table th {
+            transition: background-color 0.2s;
+        }
+
+        .data-table th:hover {
+            background-color: #e2e8f0;
+        }
+
+        .info-section {
+            display: table;
+            width: 100%;
+            margin-bottom: 2rem;
+            border-collapse: collapse;
+        }
+
+        .info-row {
+            display: table-row;
+        }
+
+        .info-label {
+            display: table-cell;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            background-color: #f8fafc;
+            border: 1px solid #e5e7eb;
+            width: 30%;
+            color: #374151;
+        }
+
+        .info-value {
+            display: table-cell;
+            padding: 0.5rem 1rem;
+            border: 1px solid #e5e7eb;
+            color: #4b5563;
         }
     </style>
     <script>
@@ -89,41 +190,64 @@
     </script>
 </head>
 
-<body class="bg-gray-100 p-8">
-    <button onclick="window.print()" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded no-print">طباعة</button>
-    <div class="mx-4 bg-white p-6 rounded-lg shadow-lg print-container">
-        <div class="flex items-center mb-4">
-            <img src="{{ $template->getLogoUrl() }}" alt="Logo" class="w-24 h-24 mr-4">
-            <h1 class="text-3xl font-bold text-blue-600">{{ $template->getTitle() }}</h1>
+<body class="bg-gray-50 p-4 md:p-8">
+    <button onclick="window.print()" class="mb-6 bg-blue-600 hover:bg-blue-700 transition-colors text-white py-2 px-6 rounded-lg shadow-sm no-print flex items-center mx-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+        </svg>
+        طباعة
+    </button>
+
+    <div class="max-w-5xl mx-auto bg-white p-8 rounded-xl shadow-md print-container">
+        <div class="flex items-center justify-between mb-8 border-b pb-6">
+            <div class="flex-1">
+                <h1 class="text-3xl font-bold text-blue-600 mb-2">{{ $template->getTitle() }}</h1>
+                <div class="text-gray-500 text-sm">تاريخ الطباعة: {{ now()->format('Y/m/d') }}</div>
+            </div>
+            <img src="{{ $template->getLogoUrl() }}" alt="Logo" class="w-24 h-24 object-contain">
         </div>
-        @foreach ($template->getInfos() as $key => $value)
-            <p class="mb-2 text-lg"><span class="font-bold text-gray-700">{{ $key }}:</span>
-                {{ $value }}</p>
-        @endforeach
+
+        <div class="info-section">
+            @foreach ($template->getInfos() as $key => $value)
+                <div class="info-row">
+                    <div class="info-label">{{ $key }}</div>
+                    <div class="info-value">{{ $value }}</div>
+                </div>
+            @endforeach
+        </div>
 
         @if ($template->getItemHeaders() && $template->getItems())
-            <table class="min-w-full bg-white border border-gray-300">
-                <thead class="bg-gray-200">
-                    <tr>
-                        @foreach ($template->getItemHeaders() as $header)
-                            <th class="py-3 px-4 border-b cursor-pointer">{{ $header }}</th>
-                        @endforeach
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($template->getItems() as $item)
-                        <tr>
-                            @foreach ($item as $value)
-                                <td class="py-3 px-4 border-b">{{ $value }}</td>
+            <div class="overflow-x-auto data-table">
+                <table class="min-w-full bg-white">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            @foreach ($template->getItemHeaders() as $header)
+                                <th class="py-4 px-6 font-semibold text-gray-700 border-b cursor-pointer hover:bg-gray-200 transition-colors">
+                                    {{ $header }}
+                                </th>
                             @endforeach
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach ($template->getItems() as $item)
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                @foreach ($item as $value)
+                                    <td class="py-3 px-6 border-b border-gray-100">{{ $value }}</td>
+                                @endforeach
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         @endif
 
         @if ($template->getTotal())
-            <p class="mt-4 font-bold text-xl">المجموع الكلي: {{ $template->getTotal() }}</p>
+            <div class="mt-8 border-t pt-6">
+                <p class="text-xl font-bold text-blue-600 text-left">
+                    <span class="text-gray-600">المجموع الكلي:</span>
+                    {{ $template->getTotal() }}
+                </p>
+            </div>
         @endif
     </div>
 </body>

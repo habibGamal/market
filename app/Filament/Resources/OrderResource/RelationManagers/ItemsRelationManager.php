@@ -126,7 +126,7 @@ class ItemsRelationManager extends RelationManager
                     ->requiresConfirmation()
                     ->modalHeading('إرجاع الأصناف المحددة')
                     ->modalSubmitActionLabel('إرجاع')
-                    // ->visible(fn() => $this->getOwnerRecord()->status === OrderStatus::DELIVERED)
+                    ->visible(fn() => $this->getOwnerRecord()->status === OrderStatus::DELIVERED)
                     ->fillForm(function ($data, Collection $records) {
                         return [
                             'items' => $records->map(fn($item) => [

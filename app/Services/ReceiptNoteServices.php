@@ -19,7 +19,7 @@ class ReceiptNoteServices
 
     public function toStock(ReceiptNote $receiptNote)
     {
-        !$receiptNote->relationLoaded('items') && $receiptNote->load('items.product');
+        $receiptNote->load('items.product');
 
         DB::transaction(function () use ($receiptNote) {
             $receiptNote->items->each(function ($item) {
@@ -73,7 +73,6 @@ class ReceiptNoteServices
 
         $receipt->items()->createMany(
             $driver->returnedProducts()
-                ->withPivot('packets_quantity', 'piece_quantity')
                 ->get()
                 ->map(function ($product) {
                     return [
@@ -88,11 +87,12 @@ class ReceiptNoteServices
                             ]
                         ],
                         'reference_state' => [
+                            'product' => $product->toArray(),
                             'packets_quantity' => $product->pivot->packets_quantity,
                             'piece_quantity' => $product->pivot->piece_quantity,
                         ],
                         'total' => ($product->pivot->packets_quantity * $product->packet_price) +
-                                 ($product->pivot->piece_quantity * ($product->packet_price / $product->packet_to_piece))
+                            ($product->pivot->piece_quantity * ($product->packet_price / $product->packet_to_piece))
                     ];
                 })
         );
@@ -100,9 +100,51 @@ class ReceiptNoteServices
         // Update total
         $receipt->update(['total' => $receipt->items()->sum('total')]);
 
-        // Clear driver's returned products
-        // $driver->returnedProducts()->detach();
+        $driver->receipts()->attach($receipt);
 
         return $receipt;
+    }
+
+    public function removeQuantitiesFromDriverProducts(ReceiptNote $receiptNote)
+    {
+        if ($receiptNote->note_type !== ReceiptNoteType::RETURN_ORDERS) {
+            return;
+        }
+
+        // Get the driver associated with this receipt
+        $driver = Driver::whereHas('receipts', function($query) use ($receiptNote) {
+            $query->where('receipt_note_id', $receiptNote->id);
+        })->first();
+
+        if (!$driver) {
+            return;
+        }
+
+        DB::transaction(function () use ($driver, $receiptNote) {
+            foreach ($receiptNote->items as $item) {
+                $existingProduct = $driver->returnedProducts()
+                    ->where('product_id', $item->product_id)
+                    ->first();
+
+                if (!$existingProduct) {
+                    continue;
+                }
+                $newPacketsQuantity = $existingProduct->pivot->packets_quantity - $item->packets_quantity;
+                $newPieceQuantity = $existingProduct->pivot->piece_quantity - $item->piece_quantity;
+
+                if ($newPacketsQuantity < 0 || $newPieceQuantity < 0) {
+                    throw new \InvalidArgumentException('لا يمكن أن تكون الكمية المرتجعة أكبر من الكمية المتوفرة');
+                }
+
+                if ($newPacketsQuantity === 0 && $newPieceQuantity === 0) {
+                    $driver->returnedProducts()->detach($item->product_id);
+                } else {
+                    $driver->returnedProducts()->updateExistingPivot($item->product_id, [
+                        'packets_quantity' => $newPacketsQuantity,
+                        'piece_quantity' => $newPieceQuantity,
+                    ]);
+                }
+            }
+        });
     }
 }

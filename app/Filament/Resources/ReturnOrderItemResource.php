@@ -20,6 +20,8 @@ use App\Services\DriverServices;
 class ReturnOrderItemResource extends Resource
 {
     protected static ?string $model = ReturnOrderItem::class;
+
+    protected static ?string $navigationGroup = 'إدارة الطلبيات';
     protected static ?string $navigationIcon = 'heroicon-o-arrow-uturn-left';
     protected static ?string $modelLabel = 'مرتجع';
     protected static ?string $pluralModelLabel = 'المرتجعات';
@@ -141,7 +143,15 @@ class ReturnOrderItemResource extends Resource
                         app(DriverServices::class)->assignReturnOrdersToDriver($records, $data['driver_id']);
                     })
                     ->deselectRecordsAfterCompletion(),
-            ]);
+                Tables\Actions\DeleteBulkAction::make()
+                    ->label('حذف')
+                    ->modalHeading('حذف المرتجعات المحددة')
+                    ->modalSubmitActionLabel('حذف')
+                    ->successNotificationTitle('تم حذف المرتجعات بنجاح'),
+            ])
+            ->checkIfRecordIsSelectableUsing(
+                fn($record): bool => $record->status !== ReturnOrderStatus::RECEIVED_FROM_CUSTOMER,
+            );
     }
 
     public static function getRelations(): array

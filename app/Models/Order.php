@@ -13,11 +13,13 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Carbon\Carbon;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 #[ObservedBy(OrderObserver::class)]
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $casts = [
         'status' => OrderStatus::class,
@@ -68,15 +70,17 @@ class Order extends Model
     public function scopeAssignableToDrivers($query)
     {
         return $query->whereDoesntHave('driverTask')
+            ->whereNot('status', OrderStatus::DELIVERED)
             ->whereDate('created_at', '<', Carbon::today())
-            ;
+        ;
     }
 
     public function scopeNeedsIssueNote($query)
     {
         return $query->whereNull('issue_note_id')
+            ->whereHas('driverTask')
             ->whereDate('created_at', '<', Carbon::today())
-            ;
+        ;
     }
 
     protected function netTotal(): Attribute
@@ -89,4 +93,11 @@ class Order extends Model
         );
     }
 
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('order')
+            ->setDescriptionForEvent(fn(string $eventName) => "تم " . __("general.events.$eventName") . " الطلب");
+    }
 }

@@ -22,6 +22,8 @@ class WarehouseResource extends Resource
        return false;
     }
 
+    protected static ?string $navigationGroup = 'إدارة المخزن';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $modelLabel = 'مخزن';
