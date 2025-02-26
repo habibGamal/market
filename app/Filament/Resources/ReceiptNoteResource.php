@@ -63,6 +63,7 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                         self::updatedAtPlaceholder(),
                         self::officerPlaceholder(),
                         self::statusSelect(),
+                        self::notesTextarea(),
                         Select::make('note_type')
                             ->label('نوع الإذن')
                             ->options(ReceiptNoteType::toSelectArray())
@@ -113,7 +114,7 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                             ->required()
                             ->minValue(0)
                             ->maxValue(
-                                fn($state, $record) => $record ? $record->reference_state['piece_quantity'] : $state
+                                fn($state, $record) => $record ? $record->reference_state['piece_quantity'] ?? 0 : $state
                             ),
                         Forms\Components\TextInput::make('packet_cost')
                             ->numeric()

@@ -17,10 +17,11 @@ return new class extends Migration
             $table->integer('packets_quantity');
             $table->integer('piece_quantity');
             $table->decimal('packet_cost', 8, 2);
-            $table->foreignId('issue_note_id')->constrained('issue_notes');
+            $table->foreignId('issue_note_id')->constrained('issue_notes')->cascadeOnDelete();
             $table->date('release_date');
             $table->decimal('total', 8, 2);
             $table->timestamps();
+            $table->unique(['issue_note_id', 'product_id', 'release_date'], 'issue_note_item_unique');
         });
     }
 

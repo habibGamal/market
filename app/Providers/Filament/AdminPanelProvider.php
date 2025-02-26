@@ -76,7 +76,7 @@ class AdminPanelProvider extends PanelProvider
                 ActivitylogPlugin::make()
                     ->label('سجل')
                     ->pluralLabel('السجلات')
-                ->resource(CustomActivityLogResource::class),
+                    ->resource(CustomActivityLogResource::class),
             ]);
     }
 }

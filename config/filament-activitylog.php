@@ -13,8 +13,8 @@ return [
         'default_sort_column'    => 'id',
         'default_sort_direction' => 'desc',
         'navigation_count_badge' => false,
-        'resource'               => \Rmsramos\Activitylog\Resources\ActivitylogResource::class,
-        // 'resource'               => CustomActivityLogResource::class,
+        // 'resource'               => \Rmsramos\Activitylog\Resources\ActivitylogResource::class,
+        'resource'               => CustomActivityLogResource::class,
     ],
     'datetime_format' => 'd/m/Y H:i:s',
 ];

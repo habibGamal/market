@@ -2,22 +2,13 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CustomActivityLogResource\Pages;
 use App\Filament\Resources\CustomActivityLogResource\Pages\ListCustomActivityLogs;
-use App\Filament\Resources\CustomActivityLogResource\RelationManagers;
-use App\Models\CustomActivityLog;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Columns\Column;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use \Rmsramos\Activitylog\Resources\ActivitylogResource;
-use Rmsramos\Activitylog\Resources\ActivitylogResource\Pages\ViewActivitylog;
+use \Rmsramos\Activitylog\Resources\ActivitylogResource\Pages\ViewActivitylog;
 class CustomActivityLogResource extends ActivitylogResource
 {
     protected static ?string $slug = 'activitylogs';
@@ -84,7 +75,7 @@ class CustomActivityLogResource extends ActivitylogResource
                     ->schema(function (?Model $record) {
                         /** @var \Spatie\Activitylog\Models\Activity $record */
                         $properties = $record->properties->except(['attributes', 'old']);
-
+                        // dd($properties);
                         $schema = [];
 
                         if ($properties->count()) {

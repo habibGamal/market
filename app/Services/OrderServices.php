@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 class OrderServices
 {
+    public function __construct(
+        private readonly StockServices $stockServices
+    ) {}
+
     /**
      * Add multiple order items to an order
      *
@@ -22,6 +26,13 @@ class OrderServices
     public function addOrderItems(Order $order, array $items): Collection
     {
         return DB::transaction(function () use ($order, $items) {
+            // Reserve stock for each item
+            foreach ($items as $item) {
+                $product = \App\Models\Product::findOrFail($item['product_id']);
+                $totalPieces = (($item['packets_quantity'] ?? 0) * $product->packet_to_piece) + ($item['piece_quantity'] ?? 0);
+                $this->stockServices->reserve($product, $totalPieces);
+            }
+
             $createdItems = $order->items()->createMany($items);
             $this->updateOrderTotal($order);
             return collect($createdItems);
@@ -58,9 +69,13 @@ class OrderServices
     public function cancelledItems(Order $order, array $items)
     {
         return DB::transaction(function () use ($order, $items) {
-
             foreach ($items as $itemData) {
                 $orderItem = $itemData['order_item'];
+                $orderItem->load('product');  // Ensure product is loaded
+
+                // Undo stock reservation for cancelled quantities
+                $totalPiecesToUndo = ($itemData['packets_quantity'] * $orderItem->product->packet_to_piece) + $itemData['piece_quantity'];
+                $this->stockServices->undoReserve($orderItem->product, $totalPiecesToUndo);
 
                 // Create the cancelled item record
                 $order->cancelledItems()->create([

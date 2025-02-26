@@ -166,7 +166,6 @@ class IssueNoteResource extends InvoiceResource implements HasShieldPermissions
     public static function getRelations(): array
     {
         return [
-            RelationManagers\ItemsRelationManager::class,
         ];
     }
 

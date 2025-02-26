@@ -89,6 +89,17 @@ trait InvoiceLikeFormFields
     }
 
     /**
+     * Create a textarea component for the invoice notes.
+     *
+     * @return \Filament\Forms\Components\Textarea
+     */
+    public static function notesTextarea(): \Filament\Forms\Components\Textarea
+    {
+        return \Filament\Forms\Components\Textarea::make('notes')
+            ->label('ملاحظات');
+    }
+
+    /**
      * Create the header section of the invoice form.
      *
      * @param bool $showTotal
@@ -105,6 +116,7 @@ trait InvoiceLikeFormFields
                     self::officerPlaceholder(),
                     self::totalPlaceholder($showTotal),
                     self::statusSelect(),
+                    self::notesTextarea(),
                 ]),
         ];
     }

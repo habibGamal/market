@@ -118,4 +118,124 @@ class IssueNoteServices
                 ->update(['status' => DriverStatus::RECEIVED]);
         });
     }
+
+    /**
+     * Create issue note items from return purchase invoice
+     *
+     * @param IssueNote $issueNote
+     * @param \App\Models\ReturnPurchaseInvoice $returnPurchaseInvoice
+     */
+    public function fromReturnPurchaseInvoice(IssueNote $issueNote, \App\Models\ReturnPurchaseInvoice $returnPurchaseInvoice): void
+    {
+        DB::transaction(function () use ($issueNote, $returnPurchaseInvoice) {
+            // Load the return purchase invoice items
+            $returnPurchaseInvoice->load('items.product');
+
+            $issueNoteItems = $returnPurchaseInvoice->items->map(function ($item) use ($issueNote) {
+                return [
+                    'issue_note_id' => $issueNote->id,
+                    'product_id' => $item->product_id,
+                    'packets_quantity' => $item->packets_quantity,
+                    'piece_quantity' => 0, // Return purchase items only have packets
+                    'packet_cost' => $item->packet_cost,
+                    'release_date' => $item->release_date,
+                    'total' => $item->total,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            })->toArray();
+
+            // Insert issue note items
+            IssueNoteItem::upsert(
+                $issueNoteItems,
+                ['issue_note_id', 'product_id', 'release_date'],
+                ['packets_quantity', 'piece_quantity', 'packet_cost', 'total']
+            );
+
+            // Update return purchase invoice with issue note id
+            $returnPurchaseInvoice->update([
+                'issue_note_id' => $issueNote->id
+            ]);
+        });
+    }
+
+    /**
+     * Close issue note and remove products from stock for return purchase invoice
+     *
+     * @param IssueNote $issueNote
+     */
+    public function closeReturnPurchaseIssueNote(IssueNote $issueNote): void
+    {
+        DB::transaction(function () use ($issueNote) {
+            // Load necessary relationships
+            $issueNote->load(['items.product']);
+
+            // Remove quantities from stock for each item
+            $issueNote->items->each(function ($item) {
+                $this->stockServices->removeFromUnavailable($item->product, [
+                    $item->release_date => ($item->packets_quantity * $item->product->packet_to_piece) + $item->piece_quantity
+                ]);
+            });
+        });
+    }
+
+    /**
+     * Create issue note items from waste
+     *
+     * @param IssueNote $issueNote
+     * @param \App\Models\Waste $waste
+     */
+    public function fromWaste(IssueNote $issueNote, \App\Models\Waste $waste): void
+    {
+        DB::transaction(function () use ($issueNote, $waste) {
+            // Load the waste items
+            $waste->load('items.product');
+
+            $issueNoteItems = $waste->items->map(function ($item) use ($issueNote) {
+                return [
+                    'issue_note_id' => $issueNote->id,
+                    'product_id' => $item->product_id,
+                    'packets_quantity' => $item->packets_quantity,
+                    'piece_quantity' => $item->piece_quantity,
+                    'packet_cost' => $item->packet_cost,
+                    'release_date' => $item->release_date,
+                    'total' => $item->total,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            })->toArray();
+
+            // Insert issue note items
+            IssueNoteItem::upsert(
+                $issueNoteItems,
+                ['issue_note_id', 'product_id', 'release_date'],
+                ['packets_quantity', 'piece_quantity', 'packet_cost', 'total']
+            );
+
+            // Update waste with issue note id
+            $waste->update([
+                'issue_note_id' => $issueNote->id
+            ]);
+        });
+    }
+
+    /**
+     * Close issue note and remove products from stock for waste
+     *
+     * @param IssueNote $issueNote
+     */
+    public function closeWasteIssueNote(IssueNote $issueNote): void
+    {
+        DB::transaction(function () use ($issueNote) {
+            // Load necessary relationships
+            $issueNote->load(['items.product']);
+
+            // Remove quantities from stock for each item
+            $issueNote->items->each(function ($item) {
+                $this->stockServices->removeFromUnavailable($item->product, [
+                    $item->release_date => ($item->packets_quantity * $item->product->packet_to_piece) + $item->piece_quantity
+                ]);
+            });
+        });
+    }
 }

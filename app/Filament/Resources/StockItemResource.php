@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\StockItemExporter;
 use App\Filament\Resources\StockItemResource\Pages;
+use App\Filament\Resources\StockItemResource\RelationManagers;
 use App\Models\Product;
 use App\Models\StockItem;
 use Filament\Forms\Form;
@@ -12,6 +14,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Table;
 
 class StockItemResource extends Resource
@@ -76,16 +79,6 @@ class StockItemResource extends Resource
                 Tables\Columns\TextColumn::make('packet_price')
                     ->label('سعر العبوة')
                     ->sortable(),
-                // Tables\Columns\TextColumn::make('cost_evaluation')
-                //     ->label('التكلفة المقدرة')
-                //     ->formatStateUsing(fn($state) => number_format($state, 2))
-                //     // ->summarize(Sum::make())
-                //     ,
-                // Tables\Columns\TextColumn::make('price_evaluation')
-                //     ->label('السعر المقدر')
-                //     ->formatStateUsing(fn($state) => number_format($state, 2))
-                //     // ->summarize(Sum::make())
-                //     ,
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('brand')
@@ -102,6 +95,11 @@ class StockItemResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+            ])
+            ->headerActions([
+                ExportAction::make('export')
+                    ->label('تصدير')
+                    ->exporter(StockItemExporter::class),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -151,7 +149,7 @@ class StockItemResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\StockItemsRelationManager::class,
         ];
     }
 

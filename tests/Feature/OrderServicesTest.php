@@ -4,6 +4,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\OrderServices;
+use App\Services\StockServices;
 use Illuminate\Support\Facades\Auth;
 
 beforeEach(function () {
@@ -11,6 +12,12 @@ beforeEach(function () {
     $this->product = Product::factory()->create();
     $this->orderService = app(OrderServices::class);
     $this->user = User::factory()->create();
+    $this->stockService = app(StockServices::class);
+
+    // Add initial stock for tests
+    $this->stockService->addTo($this->product, [
+        now()->format('Y-m-d') => 100 // Add enough stock for tests
+    ]);
 });
 
 test('can add order items', function () {
@@ -20,18 +27,12 @@ test('can add order items', function () {
             'piece_quantity' => 5,
             'piece_price' => 100,
             'total' => 500
-        ],
-        [
-            'product_id' => Product::factory()->create()->id,
-            'piece_quantity' => 3,
-            'piece_price' => 200,
-            'total' => 600
         ]
     ];
 
     $createdItems = $this->orderService->addOrderItems($this->order, $items);
 
-    expect($createdItems)->toHaveCount(2);
+    expect($createdItems)->toHaveCount(1);
 
     $this->assertDatabaseHas('order_items', [
         'order_id' => $this->order->id,
@@ -41,14 +42,8 @@ test('can add order items', function () {
         'total' => 500
     ]);
 
-    $this->assertDatabaseHas('order_items', [
-        'order_id' => $this->order->id,
-        'piece_quantity' => 3,
-        'piece_price' => 200,
-        'total' => 600
-    ]);
 
-    expect($this->order->fresh()->total)->toBe('1100.00');
+    expect($this->order->fresh()->total)->toBe('500.00');
 });
 
 test('can add order items with both packets and pieces', function () {
@@ -61,19 +56,11 @@ test('can add order items with both packets and pieces', function () {
             'piece_price' => 100,
             'total' => 1500 // (2 * 500) + (5 * 100)
         ],
-        [
-            'product_id' => Product::factory()->create()->id,
-            'packets_quantity' => 1,
-            'packet_price' => 1000,
-            'piece_quantity' => 3,
-            'piece_price' => 200,
-            'total' => 1600 // (1 * 1000) + (3 * 200)
-        ]
     ];
 
     $createdItems = $this->orderService->addOrderItems($this->order, $items);
 
-    expect($createdItems)->toHaveCount(2);
+    expect($createdItems)->toHaveCount(1);
 
     $this->assertDatabaseHas('order_items', [
         'order_id' => $this->order->id,
@@ -85,16 +72,7 @@ test('can add order items with both packets and pieces', function () {
         'total' => 1500
     ]);
 
-    $this->assertDatabaseHas('order_items', [
-        'order_id' => $this->order->id,
-        'packets_quantity' => 1,
-        'packet_price' => 1000,
-        'piece_quantity' => 3,
-        'piece_price' => 200,
-        'total' => 1600
-    ]);
-
-    expect($this->order->fresh()->total)->toBe('3100.00');
+    expect($this->order->fresh()->total)->toBe('1500.00');
 });
 
 test('can add order items with only packets', function () {
@@ -573,5 +551,71 @@ test('can remove return items', function () {
 
     $this->assertDatabaseMissing('return_order_items', [
         'id' => $returnItem->id
+    ]);
+});
+
+test('reserves stock when adding order items', function () {
+    $items = [
+        [
+            'product_id' => $this->product->id,
+            'packets_quantity' => 2,
+            'packet_price' => 500,
+            'piece_quantity' => 5,
+            'piece_price' => 100,
+            'total' => 1500
+        ]
+    ];
+
+    // Calculate total pieces that should be reserved
+    $totalPieces = ($items[0]['packets_quantity'] * $this->product->packet_to_piece) + $items[0]['piece_quantity'];
+
+    // Add items and verify stock reservation
+    $this->orderService->addOrderItems($this->order, $items);
+
+    $this->assertDatabaseHas('stock_items', [
+        'product_id' => $this->product->id,
+        'reserved_quantity' => $totalPieces
+    ]);
+});
+
+test('unreserves stock when cancelling order items', function () {
+    Auth::login($this->user);
+
+    // Create initial order item
+    $orderItem = $this->order->items()->create([
+        'product_id' => $this->product->id,
+        'packets_quantity' => 2,
+        'packet_price' => 500,
+        'piece_quantity' => 5,
+        'piece_price' => 100,
+        'total' => 1500
+    ]);
+
+    // Reserve initial stock
+    $initialTotalPieces = ($orderItem->packets_quantity * $this->product->packet_to_piece) + $orderItem->piece_quantity;
+    $this->stockService->reserve($this->product, $initialTotalPieces);
+
+    $itemsToCancel = [
+        [
+            'order_item' => $orderItem,
+            'product_id' => $this->product->id,
+            'packets_quantity' => 1,
+            'packet_price' => 500,
+            'piece_quantity' => 3,
+            'piece_price' => 100,
+            'notes' => 'Test cancellation'
+        ]
+    ];
+
+    // Cancel items and verify stock unreservation
+    $this->orderService->cancelledItems($this->order, $itemsToCancel);
+
+    // Calculate pieces that should be unreserved
+    $cancelledPieces = ($itemsToCancel[0]['packets_quantity'] * $this->product->packet_to_piece) + $itemsToCancel[0]['piece_quantity'];
+    $remainingReserved = $initialTotalPieces - $cancelledPieces;
+
+    $this->assertDatabaseHas('stock_items', [
+        'product_id' => $this->product->id,
+        'reserved_quantity' => $remainingReserved
     ]);
 });

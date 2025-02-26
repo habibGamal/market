@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->decimal('total', 8, 2);
             $table->string('status')->default(InvoiceStatus::DRAFT->value);
+            $table->text('notes')->nullable();
             $table->foreignId('officer_id')->constrained('users');
             $table->foreignId('receipt_note_id')->nullable()->constrained('receipt_notes')->nullOnDelete();
             $table->timestamps();

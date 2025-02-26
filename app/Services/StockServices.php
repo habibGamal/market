@@ -124,7 +124,7 @@ class StockServices
                 if ($availableQuantity >= $quantities[$stockItem->release_date]) {
                     $stockItem->increment('unavailable_quantity', $quantities[$stockItem->release_date]);
                 } else {
-                    throw new \Exception('الكمية المتاحة من المحتمل انه تم حجز الكمية للعملاء');
+                    throw new \Exception("الكمية المتاحة للمنتج {$stockItem->product->name} بتاريخ {$stockItem->release_date} هي {$availableQuantity} من المحتمل انه تم حجز الكمية للعملاء");
                 }
             });
         });
