@@ -8,6 +8,7 @@ use App\Traits\InvoiceHistory;
 use App\Observers\IssueNoteObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -85,5 +86,17 @@ class IssueNote extends Model
     public function getRawStatusAttribute()
     {
         return $this->status->value;
+    }
+
+    public function accountantReceiptNotes(): MorphMany
+    {
+        return $this->morphMany(AccountantReceiptNote::class, 'from_model');
+    }
+
+    public function scopeNeedAccountantReceiptNote($query)
+    {
+        return $query->where('note_type', IssueNoteType::RETURN_PURCHASES)
+            ->where('status', InvoiceStatus::CLOSED)
+            ->whereDoesntHave('accountantReceiptNotes');
     }
 }

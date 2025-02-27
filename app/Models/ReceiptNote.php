@@ -11,7 +11,7 @@ use App\Traits\InvoiceHistory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
-
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 #[ObservedBy([ReceiptNoteObserver::class])]
 class ReceiptNote extends Model
@@ -51,6 +51,18 @@ class ReceiptNote extends Model
     public function purchaseInvoice()
     {
         return $this->hasOne(PurchaseInvoice::class);
+    }
+
+    public function accountantIssueNotes(): MorphMany
+    {
+        return $this->morphMany(AccountantIssueNote::class, 'for_model');
+    }
+
+    public function scopeNeedAccountantIsssueNote($query)
+    {
+        return $query->where('note_type', ReceiptNoteType::PURCHASES)
+            ->where('status', InvoiceStatus::CLOSED)
+            ->whereDoesntHave('accountantIssueNotes');
     }
 
     public function printTemplate()

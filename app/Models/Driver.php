@@ -50,4 +50,8 @@ class Driver extends User
         });
     }
 
+    public function accountantReceiptNotes(): MorphMany
+    {
+        return $this->morphMany(AccountantReceiptNote::class, 'from_model');
+    }
 }
