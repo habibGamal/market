@@ -15,6 +15,20 @@ class CancelledOrderItem extends Model
 {
     use HasFactory, LogsActivity;
 
+    protected $fillable = [
+        'product_id',
+        'packets_quantity',
+        'packet_price',
+        'packet_cost',
+        'piece_quantity',
+        'piece_price',
+        'total',
+        'profit',
+        'officer_id',
+        'order_id',
+        'notes'
+    ];
+
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);

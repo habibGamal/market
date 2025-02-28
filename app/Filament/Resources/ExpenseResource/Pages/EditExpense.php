@@ -18,7 +18,7 @@ class EditExpense extends EditRecord
                 ->icon('heroicon-o-check-circle')
                 ->requiresConfirmation()
                 ->visible(fn ($record) => !$record->approved && auth()->user()->can('approve_expense'))
-                ->action(fn () => $this->record->update(['approved_by' => auth()->id()])),
+                ->action(fn () => $this->record->approve()),
             Actions\DeleteAction::make(),
         ];
     }

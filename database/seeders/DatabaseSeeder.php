@@ -16,14 +16,19 @@ class DatabaseSeeder extends Seeder
             'address' => '123 Fake St.',
         ]);
 
-        Driver::factory(3)->create();
+        Driver::factory(3)->create()->each(function ($driver) {
+            $driver->account()->update([
+                'balance' => 1000 // Setting initial balance of 1000
+            ]);
+        });
 
         $this->call([
             UserSeeder::class,
             ProductSeeder::class,
             ShieldSeeder::class,
-            PendingOrderSeeder::class,
+            // PendingOrderSeeder::class,
             SupplierSeeder::class,
+            ProductReportSeeder::class,
         ]);
     }
 }

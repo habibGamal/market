@@ -62,6 +62,7 @@ class DriverServices
                     'product_id' => $orderItem->product_id,
                     'packets_quantity' => $packetsToReturn,
                     'packet_price' => $orderItem->packet_price,
+                    'packet_cost' => $orderItem->packet_cost,
                     'piece_quantity' => $piecesToReturn,
                     'piece_price' => $orderItem->piece_price,
                     'return_reason' => 'لم يتم استلام الكمية كاملة',

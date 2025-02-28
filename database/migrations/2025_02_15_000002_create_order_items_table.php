@@ -13,10 +13,12 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained();
             $table->integer('packets_quantity')->default(0);
             $table->decimal('packet_price', 10, 2)->default(0);
+            $table->decimal('packet_cost', 10, 2)->default(0);
             $table->integer('piece_quantity')->default(0);
             $table->decimal('piece_price', 10, 2)->default(0);
             $table->foreignId('order_id')->constrained();
             $table->decimal('total', 10, 2)->default(0);
+            $table->decimal('profit', 10, 2)->default(0);
             $table->timestamps();
         });
     }

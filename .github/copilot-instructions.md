@@ -6,3 +6,6 @@
 - when asking you for a testing follow the project convention of other test files
 - #file:guide.md for any needed commands
 - when you implement Observer use laravel ObservedBy attribute don't register it in event service provider
+- review all migration files to understand the structure of the models
+- review all models files to understand the relations
+- review all services to understantd the operations

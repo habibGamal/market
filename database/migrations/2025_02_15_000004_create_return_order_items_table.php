@@ -14,9 +14,11 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained();
             $table->integer('packets_quantity')->default(0);
             $table->decimal('packet_price', 10, 2)->default(0);
-            $table->decimal('piece_price', 10, 2);
+            $table->decimal('packet_cost', 10, 2)->default(0);
             $table->integer('piece_quantity');
+            $table->decimal('piece_price', 10, 2);
             $table->decimal('total', 10, 2);
+            $table->decimal('profit', 10, 2)->default(0);
             $table->foreignId('driver_id')->nullable()->constrained('users');
             $table->string('return_reason');
             $table->text('notes')->nullable();

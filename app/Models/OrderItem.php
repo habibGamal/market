@@ -15,6 +15,18 @@ class OrderItem extends Model
 {
     use HasFactory, LogsActivity;
 
+    protected $fillable = [
+        'product_id',
+        'packets_quantity',
+        'packet_price',
+        'packet_cost',
+        'piece_quantity',
+        'piece_price',
+        'order_id',
+        'total',
+        'profit'
+    ];
+
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);

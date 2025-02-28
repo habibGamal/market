@@ -75,4 +75,28 @@ class Product extends Model
             ->useLogName('product')
             ->setDescriptionForEvent(fn(string $eventName) => "تم " . __("general.events.$eventName") . " المنتج");
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<OrderItem>
+     */
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<CancelledOrderItem>
+     */
+    public function cancelledOrderItems()
+    {
+        return $this->hasMany(CancelledOrderItem::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ReturnedOrderItem>
+     */
+    public function returnOrderItems()
+    {
+        return $this->hasMany(ReturnOrderItem::class);
+    }
 }

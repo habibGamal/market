@@ -11,15 +11,23 @@ class CancelledOrderItemFactory extends Factory
 {
     public function definition(): array
     {
+        $product = Product::factory()->create();
+        $packets_quantity = fake()->numberBetween(1, 10);
+        $piece_quantity = fake()->numberBetween(1, $product->packet_to_piece);
+        $packet_price = fake()->randomFloat(2, 10, 100);
+        $piece_price = $packet_price / $product->packet_to_piece;
+        $packet_cost = fake()->randomFloat(2, 5, $packet_price - 1);
+
         return [
-            'product_id' => Product::factory(),
-            'packets_quantity' => fake()->numberBetween(0, 10),
-            'packet_price' => fake()->randomFloat(2, 5, 100),
-            'piece_quantity' => fake()->numberBetween(0, 20),
-            'piece_price' => fake()->randomFloat(2, 1, 20),
+            'product_id' => $product->id,
+            'packets_quantity' => $packets_quantity,
+            'packet_price' => $packet_price,
+            'packet_cost' => $packet_cost,
+            'piece_quantity' => $piece_quantity,
+            'piece_price' => $piece_price,
             'officer_id' => User::factory(),
             'order_id' => Order::factory(),
-            'notes' => fake()->optional()->paragraph(),
+            'notes' => fake()->sentence(),
         ];
     }
 }

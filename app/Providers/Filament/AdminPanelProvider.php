@@ -77,6 +77,9 @@ class AdminPanelProvider extends PanelProvider
                     ->label('سجل')
                     ->pluralLabel('السجلات')
                     ->resource(CustomActivityLogResource::class),
-            ]);
+            ])->renderHook(
+                \Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+                fn(): string => \Illuminate\Support\Facades\Blade::render('@livewire(\App\Livewire\TopbarContent::class)'),
+            );
     }
 }

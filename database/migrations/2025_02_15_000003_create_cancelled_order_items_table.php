@@ -13,9 +13,11 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained();
             $table->integer('packets_quantity')->default(0);
             $table->decimal('packet_price', 10, 2)->default(0);
+            $table->decimal('packet_cost', 10, 2)->default(0);
             $table->integer('piece_quantity')->default(0);
             $table->decimal('piece_price', 10, 2)->default(0);
             $table->decimal('total', 10, 2)->default(0);
+            $table->decimal('profit', 10, 2)->default(0);
             $table->foreignId('officer_id')->constrained('users');
             $table->foreignId('order_id')->constrained();
             $table->text('notes')->nullable();

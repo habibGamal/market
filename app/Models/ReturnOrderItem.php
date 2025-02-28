@@ -19,6 +19,22 @@ class ReturnOrderItem extends Model
 {
     use HasFactory, LogsActivity;
 
+    protected $fillable = [
+        'order_id',
+        'product_id',
+        'packets_quantity',
+        'packet_price',
+        'packet_cost',
+        'piece_quantity',
+        'piece_price',
+        'total',
+        'profit',
+        'driver_id',
+        'return_reason',
+        'notes',
+        'status'
+    ];
+
     protected $casts = [
         'status' => ReturnOrderStatus::class,
     ];

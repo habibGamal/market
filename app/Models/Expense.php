@@ -50,4 +50,8 @@ class Expense extends Model
     {
         return !is_null($this->approved_by);
     }
+
+    public function approve(){
+        !$this->approved && $this->update(['approved_by' => auth()->id()]);
+    }
 }

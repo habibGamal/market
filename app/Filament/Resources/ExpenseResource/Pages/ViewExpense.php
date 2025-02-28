@@ -19,7 +19,7 @@ class ViewExpense extends ViewRecord
                 ->icon('heroicon-o-check-circle')
                 ->requiresConfirmation()
                 ->visible(fn () => auth()->user()->can('approve_expenses'))
-                ->action(fn () => $this->record->update(['approved_by' => auth()->id()])),
+                ->action(fn () => $this->record->approve()),
         ];
     }
 }

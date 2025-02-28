@@ -43,9 +43,10 @@ class PendingOrderSeeder extends Seeder
                 $pendingOrderItems[] = [
                     'product_id' => $product->id,
                     'packets_quantity' => fake()->numberBetween(1, 5),
-                    'packet_price' => fake()->randomFloat(2, 10, 50),
+                    'packet_price' => $product->packet_price,
+                    'packet_cost' => $product->packet_cost,
                     'piece_quantity' => fake()->numberBetween(1, 5),
-                    'piece_price' => fake()->randomFloat(2, 10, 50),
+                    'piece_price' => $product->piece_price,
                 ];
             }
 

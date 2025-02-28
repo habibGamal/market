@@ -140,7 +140,7 @@ class ExpenseResource extends Resource implements HasShieldPermissions
                     ->icon('heroicon-o-check-circle')
                     ->requiresConfirmation()
                     ->visible(fn () => auth()->user()->can('approve_expense'))
-                    ->action(fn (Expense $record) => $record->update(['approved_by' => auth()->id()])),
+                    ->action(fn (Expense $record) => $record->approve()),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
@@ -152,11 +152,7 @@ class ExpenseResource extends Resource implements HasShieldPermissions
                         ->requiresConfirmation()
                         ->visible(fn () => auth()->user()->can('approve_expense'))
                         ->action(function ($records) {
-                            $records->each(function ($record) {
-                                if (!$record->approved) {
-                                    $record->update(['approved_by' => auth()->id()]);
-                                }
-                            });
+                            $records->each->approve();
                         }),
                 ]),
             ]);
