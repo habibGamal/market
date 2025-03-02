@@ -21,6 +21,11 @@ class ExpenseType extends Model
         return $this->hasMany(Expense::class);
     }
 
+    public function dailyExpenses(): HasMany
+    {
+        return $this->hasMany(Expense::class)->whereNotNull('approved_by');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

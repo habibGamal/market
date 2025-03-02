@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use App\Services\VaultService;
+use App\Services\WorkDayService;
 
 #[ObservedBy([ExpenseObserver::class])]
 class Expense extends Model
@@ -52,6 +54,11 @@ class Expense extends Model
     }
 
     public function approve(){
-        !$this->approved && $this->update(['approved_by' => auth()->id()]);
+        if($this->approved) return;
+        \DB::transaction(function() {
+            $this->update(['approved_by' => auth()->id()]);
+            app(VaultService::class)->remove($this->value);
+            app(WorkDayService::class)->update();
+        });
     }
 }

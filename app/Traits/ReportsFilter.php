@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
@@ -46,9 +47,9 @@ trait ReportsFilter
                 ->default(now()->startOfMonth()->format('Y-m-d'))
                 ->visible(fn($get) => $get('period') === self::PERIOD_CUSTOM),
 
-            DatePicker::make('end_date')
+            DateTimePicker::make('end_date')
                 ->label('إلى تاريخ')
-                ->displayFormat('Y-m-d')
+                ->displayFormat('Y-m-d H:i:s')
                 ->default(now()->format('Y-m-d H:i:s'))
                 ->visible(fn($get) => $get('period') === self::PERIOD_CUSTOM),
         ];

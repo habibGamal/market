@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\OrderStatus;
 use App\Enums\ReturnOrderStatus;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -102,6 +103,12 @@ class OrderServices
                         'piece_quantity' => $newPieceQuantity
                     ]);
                 }
+            }
+
+            // check if all items are cancelled update order status to cancelled , unassign the driver
+            if ($order->items->count() == 0) {
+                $order->update(['status' => OrderStatus::CANCELLED]);
+                $order->driverTask()->delete();
             }
 
             $this->updateOrderTotal($order);

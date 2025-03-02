@@ -130,9 +130,7 @@ class OrderResource extends Resource
                     ])
                     ->action(function ($records, array $data, $action) {
                         $filteredRecords = $records->filter(
-                            fn($order) =>
-                            $order->status !== OrderStatus::DELIVERED &&
-                            $order->created_at->startOfDay()->lt(now()->startOfDay())
+                            fn($order) => $order->isAssinalbeToDriver
                         );
 
                         if ($filteredRecords->count() !== $records->count()) {
@@ -157,10 +155,7 @@ class OrderResource extends Resource
                     ->icon('heroicon-o-document-text')
                     ->action(function ($records, $action) {
                         $filteredRecords = $records->filter(
-                            fn($order) =>
-                            $order->driverTask &&
-                            $order->issue_note_id === null &&
-                            $order->created_at->startOfDay()->lt(now()->startOfDay())
+                            fn($order) => $order->isAbleToMakeIssueNote
                         );
 
                         if ($filteredRecords->count() !== $records->count()) {

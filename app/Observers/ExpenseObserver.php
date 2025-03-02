@@ -14,24 +14,15 @@ class ExpenseObserver
     }
 
     /**
-     * Handle the Expense "created" event.
-     */
-    public function updating(Expense $expense): void
-    {
-        if ($expense->isDirty('approved_by') && $expense->approved_by) {
-            app(VaultService::class)->remove($expense->value);
-            app(WorkDayService::class)->update();
-        }
-    }
-
-    /**
      * Handle the Expense "deleted" event.
      */
     public function deleted(Expense $expense): void
     {
         if ($expense->approved_by) {
-            app(VaultService::class)->add($expense->value);
-            app(WorkDayService::class)->update();
+            \DB::transaction(function () use ($expense) {
+                app(VaultService::class)->add($expense->value);
+                app(WorkDayService::class)->update();
+            });
         }
     }
 }

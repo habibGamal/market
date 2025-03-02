@@ -67,9 +67,15 @@ class Order extends Model
         return $this->belongsTo(IssueNote::class, 'issue_note_id');
     }
 
+    public function scopeNotCancelled($query)
+    {
+        return $query->whereNot('status', OrderStatus::CANCELLED);
+    }
+
     public function scopeAssignableToDrivers($query)
     {
         return $query->whereDoesntHave('driverTask')
+            ->notCancelled()
             ->whereNot('status', OrderStatus::DELIVERED)
             ->whereDate('created_at', '<', Carbon::today())
         ;
@@ -78,9 +84,25 @@ class Order extends Model
     public function scopeNeedsIssueNote($query)
     {
         return $query->whereNull('issue_note_id')
+            ->notCancelled()
             ->whereHas('driverTask')
             ->whereDate('created_at', '<', Carbon::today())
         ;
+    }
+
+    public function getIsAssinalbeToDriverAttribute(): bool
+    {
+        return $this->status !== OrderStatus::DELIVERED &&
+            $this->status !== OrderStatus::CANCELLED &&
+            $this->created_at->startOfDay()->lt(now()->startOfDay());
+    }
+
+    public function getIsAbleToMakeIssueNoteAttribute(): bool
+    {
+        return is_null($this->issue_note_id) &&
+            $this->status !== OrderStatus::CANCELLED &&
+            $this->driverTask !== null &&
+            $this->created_at->startOfDay()->lt(now()->startOfDay());
     }
 
     protected function netTotal(): Attribute

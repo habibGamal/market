@@ -1,3 +1,9 @@
+- this is ecommerce b2b web app that target mobile first (also desktop view) so that the website should be more likely to mobile apps
+- this project uses react , tailwind , shadcn/ui components and inertia so that communicate with laravel as a backend
+- for any modification follow the app theme : colors , fonts , identity , buttons , menus ,..etc
+- for any large component split it to smaller resusable components
+- Create a clean, modern, and responsive UI component using React , shadcn/ui and Tailwind CSS.
+
 - this project use arabic language , so any labels or texts that appear to end users should be in arabic
 - but in any console logs , any info that appear to the developer use english language
 - use guide.md to know filament style
