@@ -3,20 +3,23 @@
 namespace App\Filament\Resources\Reports;
 
 use App\Filament\Resources\Reports\ProductsReportResource\Pages;
-use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers;
 use App\Filament\Widgets\ProductsStatsOverview;
 use App\Models\Product;
+use App\Services\Reports\ProductReportService;
 use App\Traits\ReportsFilter;
-use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\IconPosition;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\DB;
 
 class ProductsReportResource extends Resource
 {
@@ -24,14 +27,17 @@ class ProductsReportResource extends Resource
 
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-chart-pie';
+
+    protected static ?string $navigationGroup = 'التقارير';
+
+    protected static ?string $modelLabel = 'تقرير المنتج';
+
+    protected static ?string $pluralModelLabel = 'تقارير المنتجات';
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                //
-            ]);
+        return $form->schema([]);
     }
 
     public static function table(Table $table): Table
@@ -42,67 +48,100 @@ class ProductsReportResource extends Resource
                     ->label('الاسم')
                     ->searchable()
                     ->sortable(),
-
                 TextColumn::make('brand.name')
                     ->label('العلامة التجارية')
                     ->searchable()
                     ->sortable(),
-
                 TextColumn::make('category.name')
                     ->label('الفئة')
                     ->searchable()
                     ->sortable(),
-
                 TextColumn::make('order_items_sum_piece_quantity')
                     ->label('كمية المبيعات')
+                    ->color('success')
+                    ->icon('heroicon-s-arrow-trending-up')
+                    ->iconPosition(IconPosition::After)
                     ->sortable(),
-
+                TextColumn::make('return_order_items_sum_piece_quantity')
+                    ->label('كمية المرتجعات')
+                    ->color('danger')
+                    ->icon('heroicon-s-arrow-trending-down')
+                    ->iconPosition(IconPosition::After)
+                    ->sortable(),
                 TextColumn::make('order_items_sum_total')
                     ->label('قيمة المبيعات')
                     ->money('EGP')
                     ->sortable(),
-
                 TextColumn::make('order_items_sum_profit')
                     ->label('ارباح المنتج')
                     ->money('EGP')
                     ->sortable(),
-
             ])
             ->filters([
-                Filter::make('report_filter')->form(static::filtersForm())
-                    ->baseQuery(function (Builder $query, array $data): Builder {
-                        $subQuery = DB::table('order_items')
-                            ->select(
-                                'order_items.product_id',
-                                DB::raw('SUM(order_items.piece_quantity) as order_items_sum_piece_quantity'),
-                                DB::raw('SUM(order_items.packets_quantity) as order_items_sum_packets_quantity'),
-                                DB::raw('SUM(order_items.total) as order_items_sum_total'),
-                                DB::raw('SUM(order_items.profit) as order_items_sum_profit')
+                SelectFilter::make('brand')
+                    ->label('العلامة التجارية')
+                    ->relationship('brand', 'name')
+                    ->searchable()
+                    ->preload(),
 
-                            )
-                            ->join('orders', 'orders.id', '=', 'order_items.order_id')
-                            ->whereBetween('orders.created_at', [$data['start_date'], $data['end_date']])
-                            ->groupBy('order_items.product_id');
-                        $query->addSelect([
-                            'products.*',
-                            DB::raw('agg.order_items_sum_piece_quantity * products.packet_to_piece + agg.order_items_sum_piece_quantity as order_items_sum_piece_quantity'),
-                            'order_items_sum_total' => 'agg.order_items_sum_total',
-                            'order_items_sum_profit' => 'agg.order_items_sum_profit',
-                        ])
-                            ->leftJoinSub($subQuery, 'agg', function ($join) {
-                                $join->on('products.id', '=', 'agg.product_id');
-                            });
-                        return $query;
+                SelectFilter::make('category')
+                    ->label('الفئة')
+                    ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload(),
+
+                Filter::make('report_filter')
+                    ->form(static::filtersForm())
+                    ->baseQuery(function (Builder $query, array $data): Builder {
+                        // if ($data['start_date'] == null)
+                        // dd($data);
+                        return app(ProductReportService::class)->getFilteredQuery($query, $data);
                     })
             ])
             ->filtersFormColumns(3);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('بيانات المنتج')
+                    ->columns(6)
+                    ->schema([
+                        ImageEntry::make('image')
+                            ->label('صورة المنتج')
+                            ->columnSpanFull(),
+                        TextEntry::make('id')
+                            ->label('رقم المنتج'),
+                        TextEntry::make('barcode')
+                            ->label('الباركود'),
+                        TextEntry::make('name')
+                            ->label('اسم المنتج'),
+                        TextEntry::make('packet_cost')
+                            ->label('تكلفة العبوة'),
+                        TextEntry::make('packet_price')
+                            ->label('سعر العبوة'),
+                        TextEntry::make('piece_price')
+                            ->label('سعر القطعة'),
+                        TextEntry::make('expiration')
+                            ->label('مدة الصلاحية'),
+                        TextEntry::make('before_discount.packet_price')
+                            ->label('سعر العبوة قبل الخصم'),
+                        TextEntry::make('before_discount.piece_price')
+                            ->label('سعر القطعة قبل الخصم'),
+                        TextEntry::make('packet_to_piece')
+                            ->label('عدد القطع في العبوة'),
+                        TextEntry::make('brand.name')
+                            ->label('العلامة التجارية'),
+                        TextEntry::make('category.name')
+                            ->label('الفئة'),
+                    ])
+            ]);
+    }
+
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getWidgets(): array

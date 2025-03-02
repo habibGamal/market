@@ -1,24 +1,19 @@
 <?php
 
-namespace App\Filament\Resources\Reports\ProductsReportResource\Pages;
+namespace App\Filament\Resources\Reports\CategoriesReportResource\Pages;
 
-use App\Filament\Resources\Reports\ProductsReportResource;
-use App\Filament\Widgets\ProductSalesChart;
-use App\Filament\Widgets\ProductReturnsChart;
+use App\Filament\Resources\Reports\CategoriesReportResource;
+use App\Filament\Widgets\CategorySalesChart;
+use App\Filament\Widgets\CategoryReturnsChart;
 use App\Traits\ReportsFilter;
 use Filament\Actions;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Form;
 use Filament\Resources\Pages\ViewRecord;
-use Livewire\Attributes\On;
 
-class ViewProductsReport extends ViewRecord
+class ViewCategoriesReport extends ViewRecord
 {
     use ReportsFilter;
-    protected static string $resource = ProductsReportResource::class;
 
+    protected static string $resource = CategoriesReportResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -40,10 +35,10 @@ class ViewProductsReport extends ViewRecord
     protected function getHeaderWidgets(): array
     {
         return [
-            ProductSalesChart::make([
+            CategorySalesChart::make([
                 'record' => $this->record,
             ]),
-            ProductReturnsChart::make([
+            CategoryReturnsChart::make([
                 'record' => $this->record,
             ]),
         ];
