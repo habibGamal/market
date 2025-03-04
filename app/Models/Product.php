@@ -17,6 +17,14 @@ class Product extends Model
         'before_discount' => 'array',
     ];
 
+    protected $appends = [
+        'packets_quantity',
+        'expiration',
+        'is_new',
+        'is_deal',
+        'prices'
+    ];
+
     public function getPacketsQuantityAttribute()
     {
         if ($this->stock_items_sum_piece_quantity === null) return null;
@@ -37,6 +45,30 @@ class Product extends Model
         $parts = explode(' ', $value);
         $this->attributes['expiration_duration'] = $parts[0];
         $this->attributes['expiration_unit'] = $parts[1];
+    }
+
+    public function getIsNewAttribute(): bool
+    {
+        return $this->created_at->diffInDays() < 7;
+    }
+
+    public function getIsDealAttribute(): bool
+    {
+        return $this->packet_price < $this->packet_cost * 1.2;
+    }
+
+    public function getPricesAttribute(): array
+    {
+        return [
+            'packet' => [
+                'original' => $this->before_discount['packet_price'] ?? null,
+                'discounted' => $this->packet_price,
+            ],
+            'piece' => [
+                'original' => $this->before_discount['piece_price'] ?? null,
+                'discounted' => $this->piece_price,
+            ],
+        ];
     }
 
     /**

@@ -26,9 +26,9 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ProductSeeder::class,
             ShieldSeeder::class,
-            // PendingOrderSeeder::class,
+            PendingOrderSeeder::class,
             SupplierSeeder::class,
-            ProductReportSeeder::class,
+            // ProductReportSeeder::class,
         ]);
     }
 }

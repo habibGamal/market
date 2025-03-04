@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -18,6 +19,11 @@ class Category extends Model
     public function products()
     {
         return $this->hasMany(related: Product::class);
+    }
+
+    public function businessTypes(): BelongsToMany
+    {
+        return $this->belongsToMany(BusinessType::class);
     }
 
     public function getActivitylogOptions(): LogOptions
