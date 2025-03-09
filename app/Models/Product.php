@@ -31,9 +31,18 @@ class Product extends Model
         return $this->stock_items_sum_piece_quantity / $this->packet_to_piece;
     }
 
+    public function getAvailablePiecesQuantityAttribute()
+    {
+        $this->loadMissing('stockItems');
+        return $this->stockItems->sum('piece_quantity') - $this->stockItems->sum('unavailable_quantity') - $this->stockItems->sum('reserved_quantity');
+    }
+
     public function getExpirationAttribute()
     {
         // Assuming 'expiration_duration' and 'expiration_unit' are columns in your products table
+        if (!isset($this->attributes['expiration_duration']) || !isset($this->attributes['expiration_unit'])) {
+            return null;
+        }
         $expirationDuration = $this->attributes['expiration_duration'];
         $expirationUnit = $this->attributes['expiration_unit'];
 
@@ -54,7 +63,7 @@ class Product extends Model
 
     public function getIsDealAttribute(): bool
     {
-        return $this->packet_price < $this->packet_cost * 1.2;
+        return $this->packet_price < $this->before_discount['packet_price'];
     }
 
     public function getPricesAttribute(): array

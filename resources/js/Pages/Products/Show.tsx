@@ -4,8 +4,8 @@ import { Badge } from "@/Components/ui/badge";
 import { FallbackImage } from "@/Components/ui/fallback-image";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/Components/ui/dialog";
 import { Input } from "@/Components/ui/input";
-import { ProductsSection } from "@/Components/Products/ProductsSection";
-import { ShoppingBag } from "lucide-react";
+import { ProductsHorizontalSection } from "@/Components/Products/ProductsSection";
+import { useCart } from "@/hooks/useCart";
 import type { Product } from "@/types";
 
 interface ShowProps {
@@ -24,13 +24,10 @@ interface ShowProps {
 }
 
 export default function Show({ product }: ShowProps) {
-    const [packets, setPackets] = useState(0);
-    const [pieces, setPieces] = useState(0);
-
-    const handleAddToCart = (id: number, packets: number, pieces: number) => {
-        // Implement your cart logic here
-        console.log("Adding to cart:", { id, packets, pieces });
-    };
+    const [open, setOpen] = useState(false);
+    const { packets, setPackets, pieces, setPieces, loading, addToCart } = useCart({
+        onSuccess: () => setOpen(false),
+    });
 
     return (
         <div className="space-y-12">
@@ -39,12 +36,12 @@ export default function Show({ product }: ShowProps) {
                     {/* Product Image */}
                     <div className="relative">
                         {/* Badge */}
-                        {(product.isNew || product.isDeal) && (
+                        {(product.is_new || product.is_deal) && (
                             <Badge
                                 className="absolute top-2 right-2 z-10"
-                                variant={product.isDeal ? "destructive" : "default"}
+                                variant={product.is_deal ? "destructive" : "default"}
                             >
-                                {product.isDeal ? "عرض خاص" : "جديد"}
+                                {product.is_deal ? "عرض خاص" : "جديد"}
                             </Badge>
                         )}
                         <FallbackImage
@@ -106,7 +103,7 @@ export default function Show({ product }: ShowProps) {
                         </div>
 
                         {/* Add to Cart Dialog */}
-                        <Dialog>
+                        <Dialog open={open} onOpenChange={setOpen}>
                             <DialogTrigger asChild>
                                 <Button size="lg" className="w-full">
                                     أضف للسلة
@@ -128,6 +125,7 @@ export default function Show({ product }: ShowProps) {
                                             onChange={(e) =>
                                                 setPackets(parseInt(e.target.value) || 0)
                                             }
+                                            disabled={loading}
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -141,18 +139,15 @@ export default function Show({ product }: ShowProps) {
                                             onChange={(e) =>
                                                 setPieces(parseInt(e.target.value) || 0)
                                             }
+                                            disabled={loading}
                                         />
                                     </div>
                                     <Button
                                         className="w-full"
-                                        onClick={() => {
-                                            handleAddToCart(product.id, packets, pieces);
-                                            setPackets(0);
-                                            setPieces(0);
-                                        }}
-                                        disabled={packets === 0 && pieces === 0}
+                                        onClick={() => addToCart(product.id)}
+                                        disabled={loading || (packets === 0 && pieces === 0)}
                                     >
-                                        إضافة
+                                        {loading ? "جاري الإضافة..." : "إضافة"}
                                     </Button>
                                 </div>
                             </DialogContent>
@@ -162,15 +157,15 @@ export default function Show({ product }: ShowProps) {
             </div>
 
             {/* Related Products Section */}
-            <div className="container mx-auto px-4">
-                <ProductsSection
+            {/* <div className="container mx-auto px-4">
+                <ProductsHorizontalSection
                     title="منتجات مشابهة"
                     limit={20}
                     selectedCategories={[product.category.id]}
                     selectedBrands={[product.brand.id]}
                     showFilters={false}
                 />
-            </div>
+            </div> */}
         </div>
     );
 }

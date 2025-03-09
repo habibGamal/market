@@ -1,26 +1,45 @@
-import { Head } from "@inertiajs/react";
-import { ProductsSection } from "@/Components/Products/ProductsSection";
+import { Head, usePage } from "@inertiajs/react";
+import { ProductsHorizontalSection } from "@/Components/Products/ProductsSection";
+import { PageTitle } from "@/Components/ui/page-title";
+import { PaginationLoadMore } from "@/Components/Products/PaginationLoadMore";
+import { Skeleton } from "@/Components/ui/skeleton";
+import { Pagination, Section } from "@/types";
+import { EmptyState } from "@/Components/EmptyState";
 
-export default function HotDeals() {
+interface HotDealsProps {
+    sections: Pagination<Section>["data"];
+    pagination: Pagination<Section>["pagination"];
+}
+
+export default function HotDeals({ sections, pagination }: HotDealsProps) {
+    const page = usePage();
+    console.log(page);
     return (
         <>
             <Head title="العروض المميزة" />
 
-            <div className="container mx-auto px-4 py-8">
-                <h1 className="flex items-center gap-2 text-2xl font-bold mb-8 text-primary">
-                    <span>🔥</span>
-                    <span>العروض المميزة</span>
-                </h1>
+            <PageTitle>
+                <span>🔥</span>
+                <span>العروض المميزة</span>
+            </PageTitle>
 
-                <ProductsSection
-                    title=""
-                    sortBy="packet_price"
-                    sortDirection="asc"
-                    showFilters={true}
-                    onlyDeals={true}
-                    limit={null}
-                />
-            </div>
+            {sections.map((section) => (
+                <ProductsHorizontalSection key={section.id} section={section} />
+            ))}
+            <PaginationLoadMore
+                dataKey={"sections"}
+                paginationKey={"pagination"}
+                sectionKey={"page"}
+                currentPage={pagination.current_page}
+                nextPageUrl={pagination.next_page_url}
+                total={pagination.total}
+                LoadingSkeleton={() => (
+                    <div className="w-full h-[200px] space-x-4">
+                        <Skeleton className="w-full h-[60%] rounded-lg" />
+                        <Skeleton className="w-full h-[30%] rounded-lg" />
+                    </div>
+                )}
+            />
         </>
     );
 }

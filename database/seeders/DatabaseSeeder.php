@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\BusinessType;
 use App\Models\Customer;
 use App\Models\Driver;
+use App\Models\Section;
 use App\Models\Warehouse;
 use Illuminate\Database\Seeder;
 
@@ -21,6 +23,14 @@ class DatabaseSeeder extends Seeder
                 'balance' => 1000 // Setting initial balance of 1000
             ]);
         });
+
+        BusinessType::factory()->create([
+            'name' => 'سوبرماركت',
+        ]);
+
+        BusinessType::factory()->create([
+            'name' => 'صيدلية',
+        ]);
 
         $this->call([
             UserSeeder::class,

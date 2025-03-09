@@ -1,4 +1,5 @@
-import { Product } from "@/types";
+import type { Product } from "@/types";
+import { cn } from "@/lib/utils";
 import { ProductCard } from "./ProductCard";
 
 interface ProductsGridProps {
@@ -7,12 +8,15 @@ interface ProductsGridProps {
 
 export function ProductsGrid({ products }: ProductsGridProps) {
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className={cn(
+            "grid grid-cols-1 gap-4",
+            "sm:grid-cols-2",
+            "md:grid-cols-3",
+            "lg:grid-cols-4",
+            "xl:grid-cols-5"
+        )}>
             {products.map((product) => (
-                <ProductCard
-                    key={product.id}
-                    product={product}
-                />
+                <ProductCard key={product.id} product={product} />
             ))}
         </div>
     );

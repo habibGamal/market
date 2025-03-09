@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, router } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
 import {
     Dialog,
@@ -11,6 +11,7 @@ import {
 import { Input } from "@/Components/ui/input";
 import { Badge } from "@/Components/ui/badge";
 import { FallbackImage } from "@/Components/ui/fallback-image";
+import { useCart } from "@/hooks/useCart";
 import { Product } from "@/types";
 
 interface ProductCardProps {
@@ -18,27 +19,24 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-    const [packets, setPackets] = useState(0);
-    const [pieces, setPieces] = useState(0);
-
-    const handleAddToCart = () => {
-        setPackets(0);
-        setPieces(0);
-    };
-
+    const [open, setOpen] = useState(false);
+    const { packets, setPackets, pieces, setPieces, loading, addToCart } = useCart({
+        onSuccess: () => setOpen(false),
+    });
+    console.log(product);
     return (
-        <div className="relative group">
+        <div className="relative group max-w-[250px]">
             {/* Badge */}
-            {(product.isNew || product.isDeal) && (
+            {(product.is_new || product.is_deal) && (
                 <Badge
                     className="absolute top-2 right-2 z-10"
-                    variant={product.isDeal ? "destructive" : "default"}
+                    variant={product.is_deal ? "destructive" : "default"}
                 >
-                    {product.isDeal ? "عرض خاص" : "جديد"}
+                    {product.is_deal ? "عرض خاص" : "جديد"}
                 </Badge>
             )}
             {/* Product Image */}
-            <Link href={route('products.show', product.id)} preserveState preserveScroll  className="block">
+            <Link href={route('products.show', product.id)} preserveState preserveScroll className="block">
                 <div className="relative aspect-square overflow-hidden rounded-lg mb-3">
                     <FallbackImage
                         src={product.image}
@@ -82,7 +80,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     </div>
                 )}
                 {/* Add to Cart Dialog */}
-                <Dialog>
+                <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
                         <Button className="w-full mt-2">أضف للسلة</Button>
                     </DialogTrigger>
@@ -102,6 +100,7 @@ export function ProductCard({ product }: ProductCardProps) {
                                     onChange={(e) =>
                                         setPackets(parseInt(e.target.value) || 0)
                                     }
+                                    disabled={loading}
                                 />
                             </div>
                             <div className="space-y-2">
@@ -115,14 +114,15 @@ export function ProductCard({ product }: ProductCardProps) {
                                     onChange={(e) =>
                                         setPieces(parseInt(e.target.value) || 0)
                                     }
+                                    disabled={loading}
                                 />
                             </div>
                             <Button
                                 className="w-full"
-                                onClick={handleAddToCart}
-                                disabled={packets === 0 && pieces === 0}
+                                onClick={() => addToCart(product.id)}
+                                disabled={loading || (packets === 0 && pieces === 0)}
                             >
-                                إضافة
+                                {loading ? "جاري الإضافة..." : "إضافة"}
                             </Button>
                         </div>
                     </DialogContent>

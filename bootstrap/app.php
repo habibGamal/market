@@ -19,7 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
             // \App\Http\Middleware\DriverPanelMiddleware::class,
         ]);
 
-        //
+        $middleware->alias([
+            'customer.verified' => \App\Http\Middleware\CustomerVerified::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

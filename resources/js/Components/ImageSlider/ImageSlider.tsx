@@ -1,21 +1,22 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import {
     Carousel,
     CarouselContent,
     CarouselItem,
     CarouselNext,
     CarouselPrevious,
-} from "@/Components/ui/carousel"
-import { cn } from '@/lib/utils'
-import Autoplay from "embla-carousel-autoplay"
+} from "@/Components/ui/carousel";
+import { cn } from "@/lib/utils";
+import Autoplay from "embla-carousel-autoplay";
+import { FallbackImage } from "../ui/fallback-image";
 
 interface ImageSliderProps {
     images: Array<{
-        src: string
-        alt: string
-        href?: string
-    }>
-    className?: string
+        src: string;
+        alt: string;
+        href?: string;
+    }>;
+    className?: string;
 }
 
 export function ImageSlider({ images, className }: ImageSliderProps) {
@@ -35,7 +36,7 @@ export function ImageSlider({ images, className }: ImageSliderProps) {
                 {images.map((image, index) => (
                     <CarouselItem key={index}>
                         <div className="relative aspect-[2/1] w-full overflow-hidden rounded-lg">
-                            <img
+                            <FallbackImage
                                 src={image.src}
                                 alt={image.alt}
                                 className="object-cover w-full h-full"
@@ -47,5 +48,5 @@ export function ImageSlider({ images, className }: ImageSliderProps) {
             <CarouselPrevious className="hidden sm:flex" />
             <CarouselNext className="hidden sm:flex" />
         </Carousel>
-    )
+    );
 }

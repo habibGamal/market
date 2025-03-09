@@ -2,80 +2,82 @@ import { useState } from "react";
 import { Button } from "@/Components/ui/button";
 import { CartItem } from "@/Components/Cart/CartItem";
 import { ShoppingBag } from "lucide-react";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
+import { useCart } from "@/hooks/useCart";
+import { useOrder } from "@/hooks/useOrder";
+import type { Product } from "@/types";
+import { PageTitle } from "@/Components/ui/page-title";
 
-// Fake data for demo purposes
-const fakeCartItems = [
-    {
-        product: {
-            id: 1,
-            name: "حليب طازج",
-            image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&h=400&q=80",
-            prices: {
-                packet: {
-                    original: "25.00",
-                    discounted: "20.00",
-                },
-                piece: {
-                    original: "5.00",
-                    discounted: "4.00",
-                },
-            },
-        },
-        packets: 2,
-        pieces: 3,
-    },
-    {
-        product: {
-            id: 2,
-            name: "خبز عربي",
-            image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&h=400&q=80",
-            prices: {
-                packet: {
-                    original: "15.00",
-                    discounted: "12.00",
-                },
-                piece: {
-                    original: "3.00",
-                    discounted: "2.50",
-                },
-            },
-        },
-        packets: 1,
-        pieces: 4,
-    },
-];
-
-export default function Cart() {
-    const [cartItems, setCartItems] = useState(fakeCartItems);
-
-    const updateQuantity = (index: number, packets: number, pieces: number) => {
-        const newItems = [...cartItems];
-        newItems[index] = {
-            ...newItems[index],
-            packets,
-            pieces,
-        };
-        setCartItems(newItems);
+interface Props {
+    cart: {
+        items: Array<{
+            id: number;
+            product: Product;
+            packets_quantity: number;
+            piece_quantity: number;
+            total: number;
+            errorMsg?: string;
+        }>;
+        total: number;
     };
+}
 
-    const removeItem = (index: number) => {
-        setCartItems(cartItems.filter((_, i) => i !== index));
-    };
+export default function Cart({ cart }: Props) {
+    const [items, setItems] = useState(cart.items);
+    const [total, setTotal] = useState(cart.total);
+    const { loading: cartLoading, updateQuantity, removeItem } = useCart();
+    const { loading: orderLoading, placeOrder } = useOrder();
 
-    const calculateTotal = () => {
-        return cartItems.reduce((total, item) => {
-            return (
-                total +
-                (item.packets *
-                    parseFloat(item.product.prices.packet.discounted) +
-                    item.pieces *
-                        parseFloat(item.product.prices.piece.discounted))
+    const isLoading = cartLoading || orderLoading;
+
+    const handleUpdateQuantity = async (
+        id: number,
+        packets: number,
+        pieces: number
+    ) => {
+        try {
+            const response = await updateQuantity(id, packets, pieces);
+            const newItems = items.map((item) =>
+                item.id === id
+                    ? {
+                          ...item,
+                          packets_quantity: packets,
+                          piece_quantity: pieces,
+                          errorMsg: undefined,
+                      }
+                    : item
             );
-        }, 0);
+            setItems(newItems);
+            setTotal(response.cart_total);
+        } catch (error: any) {
+            const errorMsg = error.response?.data?.message || "حدث خطأ ما";
+            setItems(
+                items.map((item) =>
+                    item.id === id ? { ...item, errorMsg } : item
+                )
+            );
+        }
     };
 
-    if (cartItems.length === 0) {
+    const handleRemoveItem = async (id: number) => {
+        try {
+            const response = await removeItem(id);
+            setItems(items.filter((item) => item.id !== id));
+            setTotal(response.cart_total);
+        } catch (error) {
+            // Error is handled by the hook
+        }
+    };
+
+    const handlePlaceOrder = async () => {
+        try {
+            await placeOrder();
+        } catch (error) {
+            // Error is handled by the hook
+        }
+    };
+
+    if (items.length === 0) {
         return (
             <>
                 <Head title="السلة" />
@@ -102,23 +104,28 @@ export default function Cart() {
     return (
         <>
             <Head title="السلة" />
-            <h1 className="text-2xl font-bold text-secondary-900 mb-8">
+            <PageTitle>
+                <ShoppingBag className="h-6 w-6 mr-2" />
                 السلة
-            </h1>
+            </PageTitle>
 
             <div className="grid md:grid-cols-3 gap-8">
                 {/* Cart Items */}
                 <div className="md:col-span-2 bg-white rounded-lg shadow-sm divide-y">
-                    {cartItems.map((item, index) => (
+                    {items.map((item) => (
                         <CartItem
-                            key={item.product.id}
+                            key={item.id}
+                            id={item.id}
                             product={item.product}
-                            packets={item.packets}
-                            pieces={item.pieces}
+                            packets={item.packets_quantity}
+                            pieces={item.piece_quantity}
+                            total={item.total}
+                            errorMsg={item.errorMsg}
                             onUpdateQuantity={(packets, pieces) =>
-                                updateQuantity(index, packets, pieces)
+                                handleUpdateQuantity(item.id, packets, pieces)
                             }
-                            onRemove={() => removeItem(index)}
+                            onRemove={() => handleRemoveItem(item.id)}
+                            loading={isLoading}
                         />
                     ))}
                 </div>
@@ -132,11 +139,16 @@ export default function Cart() {
                         <div className="space-y-4">
                             <div className="flex justify-between text-base font-medium text-secondary-900">
                                 <span>المجموع</span>
-                                <span>{calculateTotal().toFixed(2)} ج.م</span>
+                                <span>{Number(total).toFixed(2)} ج.م</span>
                             </div>
                         </div>
-                        <Button className="w-full mt-6" size="lg">
-                            إتمام الطلب
+                        <Button
+                            className="w-full mt-6"
+                            size="lg"
+                            onClick={handlePlaceOrder}
+                            disabled={isLoading}
+                        >
+                            {orderLoading ? "جاري إتمام الطلب..." : "إتمام الطلب"}
                         </Button>
                     </div>
 

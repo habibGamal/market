@@ -5,6 +5,7 @@ import { useClickAway } from "@/Hooks/useClickAway"
 import debounce from "lodash/debounce"
 import { router } from "@inertiajs/react"
 import axios from "axios"
+import { cn } from "@/lib/utils"
 
 interface SearchSuggestion {
     id: number
@@ -13,12 +14,19 @@ interface SearchSuggestion {
     category: string
 }
 
-export function SearchInput() {
-    const [query, setQuery] = useState("")
+interface SearchInputProps {
+    fullWidth?: boolean;
+    initialQuery?: string;
+    onSearch?: (query: string) => void;
+}
+
+export function SearchInput({ fullWidth = false, initialQuery = "", onSearch }: SearchInputProps) {
+    const [query, setQuery] = useState(initialQuery)
     const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
     const [loading, setLoading] = useState(false)
     const [showSuggestions, setShowSuggestions] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
+    const inputRef = useRef<HTMLInputElement>(null)
 
     useClickAway(containerRef, () => setShowSuggestions(false))
 
@@ -57,6 +65,19 @@ export function SearchInput() {
         }
     }, [query])
 
+    const handleSearch = (e?: React.FormEvent) => {
+        e?.preventDefault()
+
+        if (query.trim()) {
+            if (onSearch) {
+                onSearch(query)
+            } else {
+                router.get(`/search?q=${encodeURIComponent(query)}`)
+            }
+            setShowSuggestions(false)
+        }
+    }
+
     const handleSelect = (suggestion: SearchSuggestion) => {
         router.visit(`/products/${suggestion.id}`)
         setQuery("")
@@ -64,20 +85,23 @@ export function SearchInput() {
     }
 
     return (
-        <div ref={containerRef} className="relative w-full">
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary-500" />
-                <Input
-                    placeholder="ابحث عن منتجات..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onFocus={() => query && setShowSuggestions(true)}
-                    className="w-full pl-10 pr-8"
-                />
-                {loading && (
-                    <Loader2 className="absolute right-3 top-[10px] h-4 w-4  animate-spin text-secondary-500" />
-                )}
-            </div>
+        <div ref={containerRef} className="relative">
+            <form onSubmit={handleSearch}>
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary-500" />
+                    <Input
+                        ref={inputRef}
+                        placeholder="ابحث عن منتجات..."
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        onFocus={() => query && setShowSuggestions(true)}
+                        className="w-full pl-10 pr-8"
+                    />
+                    {loading && (
+                        <Loader2 className="absolute right-3 top-[10px] h-4 w-4 animate-spin text-secondary-500" />
+                    )}
+                </div>
+            </form>
 
             {/* Suggestions Dropdown */}
             {showSuggestions && suggestions.length > 0 && (

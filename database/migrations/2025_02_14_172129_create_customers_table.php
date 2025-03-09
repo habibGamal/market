@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('location');
+            $table->string('location')->nullable();
             $table->string('gov');
             $table->string('city');
-            $table->string('village');
+            $table->string('village')->nullable();
             $table->foreignId('area_id')->constrained('areas');
             $table->text('address');
             $table->string('phone')->unique();
@@ -25,10 +25,20 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('password');
             $table->integer('rating_points')->default(0);
+            $table->foreignId('business_type_id')->nullable()->constrained('business_types')->nullOnDelete();
             $table->decimal('postpaid_balance', 10, 2)->default(0);
             $table->boolean('blocked')->default(false);
+            $table->timestamp('phone_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
+        });
+
+
+
+        Schema::create('customers_password_reset_tokens', function (Blueprint $table) {
+            $table->string('phone')->primary();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
         });
     }
 
@@ -38,5 +48,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('customers');
+        Schema::dropIfExists('customers_password_reset_tokens');
     }
 };

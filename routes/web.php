@@ -1,130 +1,26 @@
 <?php
 
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\PageBuilderController;
+use App\Http\Controllers\ProductListController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Api\SearchController;
-use App\Models\Brand;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\OtpVerificationController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 use App\Models\Product;
 use App\Models\Category;
-use App\Models\BusinessType;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Models\User;
 use App\Notifications\Notify;
-use App\Models\PurchaseInvoice;
 use App\Services\PrintTemplateService;
-use App\Services\HomePageBuilderService;
 
-// API Routes
-Route::prefix('api')->group(function () {
-    Route::get('/search', SearchController::class);
-    Route::get('/products', function () {
-        $query = Product::with(['category', 'brand']);
-
-        // Filtering
-        if (request('categories')) {
-            $categories = is_array(request('categories')) ? request('categories') : explode(',', request('categories'));
-            $query->orWhereIn('category_id', $categories);
-        }
-
-        if (request('brands')) {
-            $brands = is_array(request('brands')) ? request('brands') : explode(',', request('brands'));
-            $query->orWhereIn('brand_id', $brands);
-        }
-
-        // Only show deals
-        if (request('only_deals')) {
-            $threshold = 10;
-            $query->addSelect(
-                [
-                    'products.*',
-                    DB::raw('COALESCE((CAST(JSON_EXTRACT(before_discount, "$.packet_price") AS DECIMAL(8,2)) - packet_price), 0) as discount'),
-                ]
-            )->orderBy('discount', 'desc');
-        }
-
-        // Search
-        if (request('search')) {
-            $query->where('name', 'like', '%' . request('search') . '%');
-        }
-
-        // Price range
-        if (request('min_price')) {
-            $query->where('price', '>=', request('min_price'));
-        }
-        if (request('max_price')) {
-            $query->where('price', '<=', request('max_price'));
-        }
-
-        // Sorting
-        $sortField = request('sort_by', 'created_at');
-        $sortDirection = request('sort_direction', 'desc');
-        $allowedSortFields = ['name', 'packet_price', 'created_at'];
-
-        if (in_array($sortField, $allowedSortFields)) {
-            $query->orderBy($sortField, $sortDirection);
-        }
-
-        $perPage = request('per_page', 10);
-        $limit = request('limit'); // For limited preview
-
-        if ($limit) {
-            $query->limit($limit);
-        }
-        return $query->paginate($perPage);
-    });
-});
-
-// Main Routes
-Route::get('/', function (HomePageBuilderService $homePageBuilder) {
-    // For now, we'll use the first business type. In a real app, this would be determined by the domain, subdomain, or user selection
-    $businessType = BusinessType::first();
-
-    if (!$businessType) {
-        abort(404, 'No business type configured');
-    }
-
-    $content = $homePageBuilder->getHomePageContent($businessType);
-
-    return Inertia::render('Home', [
-        'sliderImages' => $content['sliders']->map(fn($slider) => [
-            'src' => $slider->image,
-            'alt' => '',
-            'href' => $slider->link
-        ]),
-        'announcements' => $content['announcements'],
-        'sections' => $content['sections'],
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-    ]);
-});
-
-Route::get('/notify', function () {
-    $subscriptions = User::all();
-    Notification::send($subscriptions, new Notify());
-    return response()->json(['sent' => true]);
-});
-
-Route::post('/subscribe', function () {
-    $user = auth()->user();
-
-    $user->updatePushSubscription(
-        request('endpoint'),
-        request('publicKey'),
-        request('authToken'),
-        'aesgcm'
-    );
-
-    return response()->noContent();
-})->middleware('auth');
-
-Route::get('/print/{model}/{id}', function (string $model, $id, PrintTemplateService $service) {
-    $record = $model::findOrFail($id);
-    Gate::authorize('view', $record);
-    return $service->printPage($record);
-})->name('print')->middleware('auth');
-
+// Public Routes
+Route::get('/', [PageBuilderController::class, 'home']);
+Route::get('/hot-deals', [PageBuilderController::class, 'hotDeals']);
+Route::get('/product-list', [ProductListController::class, 'index']);
 Route::get('/products/{product}', function (Product $product) {
     return Inertia::render('Products/Show', [
         'product' => array_merge($product->toArray(), [
@@ -136,33 +32,87 @@ Route::get('/products/{product}', function (Product $product) {
         ])
     ]);
 })->name('products.show');
-
 Route::get('/products', function () {
     return Inertia::render('Products/Index');
 })->name('products.index');
-
-Route::get('/cart', function () {
-    return Inertia::render('Cart/Index');
-})->name('cart.index');
-
-Route::get('/notifications', function () {
-    return Inertia::render('Notifications/Index');
-})->name('notifications.index');
-
 Route::get('/categories', function () {
     return Inertia::render('Categories/Index', [
         'categories' => Category::all()
     ]);
 })->name('categories.index');
+Route::get('/search', [ProductListController::class, 'search'])->name('search');
 
-Route::get('/hot-deals', function () {
-    return Inertia::render('Products/HotDeals');
-})->name('products.hot-deals');
+// Guest Routes (Unauthenticated)
+Route::middleware('guest:customer')->group(function () {
+    Route::get('/register', [RegisterController::class, 'create'])->name('register');
+    Route::post('/register', [RegisterController::class, 'store']);
 
+    Route::get('/login', [LoginController::class, 'create'])->name('login');
+    Route::post('/login', [LoginController::class, 'store']);
+
+    // Forgot Password Routes
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])->name('password.request');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'store'])->name('password.email');
+    Route::post('/forgot-password/otp/send', [ForgotPasswordController::class, 'send'])->name('password.otp.send');
+    Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
+});
+
+// Customer Authenticated Routes
+Route::middleware(['auth:customer'])->group(function () {
+
+    // OTP Verification Routes
+    Route::get('/otp/verify', [OtpVerificationController::class, 'create'])->name('otp.verify');
+    Route::post('/otp/send', [OtpVerificationController::class, 'sendOtp'])->name('otp.send');
+    Route::post('/otp/verify', [OtpVerificationController::class, 'verify'])->name('otp.verify');
+
+    Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+
+    // Routes that require phone verification
+    Route::middleware(['customer.verified'])->group(function () {
+        Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+        Route::get('/notifications', function () {
+            return Inertia::render('Notifications/Index');
+        })->name('notifications.index');
+
+        // Order routes
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::post('/orders', [OrderController::class, 'placeOrder'])->name('orders.place');
+    });
+
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart', [CartController::class, 'addItem'])->name('cart.add');
+    Route::patch('/cart/{item}', [CartController::class, 'updateQuantity'])->name('cart.update');
+    Route::delete('/cart/{item}', [CartController::class, 'removeItem'])->name('cart.remove');
+    Route::delete('/cart', [CartController::class, 'empty'])->name('cart.empty');
+});
+
+// Admin/User Routes
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::post('/subscribe', function () {
+        $user = auth()->user();
+        $user->updatePushSubscription(
+            request('endpoint'),
+            request('publicKey'),
+            request('authToken'),
+            'aesgcm'
+        );
+        return response()->noContent();
+    });
+
+    Route::get('/print/{model}/{id}', function (string $model, $id, PrintTemplateService $service) {
+        $record = $model::findOrFail($id);
+        Gate::authorize('view', $record);
+        return $service->printPage($record);
+    })->name('print');
 });
 
-require __DIR__ . '/auth.php';
+Route::get('/notify', function () {
+    $subscriptions = User::all();
+    Notification::send($subscriptions, new Notify());
+    return response()->json(['sent' => true]);
+});

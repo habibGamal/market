@@ -6,6 +6,7 @@ use App\Filament\Resources\MenuResource\Pages;
 use App\Filament\Resources\SectionResource\Pages\EditSection;
 use App\Models\BusinessType;
 use Filament\Forms;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -81,6 +82,17 @@ class MenuResource extends Resource
                                 Forms\Components\Hidden::make('location')
                                     ->default(SectionLocation::HOME->value)
                             ])
+                            ->extraItemActions([
+                                Forms\Components\Actions\Action::make('manage_section')
+                                    ->label('إدارة القسم')
+                                    ->url(fn(array $arguments, Repeater $component) => SectionResource::getUrl('edit', ['record' => $component->getRawItemState($arguments['item'])['id']]))
+                                    ->icon('heroicon-o-pencil-square')
+                                    ->visible(
+                                        fn(array $arguments, Repeater $component) =>
+                                        array_key_exists('id', $component->getRawItemState($arguments['item']))
+                                        && $component->getRawItemState($arguments['item'])['section_type'] === SectionType::REAL->value
+                                    ),
+                            ])
                             ->deleteAction(
                                 fn($action) => $action
                                     ->hidden(function (array $arguments, $component) {
@@ -130,9 +142,13 @@ class MenuResource extends Resource
                             ->extraItemActions([
                                 Forms\Components\Actions\Action::make('manage_section')
                                     ->label('إدارة القسم')
-                                    ->url(fn($record) => SectionResource::getUrl('edit', ['record' => $record]))
+                                    ->url(fn(array $arguments, Repeater $component) => SectionResource::getUrl('edit', ['record' => $component->getRawItemState($arguments['item'])['id']]))
                                     ->icon('heroicon-o-pencil-square')
-                                    ->visible(fn($record) => $record->exists),
+                                    ->visible(
+                                        fn(array $arguments, Repeater $component) =>
+                                        array_key_exists('id', $component->getRawItemState($arguments['item']))
+                                        && $component->getRawItemState($arguments['item'])['section_type'] === SectionType::REAL->value
+                                    ),
                             ])
                             ->defaultItems(0)
                             ->columns(2)
@@ -146,7 +162,6 @@ class MenuResource extends Resource
                             ->relationship('announcements')
                             ->defaultItems(0)
                             ->addActionLabel('إضافة إعلان جديد')
-                            ->itemLabel(fn(array $state): ?string => $state['text'] ?? null)
                             ->schema([
                                 Forms\Components\RichEditor::make('text')
                                     ->label('نص الإعلان')

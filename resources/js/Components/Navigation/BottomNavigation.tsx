@@ -43,7 +43,6 @@ export function BottomNavigation() {
         <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t">
             <div className="grid grid-cols-5 gap-1">
                 {navItems.map((item) => {
-                    console.log(url)
                     const isActive = item.href == url;
                     return (
                         <Link

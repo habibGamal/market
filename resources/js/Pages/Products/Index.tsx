@@ -1,5 +1,5 @@
 import { Head, router } from "@inertiajs/react";
-import { ProductsSection } from "@/Components/Products/ProductsSection";
+import { ProductsHorizontalSection } from "@/Components/Products/ProductsSection";
 import { useEffect, useState } from "react";
 
 export default function Index() {
@@ -40,7 +40,7 @@ export default function Index() {
         <>
             <Head title="المنتجات" />
 
-            <ProductsSection
+            <ProductsHorizontalSection
                 title="كل المنتجات"
                 limit={null}
                 selectedCategories={categories}

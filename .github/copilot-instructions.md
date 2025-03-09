@@ -17,3 +17,4 @@
 - review all migration files to understand the structure of the models
 - review all models files to understand the relations
 - review all services to understantd the operations
+- according to laravel 11 middlewares registerd at #bootstrap/app.php not in kernel.php

@@ -38,7 +38,7 @@ export function CategoryCarousel({ categories }: CategoryCarouselProps) {
                                 key={category.id}
                                 className="pl-2 md:pl-4 basis-1/3 md:basis-1/4 lg:basis-1/5"
                             >
-                                <Link href={`/categories/${category.id}`}>
+                                <Link href={`/product-list?id=${category.id}&model=category`}>
                                     <div className="text-center">
                                         <div className="relative aspect-square overflow-hidden rounded-lg mb-2">
                                             <FallbackImage
