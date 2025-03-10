@@ -1,9 +1,9 @@
 import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
 import { FallbackImage } from "@/Components/ui/fallback-image";
-import { Minus, Plus, Trash2, Loader2 } from "lucide-react";
+import { QuantityInput } from "@/Components/ui/quantity-input";
+import { Trash2, Loader2 } from "lucide-react";
 import { Product } from "@/types";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import debounce from "lodash/debounce";
 
 interface CartItemProps {
@@ -114,85 +114,25 @@ export function CartItem({
                         <span className="text-sm text-secondary-600 min-w-16">
                             باكيت:
                         </span>
-                        <div className="flex items-center">
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8 rounded-l-none"
-                                onClick={() =>
-                                    handlePacketsChange(packetsQuantity - 1)
-                                }
-                                disabled={loading || packets <= 0}
-                            >
-                                <Minus className="h-4 w-4" />
-                            </Button>
-                            <Input
-                                type="number"
-                                min={0}
-                                value={packetsQuantity}
-                                onChange={(e) =>
-                                    handlePacketsChange(
-                                        parseInt(e.target.value) || 0
-                                    )
-                                }
-                                className="h-8 w-16 rounded-none text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                disabled={loading}
-                            />
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8 rounded-r-none"
-                                onClick={() =>
-                                    handlePacketsChange(packetsQuantity + 1)
-                                }
-                                disabled={loading}
-                            >
-                                <Plus className="h-4 w-4" />
-                            </Button>
-                        </div>
+                        <QuantityInput
+                            value={packetsQuantity}
+                            onChange={handlePacketsChange}
+                            min={0}
+                            disabled={loading}
+                        />
                     </div>
 
                     <div className="flex items-center gap-2">
                         <span className="text-sm text-secondary-600 min-w-16">
                             قطع:
                         </span>
-                        <div className="flex items-center">
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8 rounded-l-none"
-                                onClick={() =>
-                                    handlePiecesChange(piecesQuantity - 1)
-                                }
-                                disabled={loading || pieces <= 0}
-                            >
-                                <Minus className="h-4 w-4" />
-                            </Button>
-                            <Input
-                                type="number"
-                                min={0}
-                                max={product.packet_to_piece}
-                                value={piecesQuantity}
-                                onChange={(e) =>
-                                    handlePiecesChange(
-                                        parseInt(e.target.value) || 0
-                                    )
-                                }
-                                className="h-8 w-16 rounded-none text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                disabled={loading}
-                            />
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8 rounded-r-none"
-                                onClick={() =>
-                                    handlePiecesChange(piecesQuantity + 1)
-                                }
-                                disabled={loading}
-                            >
-                                <Plus className="h-4 w-4" />
-                            </Button>
-                        </div>
+                        <QuantityInput
+                            value={piecesQuantity}
+                            onChange={handlePiecesChange}
+                            min={0}
+                            max={product.packet_to_piece}
+                            disabled={loading}
+                        />
                     </div>
 
                     {errorMsg && (

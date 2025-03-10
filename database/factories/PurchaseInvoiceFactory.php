@@ -22,6 +22,7 @@ class PurchaseInvoiceFactory extends Factory
             'total' => fake()->randomFloat(2, 100, 10000),
             'status' => fake()->randomElement([InvoiceStatus::DRAFT, InvoiceStatus::CLOSED]),
             'officer_id' => User::factory(),
+            'supplier_id' => User::factory()->create(['role' => 'supplier']),
         ];
     }
 }

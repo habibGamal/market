@@ -34,7 +34,25 @@ class OrderServices
                 $this->stockServices->reserve($product, $totalPieces);
             }
 
-            $createdItems = $order->items()->createMany($items);
+            $createdItems = [];
+
+            foreach ($items as $itemData) {
+                $existingItem = $order->items()
+                    ->where('product_id', $itemData['product_id'])
+                    ->first();
+
+                if ($existingItem) {
+                    // Item with this product already exists, update quantities
+                    $existingItem->update([
+                        'packets_quantity' => ($existingItem->packets_quantity ?? 0) + ($itemData['packets_quantity'] ?? 0),
+                        'piece_quantity' => ($existingItem->piece_quantity ?? 0) + ($itemData['piece_quantity'] ?? 0),
+                    ]);
+                    $createdItems[] = $existingItem->fresh();
+                } else {
+                    // Create new item
+                    $createdItems[] = $order->items()->create($itemData);
+                }
+            }
             $this->updateOrderTotal($order);
             return collect($createdItems);
         });

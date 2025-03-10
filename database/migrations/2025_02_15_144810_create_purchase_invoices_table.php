@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->foreignId('officer_id')->constrained('users');
             $table->foreignId('receipt_note_id')->nullable()->constrained('receipt_notes')->nullOnDelete();
+            $table->foreignId('supplier_id')->constrained('suppliers');
             $table->timestamps();
         });
     }

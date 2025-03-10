@@ -18,20 +18,15 @@ class RegisterController extends Controller
             'areas' => Area::select('id', 'name')->get(),
             'businessTypes' => BusinessType::select('id', 'name')->get(),
             'govs' => [
-                ['id' => '1', 'name' => 'القاهرة'],
-                ['id' => '2', 'name' => 'الجيزة'],
-                ['id' => '3', 'name' => 'الإسكندرية'],
-                ['id' => '4', 'name' => 'الدقهلية'],
+                ['id' => '1', 'name' => 'اسيوط'],
                 // Add more governorates as needed
             ],
             'cities' => [
-                ['id' => '1', 'govId' => '1', 'name' => 'مدينة نصر'],
-                ['id' => '2', 'govId' => '1', 'name' => 'المعادي'],
-                ['id' => '3', 'govId' => '2', 'name' => 'الدقي'],
-                ['id' => '4', 'govId' => '2', 'name' => '6 أكتوبر'],
+                ['id' => '1', 'govId' => '1', 'name' => 'ديروط'],
+                ['id' => '2', 'govId' => '1', 'name' => 'اسيوط المدينة'],
                 // Add more cities as needed
             ],
-            'citiesWithVillages' => ['1', '4'], // IDs of cities that require village
+            'citiesWithVillages' => ['1'], // IDs of cities that require village
         ]);
     }
 

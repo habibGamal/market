@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
 import { FallbackImage } from "@/Components/ui/fallback-image";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/Components/ui/dialog";
-import { Input } from "@/Components/ui/input";
+import { Dialog, DialogTrigger } from "@/Components/ui/dialog";
 import { ProductsHorizontalSection } from "@/Components/Products/ProductsSection";
 import { useCart } from "@/Hooks/useCart";
+import { AddToCartModal } from "@/Components/Products/AddToCartModal";
 import type { Product } from "@/types";
 
 interface ShowProps {
@@ -102,56 +102,26 @@ export default function Show({ product }: ShowProps) {
                             )}
                         </div>
 
-                        {/* Add to Cart Dialog */}
+                        {/* Add to Cart */}
                         <Dialog open={open} onOpenChange={setOpen}>
                             <DialogTrigger asChild>
                                 <Button size="lg" className="w-full">
                                     أضف للسلة
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>تحديد الكمية</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4 py-4">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium">
-                                            عدد الباكيتات
-                                        </label>
-                                        <Input
-                                            type="number"
-                                            min="0"
-                                            value={packets}
-                                            onChange={(e) =>
-                                                setPackets(parseInt(e.target.value) || 0)
-                                            }
-                                            disabled={loading}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium">
-                                            عدد القطع
-                                        </label>
-                                        <Input
-                                            type="number"
-                                            min="0"
-                                            value={pieces}
-                                            onChange={(e) =>
-                                                setPieces(parseInt(e.target.value) || 0)
-                                            }
-                                            disabled={loading}
-                                        />
-                                    </div>
-                                    <Button
-                                        className="w-full"
-                                        onClick={() => addToCart(product.id)}
-                                        disabled={loading || (packets === 0 && pieces === 0)}
-                                    >
-                                        {loading ? "جاري الإضافة..." : "إضافة"}
-                                    </Button>
-                                </div>
-                            </DialogContent>
                         </Dialog>
+
+                        <AddToCartModal
+                            open={open}
+                            onOpenChange={setOpen}
+                            product={product}
+                            packets={packets}
+                            setPackets={setPackets}
+                            pieces={pieces}
+                            setPieces={setPieces}
+                            loading={loading}
+                            onAddToCart={() => addToCart(product.id)}
+                        />
                     </div>
                 </div>
             </div>

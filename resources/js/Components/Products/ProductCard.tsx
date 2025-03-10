@@ -1,18 +1,12 @@
 import { useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/Components/ui/dialog";
-import { Input } from "@/Components/ui/input";
+import { Dialog, DialogTrigger } from "@/Components/ui/dialog";
 import { Badge } from "@/Components/ui/badge";
 import { FallbackImage } from "@/Components/ui/fallback-image";
 import { Product } from "@/types";
 import { useCart } from "@/Hooks/useCart";
+import { AddToCartModal } from "@/Components/Products/AddToCartModal";
 
 interface ProductCardProps {
     product: Product;
@@ -23,6 +17,7 @@ export function ProductCard({ product }: ProductCardProps) {
     const { packets, setPackets, pieces, setPieces, loading, addToCart } = useCart({
         onSuccess: () => setOpen(false),
     });
+
     return (
         <div className="relative group flex flex-col justify-between h-full max-w-[250px]">
             {/* Badge */}
@@ -83,49 +78,18 @@ export function ProductCard({ product }: ProductCardProps) {
                     <DialogTrigger asChild>
                         <Button className="w-full mt-2">أضف للسلة</Button>
                     </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>تحديد الكمية</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4 py-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">
-                                    عدد الباكيتات
-                                </label>
-                                <Input
-                                    type="number"
-                                    min="0"
-                                    value={packets}
-                                    onChange={(e) =>
-                                        setPackets(parseInt(e.target.value) || 0)
-                                    }
-                                    disabled={loading}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">
-                                    عدد القطع
-                                </label>
-                                <Input
-                                    type="number"
-                                    min="0"
-                                    value={pieces}
-                                    onChange={(e) =>
-                                        setPieces(parseInt(e.target.value) || 0)
-                                    }
-                                    disabled={loading}
-                                />
-                            </div>
-                            <Button
-                                className="w-full"
-                                onClick={() => addToCart(product.id)}
-                                disabled={loading || (packets === 0 && pieces === 0)}
-                            >
-                                {loading ? "جاري الإضافة..." : "إضافة"}
-                            </Button>
-                        </div>
-                    </DialogContent>
                 </Dialog>
+                <AddToCartModal
+                    open={open}
+                    onOpenChange={setOpen}
+                    product={product}
+                    packets={packets}
+                    setPackets={setPackets}
+                    pieces={pieces}
+                    setPieces={setPieces}
+                    loading={loading}
+                    onAddToCart={() => addToCart(product.id)}
+                />
             </div>
         </div>
     );

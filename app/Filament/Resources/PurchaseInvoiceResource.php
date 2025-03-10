@@ -8,9 +8,11 @@ use App\Filament\Resources\PurchaseInvoiceResource\Pages;
 use App\Filament\Resources\PurchaseInvoiceResource\RelationManagers\ItemsRelationManager;
 use App\Models\Product;
 use App\Models\PurchaseInvoice;
+use App\Models\Supplier;
 use Filament\Forms;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Infolists\Infolist;
 use Filament\Tables;
@@ -83,6 +85,14 @@ class PurchaseInvoiceResource extends InvoiceResource
             ])
             ->schema([
                 ...self::invoiceHeader(),
+                Section::make('بيانات المورد')
+                    ->schema([
+                        Select::make('supplier_id')
+                            ->label('المورد')
+                            ->options(Supplier::all()->pluck('name', 'id'))
+                            ->searchable()
+                            ->required()
+                    ]),
                 Section::make('المنتجات')
                     ->columns(6)
                     ->schema([
@@ -174,6 +184,10 @@ class PurchaseInvoiceResource extends InvoiceResource
                     ->label('المسؤول')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('supplier.name')
+                    ->label('المورد')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
                     ->dateTime()
@@ -213,6 +227,8 @@ class PurchaseInvoiceResource extends InvoiceResource
                 ->label('الحالة'),
             TextEntry::make('officer.name')
                 ->label('المسؤول'),
+            TextEntry::make('supplier.name')
+                ->label('المورد'),
             TextEntry::make('created_at')
                 ->label('تاريخ الإنشاء')
                 ->dateTime(),

@@ -27,6 +27,11 @@ class PlaceOrderServices
         return DB::transaction(function () use ($cart) {
             // Re-evaluate cart total
             $recalculatedTotal = $this->recalculateCartTotal($cart);
+            // Cast to decimal for consistent comparison
+            $recalculatedTotal = (float) number_format($recalculatedTotal, 2, '.', '');
+            $cartTotal = (float) number_format($cart->total, 2, '.', '');
+
+            // For debugging
             if ($recalculatedTotal != $cart->total) {
                 throw new \Exception('هناك تغييرات في الأسعار أو العروض. يرجى تحديث السلة');
             }

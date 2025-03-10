@@ -43,6 +43,11 @@ class PurchaseInvoice extends Model
         return $this->belongsTo(User::class, 'officer_id');
     }
 
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
     public function items()
     {
         return $this->hasMany(PurchaseInvoiceItem::class);

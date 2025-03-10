@@ -24,13 +24,13 @@ class DatabaseSeeder extends Seeder
             ]);
         });
 
-        BusinessType::factory()->create([
-            'name' => 'سوبرماركت',
-        ]);
+        // BusinessType::factory()->create([
+        //     'name' => 'سوبرماركت',
+        // ]);
 
-        BusinessType::factory()->create([
-            'name' => 'صيدلية',
-        ]);
+        // BusinessType::factory()->create([
+        //     'name' => 'صيدلية',
+        // ]);
 
         $this->call([
             UserSeeder::class,

@@ -44,6 +44,7 @@ class CartController extends Controller
             return response()->json([
                 'message' => 'تم تحديث الكمية بنجاح',
                 'cart_total' => $updatedItem->cart->total,
+                'item' => $updatedItem->toArray(),
             ]);
         } catch (\Exception $e) {
             return response()->json([
