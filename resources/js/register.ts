@@ -26,13 +26,15 @@ export const registerSW = () => {
                         await registration.pushManager.subscribe({
                             userVisibleOnly: true,
                             applicationServerKey: urlBase64ToUint8Array(
-                                "BIoZEogXCoSdty82TqFN4MI_J2j2Mzi_JSb5Se5CBQcr2k80bP_cTF3k2DqP1f-lV4SGPrI8yBpF30hOsmXfiok"
+                                "BMPu9W4TkXuCKiAEmN5N-iTthZEPhMy67-CahchBHXolnLNKAmVZCedcRHw2jTyQ_dzoUc9VTr1WtezBNYxC2_c"
                             ),
                         });
 
                     console.log(
                         "Push notification subscription:",
-                        subscription
+                        subscription,
+                        subscription.getKey('p256dh'),
+                        subscription.getKey('auth')
                     );
 
                     try {

@@ -52,9 +52,6 @@ class PlaceOrderServices
             // Add items to order
             $this->orderServices->addOrderItems($order, $orderItems);
 
-            // Update order total
-            $order->increment('total', $cart->total);
-
             // Clean up cart
             $cart->items()->delete();
             $cart->update(['total' => 0]);

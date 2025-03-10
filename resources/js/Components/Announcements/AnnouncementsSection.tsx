@@ -26,7 +26,7 @@ export function AnnouncementsSection({
     const plugin = useRef(Autoplay({ delay: 5000, stopOnInteraction: true }));
 
     return (
-        <div className="relative bg-white shadow-sm">
+        <div className="relative bg-white shadow-sm rounded-lg">
             <Carousel
                 opts={{
                     align: "start",

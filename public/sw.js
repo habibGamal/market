@@ -16,7 +16,7 @@ self.addEventListener("install", function (event) {
     event.waitUntil(caches
         .open("v1")
         .then(function (cache) {
-        return cache.addAll(["/"]);
+        return cache.addAll([]);
     })
         .then(function () { return self.skipWaiting(); }));
 });
@@ -32,14 +32,15 @@ self.addEventListener("fetch", function (event) {
 // Push Event Handling
 self.addEventListener("push", function (event) {
     var _a;
-    console.log("Push Event Received", event.data);
+    console.log("Push Event Received", event);
     try {
-        var data = (_a = event.data) === null || _a === void 0 ? void 0 : _a.text();
-        var title = "New Notification";
+        var data = (_a = event.data) === null || _a === void 0 ? void 0 : _a.json();
+        var title = data.title;
         var options = {
-            body: data || "You have new updates!",
-            icon: "/icon.png",
-            badge: "/badge.png",
+            body: data.body,
+            badge: "/icon512_rounded.png",
+            icon: "/icon512_rounded.png",
+            lang: "ar",
         };
         event.waitUntil(self.registration.showNotification(title, options));
     }
@@ -74,4 +75,3 @@ self.addEventListener("notificationclick", function (event) {
         }
     }));
 });
-export {};

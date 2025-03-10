@@ -36,7 +36,7 @@ class BrandResource extends Resource
             ->schema([
                 TextInput::make('name')
                     ->label('الاسم')
-                    ->unique()
+                    ->unique(ignoreRecord: true)
                     ->required(),
                 FileUpload::make('image')
                     ->label('الصورة')

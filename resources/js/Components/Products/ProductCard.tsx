@@ -11,8 +11,8 @@ import {
 import { Input } from "@/Components/ui/input";
 import { Badge } from "@/Components/ui/badge";
 import { FallbackImage } from "@/Components/ui/fallback-image";
-import { useCart } from "@/hooks/useCart";
 import { Product } from "@/types";
+import { useCart } from "@/Hooks/useCart";
 
 interface ProductCardProps {
     product: Product;
@@ -23,9 +23,8 @@ export function ProductCard({ product }: ProductCardProps) {
     const { packets, setPackets, pieces, setPieces, loading, addToCart } = useCart({
         onSuccess: () => setOpen(false),
     });
-    console.log(product);
     return (
-        <div className="relative group max-w-[250px]">
+        <div className="relative group flex flex-col justify-between h-full max-w-[250px]">
             {/* Badge */}
             {(product.is_new || product.is_deal) && (
                 <Badge

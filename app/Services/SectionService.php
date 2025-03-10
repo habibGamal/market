@@ -21,11 +21,25 @@ class SectionService
     {
         if ($section->section_type === SectionType::VIRTUAL) {
             if ($section->title === VirturalSectionNames::TREND->value) {
-                return $this->getTrendingProducts($section->business_type_id);
+                $trendingProducts = $this->getTrendingProducts($section->business_type_id);
+
+                // Check if trending products exist
+                if ($this->queryIsEmpty($trendingProducts)) {
+                    return $this->getFallbackProducts($section->business_type_id);
+                }
+
+                return $trendingProducts;
             }
 
             if ($section->title === VirturalSectionNames::RECOMMENDATION->value && auth()->check()) {
-                return $this->getRecommendedProducts(auth()->id(), $section->business_type_id);
+                $recommendedProducts = $this->getRecommendedProducts(auth()->id(), $section->business_type_id);
+
+                // Check if recommended products exist
+                if ($this->queryIsEmpty($recommendedProducts)) {
+                    return $this->getFallbackProducts($section->business_type_id);
+                }
+
+                return $recommendedProducts;
             }
 
             // Return empty query for recommendation section when user is not logged in
@@ -61,6 +75,27 @@ class SectionService
         }
 
         return $productsQuery;
+    }
+
+    /**
+     * Check if query would return empty results
+     */
+    protected function queryIsEmpty(Builder $query): bool
+    {
+        return $query->limit(1)->count() === 0;
+    }
+
+    /**
+     * Get fallback products (most popular products)
+     */
+    protected function getFallbackProducts(int $businessTypeId): Builder
+    {
+        return Product::query()
+            ->select('products.*')
+            ->inRandomOrder() // Randomize fallback products
+            ->whereHas('category.businessTypes', function ($query) use ($businessTypeId) {
+                $query->where('business_type_id', $businessTypeId);
+            });
     }
 
     protected function getTrendingProducts(int $businessTypeId): Builder

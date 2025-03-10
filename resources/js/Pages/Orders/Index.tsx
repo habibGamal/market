@@ -1,5 +1,5 @@
 import React from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { PageTitle } from "@/Components/ui/page-title";
 import { ShoppingBag, ChevronLeft, FileText, Package } from "lucide-react";
 import { Badge } from "@/Components/ui/badge";
@@ -13,7 +13,6 @@ interface Props {
 }
 
 export default function OrdersIndex({ orders }: Props) {
-
     return (
         <>
             <Head title="طلباتي" />
@@ -32,7 +31,10 @@ export default function OrdersIndex({ orders }: Props) {
                         لم تقم بأي طلبات بعد
                     </p>
                     <div className="mt-6">
-                        <Button href="/products" className="min-w-[200px]">
+                        <Button
+                            onClick={() => router.get("/")}
+                            className="min-w-[200px]"
+                        >
                             تصفح المنتجات
                         </Button>
                     </div>
@@ -52,7 +54,9 @@ export default function OrdersIndex({ orders }: Props) {
                                             <span className="font-medium text-secondary-900">
                                                 طلب #{order.id}
                                             </span>
-                                            <OrderStatusBadge status={order.status} />
+                                            <OrderStatusBadge
+                                                status={order.status}
+                                            />
                                         </div>
                                         <div className="mt-1 text-sm text-secondary-500">
                                             {formatDate(order.created_at)}
@@ -63,13 +67,18 @@ export default function OrdersIndex({ orders }: Props) {
                                         <div className="flex items-center gap-2 text-secondary-700">
                                             <Package className="h-4 w-4" />
                                             <span className="text-sm">
-                                                {order.items_count} {order.items_count > 1 ? "أصناف" : "صنف"}
+                                                {order.items_count}{" "}
+                                                {order.items_count &&
+                                                order.items_count > 1
+                                                    ? "أصناف"
+                                                    : "صنف"}
                                             </span>
                                         </div>
 
                                         <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto">
                                             <span className="font-medium text-secondary-900">
-                                                {Number(order.total).toFixed(2)} ج.م
+                                                {Number(order.total).toFixed(2)}{" "}
+                                                ج.م
                                             </span>
                                             <ChevronLeft className="h-5 w-5 text-secondary-400 ms-2" />
                                         </div>

@@ -8,11 +8,6 @@ export function MainLayout({ children }: PropsWithChildren) {
     const section = useRef<HTMLDivElement>(null);
     useLayoutEffect(() => {
         router.on("start", (e) => {
-            console.log(
-                "start",
-                e.detail.visit.only.length !== 0,
-                e.detail.visit.only
-            );
             if (
                 e.detail.visit.method !== "get" ||
                 e.detail.visit.url.pathname === window.location.pathname ||
@@ -32,10 +27,6 @@ export function MainLayout({ children }: PropsWithChildren) {
             section.current?.classList.add("section-loaded");
         });
         window.addEventListener("popstate", () => {
-            console.log(
-                "popstate",
-                window.history.state.documentScrollPosition.top
-            );
             setTimeout(
                 () =>
                     window.scrollTo({

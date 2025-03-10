@@ -52,14 +52,15 @@ self.addEventListener("fetch", (event: FetchEvent) => {
 
 // Push Event Handling
 self.addEventListener("push", (event: PushEvent) => {
-    console.log("Push Event Received", event.data);
+    console.log("Push Event Received", event);
     try {
-        const data = event.data?.text();
-        const title = "New Notification";
+        const data = event.data?.json();
+        const title = data.title;
         const options = {
-            body: data || "You have new updates!",
-            icon: "/icon.png",
-            badge: "/badge.png",
+            body: data.body,
+            badge: "/icon512_rounded.png",
+            icon: "/icon512_rounded.png",
+            lang: "ar",
         };
 
         event.waitUntil(self.registration.showNotification(title, options));

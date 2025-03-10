@@ -17,7 +17,7 @@ class PendingOrderSeeder extends Seeder
         $orderServices = app(OrderServices::class);
         $stockServices = app(StockServices::class);
         $customers = Customer::factory(10)->create();
-        $products = Product::factory(5)->create();
+        $products = Product::all();
 
         // Add initial stock for products
         $products->each(

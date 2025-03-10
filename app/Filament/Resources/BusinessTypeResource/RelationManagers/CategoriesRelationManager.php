@@ -46,6 +46,7 @@ class CategoriesRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->preloadRecordSelect()
+                    ->multiple()
                     ->label('ربط فئة')
                     ->modalHeading('ربط فئة جديدة')
                     ->modalButton('ربط الفئة'),

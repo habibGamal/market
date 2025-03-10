@@ -3,8 +3,8 @@ import { Button } from "@/Components/ui/button";
 import { CartItem } from "@/Components/Cart/CartItem";
 import { ShoppingBag } from "lucide-react";
 import { Head, router } from "@inertiajs/react";
-import { useCart } from "@/hooks/useCart";
-import { useOrder } from "@/hooks/useOrder";
+import { useCart } from "@/Hooks/useCart";
+import { useOrder } from "@/Hooks/useOrder";
 import type { Product } from "@/types";
 import { PageTitle } from "@/Components/ui/page-title";
 
@@ -91,7 +91,7 @@ export default function Cart({ cart }: Props) {
                             لم تقم بإضافة أي منتجات إلى السلة بعد
                         </p>
                         <div className="mt-6">
-                            <Button href="/products" className="min-w-[200px]">
+                            <Button onClick={()=>router.get('/')} className="min-w-[200px]">
                                 تصفح المنتجات
                             </Button>
                         </div>

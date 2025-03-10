@@ -17,12 +17,6 @@ export default function Home({
     products,
     announcements,
 }: HomeProps) {
-    const handleAddToCart = (id: number, packets: number, pieces: number) => {
-        // Implement your cart logic here
-        console.log("Adding to cart:", { id, packets, pieces });
-    };
-    const page = usePage();
-    console.log(page);
     return (
         <div className="animate-section-x">
             <section className="mb-8 ltr">

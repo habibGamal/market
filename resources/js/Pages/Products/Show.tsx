@@ -5,7 +5,7 @@ import { FallbackImage } from "@/Components/ui/fallback-image";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/Components/ui/dialog";
 import { Input } from "@/Components/ui/input";
 import { ProductsHorizontalSection } from "@/Components/Products/ProductsSection";
-import { useCart } from "@/hooks/useCart";
+import { useCart } from "@/Hooks/useCart";
 import type { Product } from "@/types";
 
 interface ShowProps {

@@ -131,7 +131,6 @@ export default function Register({
             },
         });
     };
-    console.log(form.formState.errors);
 
     return (
         <div className="container max-w-lg mx-auto py-4 space-y-6">

@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OtpVerificationController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
+use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Support\Facades\Route;
@@ -79,7 +80,16 @@ Route::middleware(['auth:customer'])->group(function () {
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('/orders', [OrderController::class, 'placeOrder'])->name('orders.place');
     });
-
+    Route::post('/subscribe', function () {
+        $user = auth()->user();
+        $user->updatePushSubscription(
+            request('endpoint'),
+            request('keys')['p256dh'],
+            request('keys')['auth'],
+            'aesgcm'
+        );
+        return response()->noContent();
+    });
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart', [CartController::class, 'addItem'])->name('cart.add');
     Route::patch('/cart/{item}', [CartController::class, 'updateQuantity'])->name('cart.update');
@@ -93,16 +103,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::post('/subscribe', function () {
-        $user = auth()->user();
-        $user->updatePushSubscription(
-            request('endpoint'),
-            request('publicKey'),
-            request('authToken'),
-            'aesgcm'
-        );
-        return response()->noContent();
-    });
+
 
     Route::get('/print/{model}/{id}', function (string $model, $id, PrintTemplateService $service) {
         $record = $model::findOrFail($id);
@@ -112,7 +113,22 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/notify', function () {
-    $subscriptions = User::all();
-    Notification::send($subscriptions, new Notify());
+    $subscriptions = Customer::all();
+    // Notification::send($subscriptions, new Notify(
+    //     'New Notification',
+    //     'This is a test notification',
+    //     '/approved-icon.png',
+    //     'View',
+    //     '/notifications',
+    //     ['id' => 1]
+    // ));
+    $subscriptions->each->notify(new Notify(
+        'New Notification',
+        'This is a test notification',
+        '/approved-icon.png',
+        'View',
+        '/notifications',
+        ['id' => 1]
+    ));
     return response()->json(['sent' => true]);
 });

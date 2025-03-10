@@ -12,8 +12,6 @@ interface HotDealsProps {
 }
 
 export default function HotDeals({ sections, pagination }: HotDealsProps) {
-    const page = usePage();
-    console.log(page);
     return (
         <>
             <Head title="العروض المميزة" />
