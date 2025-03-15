@@ -63,4 +63,14 @@ class Customer extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
+
+    public function returnItems()
+    {
+        return $this->hasManyThrough(ReturnOrderItem::class, Order::class);
+    }
+
+    public function cancelledItems()
+    {
+        return $this->hasManyThrough(CancelledOrderItem::class, Order::class);
+    }
 }

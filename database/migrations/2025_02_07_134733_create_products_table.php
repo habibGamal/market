@@ -3,13 +3,10 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Enums\ExpirationUnit; // Make sure to create this enum
+use App\Enums\ExpirationUnit;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
@@ -21,9 +18,10 @@ return new class extends Migration
             $table->decimal('packet_price', 8, 2);
             $table->decimal('piece_price', 8, 2);
             $table->integer('expiration_duration');
-            $table->enum('expiration_unit', ExpirationUnit::values());
+            $table->enum('expiration_unit', ['day', 'week', 'month', 'year']);
             $table->text('before_discount');
             $table->integer('packet_to_piece');
+            $table->integer('min_packets_stock_limit')->default(0);
             $table->foreignId('brand_id')->constrained();
             $table->foreignId('category_id')->constrained();
             $table->unique(['name', 'barcode']);
@@ -31,9 +29,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('products');

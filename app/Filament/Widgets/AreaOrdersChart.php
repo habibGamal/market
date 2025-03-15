@@ -2,20 +2,21 @@
 
 namespace App\Filament\Widgets;
 
-use App\Services\Reports\OrdersByCustomersReportService;
+use App\Services\Reports\OrdersByAreasReportService;
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
 use Livewire\Attributes\On;
 
-class ReturnItemsChart extends ChartWidget
+class AreaOrdersChart extends ChartWidget
 {
-
     protected static ?string $pollingInterval = null;
-    protected static ?string $heading = 'تفاصيل مرتجعات العميل';
+    protected static ?string $heading = 'تفاصيل طلبات المنطقة';
 
     public $record;
     public $startDate;
     public $endDate;
+
+    protected static ?string $maxHeight = '300px';
 
     #[On('updateChart')]
     public function updateChart($start = null, $end = null): void
@@ -26,12 +27,16 @@ class ReturnItemsChart extends ChartWidget
 
     protected function getData(): array
     {
+        if (empty($this->record)) {
+            return [];
+        }
+
         if (empty($this->startDate)) {
             $this->startDate = now()->startOfMonth();
             $this->endDate = now();
         }
 
-        $data = app(OrdersByCustomersReportService::class)->getCustomerReturnsChartData(
+        $data = app(OrdersByAreasReportService::class)->getAreaOrdersChartData(
             $this->record,
             $this->startDate,
             $this->endDate
@@ -40,14 +45,19 @@ class ReturnItemsChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'الكمية',
+                    'label' => 'عدد الطلبات',
                     'data' => $data['quantities'],
-                    'borderColor' => '#3b82f6',
+                    'borderColor' => '#10B981',
                 ],
                 [
-                    'label' => 'القيمة',
+                    'label' => 'قيمة المبيعات',
                     'data' => $data['totals'],
-                    'borderColor' => '#ef4444',
+                    'borderColor' => '#3B82F6',
+                ],
+                [
+                    'label' => 'الأرباح',
+                    'data' => $data['profits'],
+                    'borderColor' => '#8B5CF6',
                 ],
             ],
             'labels' => $data['labels'],

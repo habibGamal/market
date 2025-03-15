@@ -2,10 +2,10 @@
 
 namespace App\Filament\Widgets;
 
-use App\Services\Reports\OrderReportService;
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
 use Livewire\Attributes\On;
+use App\Services\Reports\OrdersByCustomersReportService;
 
 class OrderItemsChart extends ChartWidget
 {
@@ -30,7 +30,7 @@ class OrderItemsChart extends ChartWidget
             $this->endDate = now();
         }
 
-        $data = app(OrderReportService::class)->getCustomerOrdersChartData(
+        $data = app(OrdersByCustomersReportService::class)->getCustomerOrdersChartData(
             $this->record,
             $this->startDate,
             $this->endDate

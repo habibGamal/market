@@ -1,5 +1,5 @@
-<div class="flex items-center px-4">
-    <div class="bg-primary-100 dark:bg-primary-800 rounded-2xl px-4 py-2 shadow-sm flex items-center gap-3">
+<div class="flex items-center px-4 text-xs">
+    <div class="bg-primary-100 dark:bg-primary-800 rounded-2xl px-4 py-2 flex items-center gap-3">
         <div class="flex items-center gap-2">
             <span class="text-primary-600 dark:text-primary-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -9,7 +9,7 @@
                 </svg>
             </span>
             <div class="flex flex-col">
-                <span class="text-sm text-primary-600 dark:text-primary-300">الرصيد</span>
+                <span class=" text-primary-600 dark:text-primary-300">الرصيد</span>
                 <span class="font-semibold text-primary-700 dark:text-primary-200" dir="rtl">
                     {{ number_format($balance, 2) }} ج.م
                 </span>

@@ -50,6 +50,10 @@ class ProductResource extends Resource
                 Forms\Components\TextInput::make('barcode')
                     ->label('الباركود')
                     ->required(),
+                Forms\Components\TextInput::make('min_packets_stock_limit')
+                    ->label('الحد الأدنى للمخزون (عبوات)')
+                    ->numeric()
+                    ->required(),
                 Forms\Components\TextInput::make('packet_to_piece')
                     ->label('عدد القطع في العبوة')
                     ->numeric()

@@ -115,6 +115,26 @@ class Order extends Model
         );
     }
 
+    protected function profit(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $totalProfit = $this->items->sum('profit');
+                return $totalProfit;
+            }
+        );
+    }
+
+    protected function netProfit(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $totalReturns = $this->returnItems->sum('profit');
+                return $this->profit - $totalReturns;
+            }
+        );
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

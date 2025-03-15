@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Services\Reports\OrderReportService;
+use App\Services\Reports\OrdersByCustomersReportService;
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
@@ -32,7 +32,7 @@ class CancelledItemsChart extends ChartWidget
             $this->endDate = now();
         }
 
-        $data = app(OrderReportService::class)->getCustomerCancelsChartData(
+        $data = app(OrdersByCustomersReportService::class)->getCustomerCancelsChartData(
             $this->record,
             $this->startDate,
             $this->endDate

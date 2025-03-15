@@ -18,5 +18,14 @@ class Area extends Model
             ->setDescriptionForEvent(fn(string $eventName) => "تم تعديل المنطقة: {$eventName}");
     }
 
+    public function customers()
+    {
+        return $this->hasMany(Customer::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasManyThrough(Order::class, Customer::class);
+    }
 
 }

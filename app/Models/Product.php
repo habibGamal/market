@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ExpirationUnit;
 use App\Observers\ProductObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,7 @@ class Product extends Model
 
     protected $casts = [
         'before_discount' => 'array',
+        'expiration_unit' => ExpirationUnit::class,
     ];
 
     protected $appends = [

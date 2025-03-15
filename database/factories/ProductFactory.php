@@ -31,7 +31,7 @@ class ProductFactory extends Factory
             'packet_price' => $this->faker->randomFloat(2, 1, 150),
             'piece_price' => $this->faker->randomFloat(2, 1, 10),
             'expiration_duration' => $this->faker->numberBetween(1, 365),
-            'expiration_unit' => $this->faker->randomElement(ExpirationUnit::values()),
+            'expiration_unit' => $this->faker->randomElement(ExpirationUnit::cases()),
             'before_discount' => [
                 'packet_price' => $this->faker->randomFloat(2, 1, 150),
                 'piece_price' => $this->faker->randomFloat(2, 1, 10),

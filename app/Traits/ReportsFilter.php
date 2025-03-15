@@ -43,8 +43,8 @@ trait ReportsFilter
 
             DatePicker::make('start_date')
                 ->label('من تاريخ')
-                ->displayFormat('Y-m-d')
-                ->default(now()->startOfMonth()->format('Y-m-d'))
+                ->displayFormat('Y-m-d H:i:s')
+                ->default(now()->startOfMonth()->format('Y-m-d H:i:s'))
                 ->visible(fn($get) => $get('period') === self::PERIOD_CUSTOM),
 
             DateTimePicker::make('end_date')
@@ -59,32 +59,32 @@ trait ReportsFilter
     {
         switch ($state) {
             case self::PERIOD_TODAY:
-                $set('start_date', now()->startOfDay()->format('Y-m-d'));
+                $set('start_date', now()->startOfDay()->format('Y-m-d H:i:s'));
                 $set('end_date', now()->format('Y-m-d H:i:s'));
                 break;
 
             case self::PERIOD_THIS_WEEK:
-                $set('start_date', now()->startOfWeek()->format('Y-m-d'));
+                $set('start_date', now()->startOfWeek()->format('Y-m-d H:i:s'));
                 $set('end_date', now()->format('Y-m-d H:i:s'));
                 break;
 
             case self::PERIOD_THIS_MONTH:
-                $set('start_date', now()->startOfMonth()->format('Y-m-d'));
+                $set('start_date', now()->startOfMonth()->format('Y-m-d H:i:s'));
                 $set('end_date', now()->format('Y-m-d H:i:s'));
                 break;
 
             case self::PERIOD_LAST_3_MONTHS:
-                $set('start_date', now()->subMonths(3)->format('Y-m-d'));
+                $set('start_date', now()->subMonths(3)->format('Y-m-d H:i:s'));
                 $set('end_date', now()->format('Y-m-d H:i:s'));
                 break;
 
             case self::PERIOD_LAST_6_MONTHS:
-                $set('start_date', now()->subMonths(6)->format('Y-m-d'));
+                $set('start_date', now()->subMonths(6)->format('Y-m-d H:i:s'));
                 $set('end_date', now()->format('Y-m-d H:i:s'));
                 break;
 
             case self::PERIOD_LAST_YEAR:
-                $set('start_date', now()->subYear()->format('Y-m-d'));
+                $set('start_date', now()->subYear()->format('Y-m-d H:i:s'));
                 $set('end_date', now()->format('Y-m-d H:i:s'));
                 break;
         }
@@ -94,27 +94,27 @@ trait ReportsFilter
     {
         return match ($state) {
             self::PERIOD_TODAY => [
-                'start_date' => now()->startOfDay()->format('Y-m-d'),
+                'start_date' => now()->startOfDay()->format('Y-m-d H:i:s'),
                 'end_date' => now()->format('Y-m-d H:i:s'),
             ],
             self::PERIOD_THIS_WEEK => [
-                'start_date' => now()->startOfWeek()->format('Y-m-d'),
+                'start_date' => now()->startOfWeek()->format('Y-m-d H:i:s'),
                 'end_date' => now()->format('Y-m-d H:i:s'),
             ],
             self::PERIOD_THIS_MONTH => [
-                'start_date' => now()->startOfMonth()->format('Y-m-d'),
+                'start_date' => now()->startOfMonth()->format('Y-m-d H:i:s'),
                 'end_date' => now()->format('Y-m-d H:i:s'),
             ],
             self::PERIOD_LAST_3_MONTHS => [
-                'start_date' => now()->subMonths(3)->format('Y-m-d'),
+                'start_date' => now()->subMonths(3)->format('Y-m-d H:i:s'),
                 'end_date' => now()->format('Y-m-d H:i:s'),
             ],
             self::PERIOD_LAST_6_MONTHS => [
-                'start_date' => now()->subMonths(6)->format('Y-m-d'),
+                'start_date' => now()->subMonths(6)->format('Y-m-d H:i:s'),
                 'end_date' => now()->format('Y-m-d H:i:s'),
             ],
             self::PERIOD_LAST_YEAR => [
-                'start_date' => now()->subYear()->format('Y-m-d'),
+                'start_date' => now()->subYear()->format('Y-m-d H:i:s'),
                 'end_date' => now()->format('Y-m-d H:i:s'),
             ],
             self::PERIOD_CUSTOM => [

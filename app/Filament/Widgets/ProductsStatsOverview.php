@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Filament\Resources\Reports\ProductsReportResource\Pages\ListProductsReports;
 use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\ReturnOrderItem;
 use Carbon\Carbon;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
@@ -21,8 +22,12 @@ class ProductsStatsOverview extends BaseWidget
 
     protected static ?string $pollingInterval = null;
 
-    protected int|string|array $columnSpan = 'full';
+    // protected int|string|array $columnSpan = 'full';
 
+    public function getColumns(): int
+    {
+        return 3;
+    }
 
     public array $filterFormData = [];
 
@@ -62,6 +67,9 @@ class ProductsStatsOverview extends BaseWidget
 
 
         $mostReturnedProduct = $this->getMostReturnedProduct($startDate, $endDate);
+
+        // Get sales products percentage
+        $productSalesPercentage = $this->getProductSalesPercentage($startDate, $endDate);
 
         return [
 
@@ -109,6 +117,14 @@ class ProductsStatsOverview extends BaseWidget
                 'heroicon-o-arrow-uturn-left',
                 'danger'
             ),
+
+            // Add the new sales percentage stat
+            Stat::make('نسبة المنتجات المباعة', $productSalesPercentage ? number_format($productSalesPercentage['sales_percentage'], 2) . '%' : 'لا توجد بيانات')
+                ->description(
+                    $productSalesPercentage ? 'عدد المنتجات المباعة: ' . $productSalesPercentage['products_with_sales'] . ' من أصل ' . $productSalesPercentage['total_products'] : ''
+                )
+                ->icon('heroicon-o-chart-bar')
+                ->color('info'),
         ];
     }
 
@@ -160,6 +176,36 @@ class ProductsStatsOverview extends BaseWidget
             ->sum('order_items.packets_quantity * products.packet_to_piece + order_items.piece_quantity')
         ;
         return $trend->map(fn(TrendValue $value) => $value->aggregate)->toArray();
+    }
+
+    /**
+     * Calculate the percentage of products with sales versus products without sales
+     *
+     * @param Carbon $startDate
+     * @param Carbon $endDate
+     * @return array|null
+     */
+    private function getProductSalesPercentage(Carbon $startDate, Carbon $endDate): ?array
+    {
+        $totalProducts = Product::count();
+
+        if ($totalProducts === 0) {
+            return null;
+        }
+
+        $productsWithSales = Product::whereHas('orderItems', function ($query) use ($startDate, $endDate) {
+            $query->join('orders', 'order_items.order_id', '=', 'orders.id')
+                ->whereBetween('orders.created_at', [$startDate, $endDate]);
+        })->count();
+
+        $salesPercentage = ($productsWithSales / $totalProducts) * 100;
+
+        return [
+            'total_products' => $totalProducts,
+            'products_with_sales' => $productsWithSales,
+            'products_without_sales' => $totalProducts - $productsWithSales,
+            'sales_percentage' => $salesPercentage,
+        ];
     }
 
     private function getMostOrderedProduct(Carbon $startDate, Carbon $endDate)

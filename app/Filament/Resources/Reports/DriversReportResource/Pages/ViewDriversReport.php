@@ -12,6 +12,7 @@ use Filament\Infolists\Components\Grid;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use App\Filament\Resources\Reports\DriversReportResource\RelationManagers;
 
 class ViewDriversReport extends ViewRecord
 {
@@ -70,4 +71,13 @@ class ViewDriversReport extends ViewRecord
             ]),
         ];
     }
+
+    public function getRelationManagers(): array
+    {
+        return [
+            RelationManagers\TasksRelationManager::class,
+            RelationManagers\ReturnedProductsRelationManager::class,
+        ];
+    }
+
 }
