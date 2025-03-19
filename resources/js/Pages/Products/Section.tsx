@@ -1,6 +1,6 @@
 import { Head, router } from "@inertiajs/react";
 import { useEffect, useState } from "react";
-import { Pagination, Product } from "@/types";
+import { Pagination, Product, FilterOption, ProductFilters } from "@/types";
 import { PaginationLoadMore } from "@/Components/Products/PaginationLoadMore";
 import { EmptyState } from "@/Components/EmptyState";
 import { ProductCard } from "@/Components/Products/ProductCard";
@@ -12,8 +12,8 @@ interface SectionProps {
     title: string;
     products: Pagination<Product>["data"];
     pagination: Pagination<Product>["pagination"];
-    categories?: Array<{ id: number; name: string }>;
-    brands?: Array<{ id: number; name: string }>;
+    categories?: FilterOption[];
+    brands?: FilterOption[];
 }
 
 export default function Section({
@@ -38,14 +38,7 @@ export default function Section({
         params.get("max_price") ? Number(params.get("max_price")) : undefined
     );
 
-    const handleFilter = (filters: {
-        categories?: number[];
-        brands?: number[];
-        sortBy?: string;
-        sortDirection?: "asc" | "desc";
-        minPrice?: number;
-        maxPrice?: number;
-    }) => {
+    const handleFilter = (filters: ProductFilters) => {
         const currentParams = new URLSearchParams(window.location.search);
 
         if (filters.categories !== undefined) {

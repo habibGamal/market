@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Laravel\Scout\Searchable;
 
 #[ObservedBy([ProductObserver::class])]
 class Product extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, Searchable;
 
     protected $casts = [
         'before_discount' => 'array',
@@ -117,6 +118,42 @@ class Product extends Model
             ->logAll()
             ->useLogName('product')
             ->setDescriptionForEvent(fn(string $eventName) => "تم " . __("general.events.$eventName") . " المنتج");
+    }
+
+    public function toSearchableArray()
+    {
+        // Load the category relationship
+        $this->load('category:id,name');
+
+        // Prepare the array to be indexed by TNTSearch
+        $array = [
+            'id' => $this->id,
+            'name' => $this->normalizeArabicText($this->name),
+            'original_name' => $this->name,
+            'barcode' => $this->barcode ?? '',
+            'category' => $this->category ? $this->category->name : '',
+            'category_id' => $this->category_id,
+        ];
+
+        return $array;
+    }
+
+    private function normalizeArabicText(string $text): string
+    {
+        if (empty($text)) return '';
+
+        $text = trim($text);
+
+        // Remove tashkeel (diacritics)
+        $text = preg_replace('/[\x{064B}-\x{065F}]/u', '', $text);
+
+        // Normalize alef variations (أ, إ, آ -> ا)
+        $text = preg_replace('/[أإآ]/u', 'ا', $text);
+
+        // Normalize teh marbuta (ة -> ه)
+        $text = preg_replace('/ة/u', 'ه', $text);
+
+        return $text;
     }
 
     /**

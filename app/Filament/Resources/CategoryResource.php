@@ -6,7 +6,9 @@ use App\Filament\Exports\CategoryExporter;
 use App\Filament\Imports\CategoryImporter;
 use App\Filament\Resources\CategoryResource\Pages;
 use App\Filament\Resources\CategoryResource\RelationManagers;
+use App\Filament\Resources\CategoryResource\Widgets\CategoryWidget;
 use App\Models\Category;
+use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
@@ -38,6 +40,13 @@ class CategoryResource extends Resource
                     ->label('الاسم')
                     ->unique(ignoreRecord: true)
                     ->required(),
+                SelectTree::make('parent_id')
+                    ->label('الفئة الرئيسية')
+                    ->relationship('parent', 'name', 'parent_id')
+                    ->disabledOptions(fn($record) => [$record?->id])
+                    ->parentNullValue(-1)
+                    ->enableBranchNode()
+                    ->searchable(),
                 FileUpload::make('image')
                     ->label('الصورة')
                     ->image()
@@ -95,6 +104,7 @@ class CategoryResource extends Resource
             //
         ];
     }
+
 
     public static function getPages(): array
     {

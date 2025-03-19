@@ -178,7 +178,7 @@ class OrderResource extends Resource
 
                         app(\App\Services\IssueNoteServices::class)
                             ->fromOrders($issueNote, $records);
-
+                        $records->fresh()->each(fn($order) => notifyCustomerWithOrderStatus($order));
                         return redirect()->to(IssueNoteResource::getUrl('edit', ['record' => $issueNote]));
                     })
                     ->deselectRecordsAfterCompletion()

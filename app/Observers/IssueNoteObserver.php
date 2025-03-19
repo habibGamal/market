@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Enums\IssueNoteType;
+use App\Enums\OrderStatus;
 use App\Models\IssueNote;
 use App\Services\IssueNoteServices;
 use App\Enums\InvoiceStatus;
@@ -18,6 +19,7 @@ class IssueNoteObserver
             // Handle different types of issue notes
             if ($issueNote->note_type === IssueNoteType::ORDERS) {
                 $services->closeOrdersIssueNote($issueNote);
+                $issueNote->orders->fresh()->each(fn($order)=>notifyCustomerWithOrderStatus($order));
             } elseif ($issueNote->note_type === IssueNoteType::RETURN_PURCHASES) {
                 $services->closeReturnPurchaseIssueNote($issueNote);
             } elseif ($issueNote->note_type === IssueNoteType::WASTE) {
@@ -26,5 +28,12 @@ class IssueNoteObserver
         }
 
         $issueNote->total = $issueNote->items->sum('total');
+    }
+
+    public function deleting(IssueNote $issueNote): void
+    {
+        if ($issueNote->note_type === IssueNoteType::ORDERS) {
+            $issueNote->orders()->update(['status' => OrderStatus::PENDING]);
+        }
     }
 }

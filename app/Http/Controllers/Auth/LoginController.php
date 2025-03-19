@@ -32,7 +32,7 @@ class LoginController extends Controller
             ]);
         }
 
-        auth()->guard('customer')->login($customer);
+        auth()->guard('customer')->login($customer, true);
 
         return redirect('/');
     }

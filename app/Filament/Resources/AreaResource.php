@@ -13,6 +13,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ImportAction;
 use Filament\Tables\Table;
@@ -35,10 +36,31 @@ class AreaResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('name')
+                Forms\Components\TextInput::make('name')
                     ->label('الاسم')
-                    ->unique(ignoreRecord: true)
-                    ->required(),
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\Select::make('city_id')
+                    ->label('المدينة')
+                    ->relationship('city', 'name')
+                    ->required()
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('name')
+                            ->label('الاسم')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\Select::make('gov_id')
+                            ->label('المحافظة')
+                            ->relationship('gov', 'name')
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+                    ]),
+                Forms\Components\Toggle::make('has_village')
+                    ->label('لديها قرى')
+                    ->default(false),
             ]);
     }
 
@@ -49,6 +71,17 @@ class AreaResource extends Resource
                 TextColumn::make('name')
                     ->label('الاسم')
                     ->searchable()
+                    ->sortable(),
+                TextColumn::make('city.name')
+                    ->label('المدينة')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('city.gov.name')
+                    ->label('المحافظة')
+                    ->searchable()
+                    ->sortable(),
+                ToggleColumn::make('has_village')
+                    ->label('لديها قرى')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
@@ -62,7 +95,13 @@ class AreaResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('city')
+                    ->label('المدينة')
+                    ->relationship('city', 'name')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\TernaryFilter::make('has_village')
+                    ->label('لديها قرى'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

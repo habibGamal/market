@@ -3,56 +3,36 @@ import { Head } from "@inertiajs/react";
 import { NotificationItem } from "@/Components/Notifications/NotificationItem";
 import { Bell } from "lucide-react";
 import { Button } from "@/Components/ui/button";
+import axios from "axios";
+import { Notification } from "@/types";
 
-// Fake notifications data for demo purposes
-const fakeNotifications = [
-    {
-        id: 1,
-        type: "order" as const,
-        title: "تم تأكيد طلبك #1234",
-        description: "تم تأكيد طلبك وجاري تجهيزه. سيتم إخطارك عندما يكون جاهزًا للتوصيل.",
-        date: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
-        isRead: false,
-    },
-    {
-        id: 2,
-        type: "delivery" as const,
-        title: "طلبك في الطريق",
-        description: "السائق في الطريق إليك. سيصل خلال 30-45 دقيقة.",
-        date: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-        isRead: false,
-    },
-    {
-        id: 3,
-        type: "offer" as const,
-        title: "عرض خاص على منتجات الألبان",
-        description: "استمتع بخصم 15% على جميع منتجات الألبان حتى نهاية الأسبوع!",
-        date: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
-        isRead: true,
-    },
-    {
-        id: 4,
-        type: "status" as const,
-        title: "تم تسليم طلبك #1205",
-        description: "نأمل أن تكون راضيًا عن خدمتنا. شكرًا لثقتك بنا!",
-        date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days ago
-        isRead: true,
-    },
-];
+interface Props {
+    notifications: Notification[];
+}
 
-export default function Notifications() {
-    const [notifications, setNotifications] = useState(fakeNotifications);
+export default function Notifications({ notifications: initialNotifications }: Props) {
+    const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
 
-    const handleNotificationClick = (id: number) => {
-        setNotifications(notifications.map(notification =>
-            notification.id === id ? { ...notification, isRead: true } : notification
-        ));
-        // Here you would typically navigate to the relevant page based on notification type
-        console.log("Clicked notification:", id);
+    const handleNotificationRead = (id: string) => {
+        // Update local state to mark notification as read
+        setNotifications(prevNotifications =>
+            prevNotifications.map(notification =>
+                notification.id === id ? { ...notification, isRead: true } : notification
+            )
+        );
     };
 
-    const markAllAsRead = () => {
-        setNotifications(notifications.map(notification => ({ ...notification, isRead: true })));
+    const markAllAsRead = async () => {
+        try {
+            await axios.post("/notifications/read-all");
+
+            // Update local state
+            setNotifications(prevNotifications =>
+                prevNotifications.map(notification => ({ ...notification, isRead: true }))
+            );
+        } catch (error) {
+            console.error("Error marking all notifications as read:", error);
+        }
     };
 
     const unreadCount = notifications.filter(n => !n.isRead).length;
@@ -105,12 +85,14 @@ export default function Notifications() {
                     {notifications.map((notification) => (
                         <NotificationItem
                             key={notification.id}
+                            id={notification.id}
                             type={notification.type}
                             title={notification.title}
                             description={notification.description}
                             date={notification.date}
                             isRead={notification.isRead}
-                            onClick={() => handleNotificationClick(notification.id)}
+                            data={notification.data}
+                            onRead={handleNotificationRead}
                         />
                     ))}
                 </div>

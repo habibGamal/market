@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('location')->nullable();
-            $table->string('gov');
-            $table->string('city');
+            $table->foreignId('gov_id')->constrained('govs');
+            $table->foreignId('city_id')->constrained('cities');
             $table->string('village')->nullable();
             $table->foreignId('area_id')->constrained('areas');
             $table->text('address');
@@ -32,8 +32,6 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
         });
-
-
 
         Schema::create('customers_password_reset_tokens', function (Blueprint $table) {
             $table->string('phone')->primary();

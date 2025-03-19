@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\OrderStatus;
+use App\Enums\SettingKey;
 use App\Models\Order;
 use App\Models\Cart;
 use App\Models\Product;
@@ -15,7 +16,10 @@ class PlaceOrderServices
     public function __construct(
         private readonly StockServices $stockServices,
         private readonly OrderServices $orderServices,
-    ) {}
+        private readonly OfferService $offerService,
+        private readonly CartService $cartService
+    ) {
+    }
 
     /**
      * Place an order from the customer's cart
@@ -29,7 +33,6 @@ class PlaceOrderServices
             $recalculatedTotal = $this->recalculateCartTotal($cart);
             // Cast to decimal for consistent comparison
             $recalculatedTotal = (float) number_format($recalculatedTotal, 2, '.', '');
-            $cartTotal = (float) number_format($cart->total, 2, '.', '');
 
             // For debugging
             if ($recalculatedTotal != $cart->total) {
@@ -57,12 +60,71 @@ class PlaceOrderServices
             // Add items to order
             $this->orderServices->addOrderItems($order, $orderItems);
 
+            // ensure order total statisfy minimum order total
+            $minTotalOrder = (float) settings(SettingKey::MIN_TOTAL_ORDER, 0);
+            if ($order->total < $minTotalOrder) {
+                throw new \Exception("الحد الأدنى لإجمالي الطلب هو $minTotalOrder");
+            }
+
+            // add points to the customer based on total cart (as total order is accumilative)
+            $ratingPointsPercent = (float) settings(SettingKey::RATING_POINTS_PERCENT, 0);
+            $order->customer->rating_points +=  $recalculatedTotal * ($ratingPointsPercent / 100);
+            $order->customer->save();
+
+            // apply offers
+            $discountData = $this->offerService->calculateOrderDiscount($order);
+            $order->offers()->sync($discountData['applied_offers']->pluck('id'));
+            $order->discount = $discountData['discount'];
+            $order->save();
+
             // Clean up cart
-            $cart->items()->delete();
-            $cart->update(['total' => 0]);
+            $this->cartService->emptyCart($cart);
 
             return $order;
         });
+    }
+
+    /**
+     * Preview order details by running placeOrder in a transaction that will rollback
+     */
+    public function previewOrder(Cart $cart): array
+    {
+        $preview = [];
+        try {
+            DB::transaction(function () use ($cart, &$preview) {
+                // Run the actual placeOrder logic to get real calculations
+                $order = $this->placeOrder($cart);
+
+                // Get all the order data we need before rolling back
+                $preview = [
+                    'items' => $order->items->map(function ($item) {
+                        return [
+                            'product_id' => $item->product_id,
+                            'packets_quantity' => $item->packets_quantity,
+                            'piece_quantity' => $item->piece_quantity,
+                            'packet_price' => $item->packet_price,
+                            'piece_price' => $item->piece_price,
+                            'product' => $item->product,
+                            'total' => ($item->packets_quantity * $item->packet_price) +
+                                ($item->piece_quantity * $item->piece_price)
+                        ];
+                    })->toArray(),
+                    'subtotal' => (float) $order->total,
+                    'discount' => $order->discount,
+                    'total' => $order->netTotal,
+                    'applied_offers' => $order->offers
+                ];
+
+                // Force a rollback by throwing an exception
+                throw new \Exception('Preview rollback');
+
+            });
+        } catch (\Exception $e) {
+            if ($e->getMessage() === 'Preview rollback') {
+                return $preview;
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -72,7 +134,7 @@ class PlaceOrderServices
     {
         return $cart->items->sum(function ($item) {
             return ($item->packets_quantity * $item->product->packet_price) +
-                   ($item->piece_quantity * $item->product->piece_price);
+                ($item->piece_quantity * $item->product->piece_price);
         });
     }
 
@@ -85,10 +147,11 @@ class PlaceOrderServices
     {
         foreach ($cart->items as $item) {
             $limit = ProductLimit::where('product_id', $item->product_id)
-                               ->where('area_id', $cart->customer->area_id)
-                               ->first();
+                ->where('area_id', $cart->customer->area_id)
+                ->first();
 
-            if (!$limit) continue;
+            if (!$limit)
+                continue;
 
             if ($item->packets_quantity > $limit->max_packets) {
                 throw new \Exception("تجاوز الحد الأقصى لعدد العبوات للمنتج {$item->product->name}. الحد الأقصى هو {$limit->max_packets}");
@@ -119,10 +182,11 @@ class PlaceOrderServices
             [
                 'customer_id' => $customerId,
                 'created_at' => $today,
+                'status' => OrderStatus::PENDING,
             ],
             [
                 'total' => 0,
-                'status' => OrderStatus::PENDING,
+                'created_at' => Carbon::now(), // Set current time for new orders
             ]
         );
     }

@@ -2,6 +2,32 @@ import { InputHTMLAttributes } from "react";
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {}
 
+export interface Area {
+    id: number;
+    name: string;
+    has_village: boolean;
+    city_id: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface City {
+    id: number;
+    name: string;
+    gov_id: number;
+    created_at: string;
+    updated_at: string;
+    areas: Area[];
+}
+
+export interface Governorate {
+    id: number;
+    name: string;
+    created_at: string;
+    updated_at: string;
+    cities: City[];
+}
+
 export interface User {
     id: number;
     name: string;
@@ -26,6 +52,22 @@ export interface Brand {
     id: number;
     name: string;
     description?: string;
+}
+
+export interface FilterOption {
+    id: number;
+    name: string;
+    parent_id?: number;
+    children?: FilterOption[];
+}
+
+export interface ProductFilters {
+    categories?: number[];
+    brands?: number[];
+    sortBy?: string;
+    sortDirection?: "asc" | "desc";
+    minPrice?: number;
+    maxPrice?: number;
 }
 
 export interface ProductPrice {
@@ -84,11 +126,18 @@ export interface ReturnItem {
     return_reason: string;
 }
 
+export interface Offer {
+    id: number;
+    name: string;
+}
+
 export interface Order {
     id: number;
     status: string;
     total: number;
     net_total: number;
+    discount: number;
+    offers: Offer[];
     created_at: string;
     items: OrderItem[];
     cancelled_items: CancelledItem[];
@@ -164,3 +213,22 @@ export type PageProps<
         user: User;
     };
 };
+
+export interface NotificationData {
+    type: string;
+    order_id?: string;
+    order_code?: string;
+    url?: string;
+    action_url?: string;
+    [key: string]: any;
+}
+
+export interface Notification {
+    id: string;
+    type: "order" | "delivery" | "offer" | "status" | "general" | "order-items-cancelled";
+    title: string;
+    description: string;
+    date: string;
+    isRead: boolean;
+    data?: NotificationData;
+}

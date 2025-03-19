@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
-    protected $seed = true;
+    protected $seed = false;
 
     protected function setUp(): void
     {
@@ -18,6 +18,14 @@ abstract class TestCase extends BaseTestCase
 
         uses(RefreshDatabase::class);
 
+
+
+        $this->withoutVite();
+    }
+
+    protected function beforeAll()
+    {
+        shell_exec('php artisan db:seed');
         if (!User::where('email', config('app.default_user.email'))->exists()) {
             $this->actingAs(User::factory()->create([
             'email' => config('app.default_user.email'),
@@ -26,7 +34,5 @@ abstract class TestCase extends BaseTestCase
         } else {
             $this->actingAs(User::where('email', config('app.default_user.email'))->first()->assignRole('super_admin'));
         }
-
-        $this->withoutVite();
     }
 }

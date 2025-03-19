@@ -67,6 +67,11 @@ class Order extends Model
         return $this->belongsTo(IssueNote::class, 'issue_note_id');
     }
 
+    public function offers()
+    {
+        return $this->belongsToMany(Offer::class)->withTimestamps();
+    }
+
     public function scopeNotCancelled($query)
     {
         return $query->whereNot('status', OrderStatus::CANCELLED);
@@ -110,7 +115,7 @@ class Order extends Model
         return Attribute::make(
             get: function () {
                 $totalReturns = $this->returnItems->sum('total');
-                return $this->total - $totalReturns;
+                return $this->total - $totalReturns - $this->discount;
             }
         );
     }
@@ -130,7 +135,7 @@ class Order extends Model
         return Attribute::make(
             get: function () {
                 $totalReturns = $this->returnItems->sum('profit');
-                return $this->profit - $totalReturns;
+                return $this->profit - $totalReturns - $this->discount;
             }
         );
     }

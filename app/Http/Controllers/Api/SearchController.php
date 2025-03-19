@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class SearchController extends Controller
@@ -24,44 +22,16 @@ class SearchController extends Controller
 
         $query = $this->normalizeArabicText($request->get('q'));
 
-        // Cache key based on the normalized query
-        $cacheKey = 'product_search:' . md5($query);
+        // Use TNTSearch with Laravel Scout directly without caching
+        $products = Product::search($query)->get();
 
-        return Cache::remember($cacheKey, now()->addMinutes(30), function () use ($query) {
-            // Split query into words and escape special characters
-            $words = collect(explode(' ', $query))
-                ->filter(fn($word) => mb_strlen($word) >= 2)
-                ->map(fn($word) => DB::getPdo()->quote('%' . $word . '%'))
-                ->toArray();
-
-            if (empty($words)) {
-                return [];
-            }
-
-            $conditions = collect($words)->map(function ($word) {
-                return "REPLACE(REPLACE(REPLACE(name, 'أ', 'ا'), 'إ', 'ا'), 'ة', 'ه') LIKE $word" .
-                    " OR barcode LIKE $word";
-            })->join(' OR ');
-
-            return Product::query()
-                ->select(['id', 'name', 'image', 'category_id'])
-                ->with(['category:id,name'])
-                ->whereRaw("($conditions)")
-                ->orderByRaw("CASE
-                    WHEN name LIKE ? THEN 1
-                    WHEN name LIKE ? THEN 2
-                    ELSE 3
-                END", ["{$query}%", "%{$query}%"])
-                ->limit(5)
-                ->get()
-                ->map(function ($product) {
-                    return [
-                        'id' => $product->id,
-                        'name' => $product->name,
-                        'image' => $product->image ?? '/images/products/placeholder.jpg',
-                        'category' => $product->category?->name ?? 'غير مصنف',
-                    ];
-                });
+        return $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'image' => $product->image ?? '/images/products/placeholder.jpg',
+                'category' => $product->category?->name ?? 'غير مصنف',
+            ];
         });
     }
 

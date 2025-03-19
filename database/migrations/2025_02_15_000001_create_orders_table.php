@@ -11,10 +11,11 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->decimal('total', 10, 2)->default(0);
+            $table->decimal('discount', 10, 2)->default(0);
             $table->foreignId('customer_id')->constrained('customers');
             $table->string('status');
             $table->text('notes')->nullable();
-            $table->foreignId('issue_note_id')->nullable()->constrained('issue_notes');
+            $table->foreignId('issue_note_id')->nullable()->constrained('issue_notes')->nullOnDelete();
             $table->timestamps();
         });
     }

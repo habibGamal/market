@@ -8,15 +8,19 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OtpVerificationController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PlaceOrderController;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Models\User;
-use App\Notifications\Notify;
+use App\Notifications\Templates\OrderTemplate;
+use App\Services\NotificationService;
 use App\Services\PrintTemplateService;
+use Illuminate\Support\Facades\Gate;
 
 // Public Routes
 Route::get('/', [PageBuilderController::class, 'home']);
@@ -71,14 +75,18 @@ Route::middleware(['auth:customer'])->group(function () {
     // Routes that require phone verification
     Route::middleware(['customer.verified'])->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-        Route::get('/notifications', function () {
-            return Inertia::render('Notifications/Index');
-        })->name('notifications.index');
+
+        // Notification routes
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
+        Route::post('/notifications/test', [NotificationController::class, 'sendTestNotification'])->name('notifications.test');
 
         // Order routes
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('/orders', [OrderController::class, 'placeOrder'])->name('orders.place');
+        Route::get('/place-order', [OrderController::class, 'previewPlaceOrder'])->name('place-order.show');
     });
     Route::post('/subscribe', function () {
         $user = auth()->user();
@@ -95,40 +103,30 @@ Route::middleware(['auth:customer'])->group(function () {
     Route::patch('/cart/{item}', [CartController::class, 'updateQuantity'])->name('cart.update');
     Route::delete('/cart/{item}', [CartController::class, 'removeItem'])->name('cart.remove');
     Route::delete('/cart', [CartController::class, 'empty'])->name('cart.empty');
-});
-
-// Admin/User Routes
-Route::middleware('auth')->group(function () {
+    // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-
-
+// Admin/User Routes
+Route::middleware(['auth'])->group(function () {
     Route::get('/print/{model}/{id}', function (string $model, $id, PrintTemplateService $service) {
         $record = $model::findOrFail($id);
         Gate::authorize('view', $record);
         return $service->printPage($record);
     })->name('print');
+
 });
 
-Route::get('/notify', function () {
-    $subscriptions = Customer::all();
-    // Notification::send($subscriptions, new Notify(
-    //     'New Notification',
-    //     'This is a test notification',
-    //     '/approved-icon.png',
-    //     'View',
-    //     '/notifications',
-    //     ['id' => 1]
-    // ));
-    $subscriptions->each->notify(new Notify(
-        'New Notification',
-        'This is a test notification',
-        '/approved-icon.png',
-        'View',
-        '/notifications',
-        ['id' => 1]
-    ));
+Route::get('/notify', function (NotificationService $notificationService) {
+    // Use the OrderTemplate with our notification service
+    $notificationService->sendToAll(
+        new OrderTemplate(),
+        [
+            'order_id' => 1,
+            'order_code' => 1
+        ]
+    );
     return response()->json(['sent' => true]);
 });

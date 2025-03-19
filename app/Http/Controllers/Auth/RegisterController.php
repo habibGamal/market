@@ -5,6 +5,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Area;
 use App\Models\BusinessType;
+use App\Models\Gov;
+use App\Models\City;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
@@ -15,18 +17,11 @@ class RegisterController extends Controller
     public function create()
     {
         return Inertia::render('Register', [
-            'areas' => Area::select('id', 'name')->get(),
+            'areas' => Area::select('id', 'name', 'has_village', 'city_id')->with('city')->get(),
             'businessTypes' => BusinessType::select('id', 'name')->get(),
-            'govs' => [
-                ['id' => '1', 'name' => 'اسيوط'],
-                // Add more governorates as needed
-            ],
-            'cities' => [
-                ['id' => '1', 'govId' => '1', 'name' => 'ديروط'],
-                ['id' => '2', 'govId' => '1', 'name' => 'اسيوط المدينة'],
-                // Add more cities as needed
-            ],
-            'citiesWithVillages' => ['1'], // IDs of cities that require village
+            'govs' => Gov::with('cities.areas')->get(),
+            'cities' => City::select('id', 'name', 'gov_id')->get(),
+            'citiesWithVillages' => Area::where('has_village', true)->pluck('city_id')->unique(),
         ]);
     }
 

@@ -31,7 +31,11 @@ class DatabaseSeeder extends Seeder
         // BusinessType::factory()->create([
         //     'name' => 'صيدلية',
         // ]);
-
+        Customer::factory()->create([
+            'phone' => '01021153539',
+            'phone_verified_at' => now(),
+            'password' => 'password',
+        ]);
         $this->call([
             UserSeeder::class,
             ProductSeeder::class,

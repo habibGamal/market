@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Notifications\Templates\OrderTemplate;
 use App\Services\CartService;
+use App\Services\NotificationService;
 use App\Services\PlaceOrderServices;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,8 +14,10 @@ class OrderController extends Controller
 {
     public function __construct(
         private readonly CartService $cartService,
-        private readonly PlaceOrderServices $placeOrderServices
-    ) {}
+        private readonly PlaceOrderServices $placeOrderServices,
+        private readonly NotificationService $notificationService,
+    ) {
+    }
 
     public function index()
     {
@@ -26,6 +30,8 @@ class OrderController extends Controller
                 return [
                     'id' => $order->id,
                     'total' => $order->total,
+                    'discount' => $order->discount,
+                    'net_total' => $order->net_total,
                     'status' => $order->status,
                     'created_at' => $order->created_at,
                     'items_count' => $order->items->count(),
@@ -35,6 +41,26 @@ class OrderController extends Controller
         return Inertia::render('Orders/Index', [
             'orders' => $orders,
         ]);
+    }
+
+    public function previewPlaceOrder(Request $request)
+    {
+        try {
+            $cart = $this->cartService->getOrCreateCart(auth('customer')->id());
+
+            if (!$cart || $cart->items->isEmpty()) {
+                return redirect()->route('cart.index');
+            }
+
+            $preview = $this->placeOrderServices->previewOrder($cart);
+
+            return Inertia::render('Cart/PlaceOrder', [
+                'preview' => $preview
+            ]);
+
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
     }
 
     public function show(Order $order)
@@ -47,57 +73,14 @@ class OrderController extends Controller
         $order->load([
             'items.product',
             'cancelledItems.product',
-            'returnItems.product'
-        ]);
+            'returnItems.product',
+            'offers'
+        ])->append(([
+                        'net_total',
+                    ]));
 
         return Inertia::render('Orders/Show', [
-            'order' => [
-                'id' => $order->id,
-                'total' => $order->total,
-                'net_total' => $order->net_total,
-                'status' => $order->status,
-                'created_at' => $order->created_at->format('Y-m-d H:i:s'),
-                'items' => $order->items->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'product' => [
-                            'id' => $item->product->id,
-                            'name' => $item->product->name,
-                            'image' => $item->product->image,
-                        ],
-                        'packets_quantity' => $item->packets_quantity,
-                        'packet_price' => $item->packet_price,
-                        'piece_quantity' => $item->piece_quantity,
-                        'piece_price' => $item->piece_price,
-                        'total' => $item->total,
-                    ];
-                }),
-                'cancelled_items' => $order->cancelledItems->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'product' => [
-                            'name' => $item->product->name,
-                        ],
-                        'packets_quantity' => $item->packets_quantity,
-                        'piece_quantity' => $item->piece_quantity,
-                        'total' => $item->total,
-                        'notes' => $item->notes,
-                    ];
-                }),
-                'return_items' => $order->returnItems->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'product' => [
-                            'name' => $item->product->name,
-                        ],
-                        'packets_quantity' => $item->packets_quantity,
-                        'piece_quantity' => $item->piece_quantity,
-                        'total' => $item->total,
-                        'status' => $item->status,
-                        'return_reason' => $item->return_reason,
-                    ];
-                }),
-            ]
+            'order' => $order
         ]);
     }
 
@@ -113,6 +96,11 @@ class OrderController extends Controller
             }
 
             $order = $this->placeOrderServices->placeOrder($cart);
+            $this->notificationService->sendToUser(
+                $order->customer,
+                new OrderTemplate,
+                ['order_id' => $order->id, 'order_code' => $order->id]
+            );
 
             return response()->json([
                 'message' => 'تم إتمام الطلب بنجاح',

@@ -49,6 +49,8 @@ export default function OrderShow({ order }: Props) {
                         total={order.total}
                         netTotal={order.net_total}
                         hasReturns={order.return_items.length > 0}
+                        discount={order.discount}
+                        offers={order.offers}
                     />
 
                     {/* Order Details */}

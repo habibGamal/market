@@ -3,6 +3,8 @@
 namespace App\Filament\Imports;
 
 use App\Models\Area;
+use App\Models\City;
+use App\Models\Gov;
 use Carbon\CarbonInterface;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
@@ -16,27 +18,55 @@ class AreaImporter extends Importer
     {
         return [
             ImportColumn::make('name')
-                ->example('ابو تيج')
-                ->exampleHeader('name')
+                ->example('الحي الأول')
                 ->label('الاسم')
-                ->rules(['required', 'max:255', 'unique:areas,name'])
-            ,
+                ->rules(['required', 'max:255'])
+                ->requiredMapping(),
+            ImportColumn::make('city')
+                ->example('مدينة نصر')
+                ->label('المدينة')
+                ->rules(['required'])
+                ->requiredMapping(),
+            ImportColumn::make('gov')
+                ->example('القاهرة')
+                ->label('المحافظة')
+                ->rules(['required'])
+                ->requiredMapping(),
+            ImportColumn::make('has_village')
+                ->example('نعم')
+                ->label('لديها قرى')
+                ->rules(['boolean'])
+                ->boolean()
+                ->trueValue('نعم')
+                ->falseValue('لا'),
         ];
     }
 
     public function resolveRecord(): ?Area
     {
-        return Area::firstOrNew([
+        $gov = Gov::firstOrCreate([
+            'name' => $this->data['gov'],
+        ]);
+
+        $city = City::firstOrCreate([
+            'name' => $this->data['city'],
+            'gov_id' => $gov->id,
+        ]);
+
+        return Area::firstOrCreate([
             'name' => $this->data['name'],
+            'city_id' => $city->id,
+        ], [
+            'has_village' => $this->data['has_village'] ?? false,
         ]);
     }
 
     public static function getCompletedNotificationBody(Import $import): string
     {
-        $body = 'تم اكتمال استيراد المناطق وتم استيراد ' . number_format($import->successful_rows) . ' ' . str('صف')->plural($import->successful_rows) . '.';
+        $body = 'تم استيراد المناطق بنجاح وتم استيراد ' . number_format($import->successful_rows) . ' ' . str('صف')->plural($import->successful_rows) . '.';
 
         if ($failedRowsCount = $import->getFailedRowsCount()) {
-            $body .= ' ' . number_format($failedRowsCount) . ' ' . str('صف')->plural($failedRowsCount) . ' فشل في الاستيراد.';
+            $body .= ' ' . trans_choice('تعذر استيراد :count صف|تعذر استيراد :count صفوف', $failedRowsCount);
         }
 
         return $body;

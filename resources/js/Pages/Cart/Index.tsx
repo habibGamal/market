@@ -4,17 +4,10 @@ import { CartItem } from "@/Components/Cart/CartItem";
 import { ShoppingBag } from "lucide-react";
 import { Head, router } from "@inertiajs/react";
 import { useCart } from "@/Hooks/useCart";
-import { useOrder } from "@/Hooks/useOrder";
 import type { Product } from "@/types";
 import { PageTitle } from "@/Components/ui/page-title";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-    DialogDescription,
-} from "@/Components/ui/dialog";
+import { Alert, AlertDescription } from "@/Components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface Props {
     cart: {
@@ -28,16 +21,13 @@ interface Props {
         }>;
         total: number;
     };
+    errors: Record<string, string>;
 }
 
-export default function Cart({ cart }: Props) {
+export default function Cart({ cart, errors }: Props) {
     const [items, setItems] = useState(cart.items);
     const [total, setTotal] = useState(cart.total);
-    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const { loading: cartLoading, updateQuantity, removeItem } = useCart();
-    const { loading: orderLoading, placeOrder } = useOrder();
-
-    const isLoading = cartLoading || orderLoading;
 
     const handleUpdateQuantity = async (
         id: number,
@@ -77,15 +67,6 @@ export default function Cart({ cart }: Props) {
         }
     };
 
-    const handlePlaceOrder = async () => {
-        try {
-            setConfirmDialogOpen(false);
-            await placeOrder();
-        } catch (error) {
-            // Error is handled by the hook
-        }
-    };
-
     if (items.length === 0) {
         return (
             <>
@@ -100,7 +81,10 @@ export default function Cart({ cart }: Props) {
                             لم تقم بإضافة أي منتجات إلى السلة بعد
                         </p>
                         <div className="mt-6">
-                            <Button onClick={()=>router.get('/')} className="min-w-[200px]">
+                            <Button
+                                onClick={() => router.get("/")}
+                                className="min-w-[200px]"
+                            >
                                 تصفح المنتجات
                             </Button>
                         </div>
@@ -134,10 +118,23 @@ export default function Cart({ cart }: Props) {
                                 handleUpdateQuantity(item.id, packets, pieces)
                             }
                             onRemove={() => handleRemoveItem(item.id)}
-                            loading={isLoading}
+                            loading={cartLoading}
                         />
                     ))}
                 </div>
+                {/* Errors section */}
+                {Object.keys(errors).length > 0 && (
+                    <Alert variant="destructive" className="mb-4" dir="rtl">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                            <ul className="list-disc list-inside">
+                                {Object.entries(errors).map(([key, error]) => (
+                                    <li key={key}>{error}</li>
+                                ))}
+                            </ul>
+                        </AlertDescription>
+                    </Alert>
+                )}
 
                 {/* Order Summary */}
                 <div className="space-y-6">
@@ -154,10 +151,10 @@ export default function Cart({ cart }: Props) {
                         <Button
                             className="w-full mt-6"
                             size="lg"
-                            onClick={() => setConfirmDialogOpen(true)}
-                            disabled={isLoading}
+                            onClick={() => router.get("/place-order")}
+                            disabled={cartLoading}
                         >
-                            {orderLoading ? "جاري إتمام الطلب..." : "إتمام الطلب"}
+                            متابعة الطلب
                         </Button>
                     </div>
 
@@ -173,37 +170,6 @@ export default function Cart({ cart }: Props) {
                     </div>
                 </div>
             </div>
-
-            {/* Confirmation Modal */}
-            <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>تأكيد الطلب</DialogTitle>
-                        <DialogDescription>
-                            هل أنت متأكد من إتمام عملية الشراء؟
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-3">
-                        <p className="text-secondary-700">
-                            سيتم تجهيز طلبك بإجمالي <strong>{Number(total).toFixed(2)} ج.م</strong> وإرساله إلى عنوان التوصيل المسجل لديك.
-                        </p>
-                    </div>
-                    <DialogFooter className="flex flex-row justify-between sm:justify-between gap-3">
-                        <Button
-                            variant="outline"
-                            onClick={() => setConfirmDialogOpen(false)}
-                        >
-                            إلغاء
-                        </Button>
-                        <Button
-                            onClick={handlePlaceOrder}
-                            disabled={orderLoading}
-                        >
-                            {orderLoading ? "جاري الطلب..." : "تأكيد الطلب"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </>
     );
 }

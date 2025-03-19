@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ReturnOrderItem;
 use App\Models\CancelledOrderItem;
+use App\Services\OrdersStatsService;
 use Carbon\Carbon;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
@@ -151,20 +152,15 @@ class OrdersByAreasReportService
 
     public function loadAreaStats(Area $area): Area
     {
-        $result = $area->orders()
-            ->withSum('items', 'profit')
-            ->withSum('returnItems', 'profit')
-            ->withSum('returnItems', 'total')
-            ->get();
+        $statsService = app(OrdersStatsService::class);
+        $orders = $statsService->getOrdersWithStats($area->orders());
+        $stats = $statsService->calculateOrderStats($orders);
 
-        $area->orders_count = $result->count();
-        $area->total_sales = $result->sum('total');
-        $area->total_profit = $result->sum(function ($order) {
-            return $order->items_sum_profit - $order->return_items_sum_profit;
-        });
-        $area->total_returns = $result->sum('return_items_sum_total');
-        $area->total_cancelled = $result->where('status', '=', 'cancelled')->sum('total');
-
+        $area->orders_count = $stats['total_orders'];
+        $area->total_sales = $stats['total_sales'];
+        $area->total_profit = $stats['total_profit'];
+        $area->total_returns = $stats['total_returns'];
+        $area->total_cancelled = $stats['total_cancelled'];
 
         return $area;
     }

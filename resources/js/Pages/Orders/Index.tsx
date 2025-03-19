@@ -76,10 +76,11 @@ export default function OrdersIndex({ orders }: Props) {
                                         </div>
 
                                         <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto">
-                                            <span className="font-medium text-secondary-900">
-                                                {Number(order.total).toFixed(2)}{" "}
-                                                ج.م
-                                            </span>
+                                            <div className="flex flex-col items-end">
+                                                <div className="font-medium text-secondary-900">
+                                                    {Number(order.net_total).toFixed(2)} ج.م
+                                                </div>
+                                            </div>
                                             <ChevronLeft className="h-5 w-5 text-secondary-400 ms-2" />
                                         </div>
                                     </div>

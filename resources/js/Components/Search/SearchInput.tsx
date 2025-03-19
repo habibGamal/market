@@ -6,6 +6,7 @@ import debounce from "lodash/debounce"
 import { router } from "@inertiajs/react"
 import axios from "axios"
 import { cn } from "@/lib/utils"
+import { FallbackImage } from "../ui/fallback-image"
 
 interface SearchSuggestion {
     id: number
@@ -104,32 +105,38 @@ export function SearchInput({ fullWidth = false, initialQuery = "", onSearch }: 
             </form>
 
             {/* Suggestions Dropdown */}
-            {showSuggestions && suggestions.length > 0 && (
+            {showSuggestions && (
                 <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-md border bg-white shadow-lg">
                     <div className="max-h-[60vh] overflow-auto">
-                        {suggestions.map((suggestion) => (
-                            <button
-                                key={suggestion.id}
-                                onClick={() => handleSelect(suggestion)}
-                                className="flex w-full items-center gap-3 px-4 py-2 hover:bg-secondary-50 transition-colors"
-                            >
-                                <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded">
-                                    <img
-                                        src={suggestion.image}
-                                        alt={suggestion.name}
-                                        className="h-full w-full object-cover"
-                                    />
-                                </div>
-                                <div className="flex-1 text-right">
-                                    <p className="text-sm font-medium text-secondary-900">
-                                        {suggestion.name}
-                                    </p>
-                                    <p className="text-xs text-secondary-500">
-                                        {suggestion.category}
-                                    </p>
-                                </div>
-                            </button>
-                        ))}
+                        {suggestions.length > 0 ? (
+                            suggestions.map((suggestion) => (
+                                <button
+                                    key={suggestion.id}
+                                    onClick={() => handleSelect(suggestion)}
+                                    className="flex w-full items-center gap-3 px-4 py-2 hover:bg-secondary-50 transition-colors"
+                                >
+                                    <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded">
+                                        <FallbackImage
+                                            src={suggestion.image}
+                                            alt={suggestion.name}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    </div>
+                                    <div className="flex-1 text-right">
+                                        <p className="text-sm font-medium text-secondary-900">
+                                            {suggestion.name}
+                                        </p>
+                                        <p className="text-xs text-secondary-500">
+                                            {suggestion.category}
+                                        </p>
+                                    </div>
+                                </button>
+                            ))
+                        ) : (
+                            <div className="flex flex-col items-center justify-center p-4">
+                                <p className="text-sm text-secondary-500">لا توجد نتائج</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

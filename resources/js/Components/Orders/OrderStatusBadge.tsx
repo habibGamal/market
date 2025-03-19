@@ -9,6 +9,8 @@ export function OrderStatusBadge({ status }: OrderStatusBadgeProps) {
         switch (status) {
             case "pending":
                 return "bg-yellow-100 text-yellow-800 border-yellow-200";
+            case "preparing":
+                return "bg-orange-100 text-orange-800 border-orange-200";
             case "out_for_delivery":
                 return "bg-blue-100 text-blue-800 border-blue-200";
             case "delivered":
@@ -24,6 +26,8 @@ export function OrderStatusBadge({ status }: OrderStatusBadgeProps) {
         switch (status) {
             case "pending":
                 return "قيد الانتظار";
+            case "preparing":
+                return "قيد التحضير";
             case "out_for_delivery":
                 return "قيد التوصيل";
             case "delivered":

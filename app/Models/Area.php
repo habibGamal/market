@@ -4,21 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Area extends Model
 {
     use HasFactory, LogsActivity;
 
-    public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
+    protected $fillable = [
+        'name',
+        'has_village',
+        'city_id'
+    ];
+
+    protected $casts = [
+        'has_village' => 'boolean'
+    ];
+
+    public function city(): BelongsTo
     {
-        return \Spatie\Activitylog\LogOptions::defaults()
-            ->logOnly(['name'])
-            ->useLogName('area')
-            ->setDescriptionForEvent(fn(string $eventName) => "تم تعديل المنطقة: {$eventName}");
+        return $this->belongsTo(City::class);
     }
 
-    public function customers()
+    public function customers(): HasMany
     {
         return $this->hasMany(Customer::class);
     }
@@ -28,4 +38,11 @@ class Area extends Model
         return $this->hasManyThrough(Order::class, Customer::class);
     }
 
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('area')
+            ->setDescriptionForEvent(fn(string $eventName) => "تم " . __("general.events.$eventName") . " المنطقة");
+    }
 }

@@ -13,8 +13,12 @@ return new class extends Migration
     {
         Schema::create('areas', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->string('name');
+            $table->boolean('has_village')->default(false);
+            $table->foreignId('city_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
+
+            $table->unique(['name', 'city_id']);
         });
     }
 

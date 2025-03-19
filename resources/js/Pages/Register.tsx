@@ -23,13 +23,11 @@ import { useEffect, useState } from "react";
 import { router } from "@inertiajs/react";
 import { Eye, EyeOff } from "lucide-react";
 import { PasswordInput } from "@/Components/ui/password-input";
+import { Governorate } from "@/types";
 
 interface Props {
-    areas: Array<{ id: string; name: string }>;
     businessTypes: Array<{ id: string; name: string }>;
-    govs: Array<{ id: string; name: string }>;
-    cities: Array<{ id: string; govId: string; name: string }>;
-    citiesWithVillages: string[];
+    govs: Array<Governorate>;
 }
 
 const formSchema = z.object({
@@ -51,19 +49,8 @@ const formSchema = z.object({
     business_type_id: z.string().min(1, "نوع النشاط التجاري مطلوب"),
 });
 
-export default function Register({
-    areas,
-    businessTypes,
-    govs,
-    cities,
-    citiesWithVillages,
-}: Props) {
+export default function Register({ businessTypes, govs }: Props) {
     const [isLoading, setIsLoading] = useState(false);
-    const [filteredCities, setFilteredCities] = useState(cities);
-    const [selectedCity, setSelectedCity] = useState("");
-    const [showVillage, setShowVillage] = useState(false);
-    const [filteredAreas, setFilteredAreas] = useState(areas);
-
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -81,6 +68,19 @@ export default function Register({
             business_type_id: "",
         },
     });
+    const cities =
+        govs.find((g) => g.id.toString() === form.watch("gov"))?.cities ?? [];
+
+    const areas =
+        cities.find((c) => c.id.toString() === form.watch("city"))?.areas ?? [];
+
+    const showVillage =
+        form.watch("area_id") &&
+        govs
+            .find((g) => g.id.toString() === form.watch("gov"))
+            ?.cities.find((c) => c.id.toString() === form.watch("city"))
+            ?.areas.find((a) => a.id.toString() === form.watch("area_id"))
+            ?.has_village;
 
     useEffect(() => {
         // Get geolocation when component mounts
@@ -97,21 +97,6 @@ export default function Register({
         }
     }, []);
 
-    useEffect(() => {
-        const gov = form.watch("gov");
-        if (gov) {
-            setFilteredCities(cities.filter((city) => city.govId === gov));
-        }
-    }, [form.watch("gov")]);
-
-    useEffect(() => {
-        const city = form.watch("city");
-        setSelectedCity(city);
-        setShowVillage(citiesWithVillages.includes(city));
-        // Here you would typically filter areas based on city
-        // For now we're just using all areas
-    }, [form.watch("city")]);
-
     const onSubmit = async (data: z.infer<typeof formSchema>) => {
         console.log(data);
         router.post("/register", data, {
@@ -127,7 +112,7 @@ export default function Register({
                         type: "server",
                         message: value,
                     });
-                })
+                });
             },
         });
     };
@@ -180,7 +165,7 @@ export default function Register({
                                             {govs.map((gov) => (
                                                 <SelectItem
                                                     key={gov.id}
-                                                    value={gov.id}
+                                                    value={gov.id.toString()}
                                                 >
                                                     {gov.name}
                                                 </SelectItem>
@@ -209,10 +194,10 @@ export default function Register({
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {filteredCities.map((city) => (
+                                            {cities.map((city) => (
                                                 <SelectItem
                                                     key={city.id}
-                                                    value={city.id}
+                                                    value={city.id.toString()}
                                                 >
                                                     {city.name}
                                                 </SelectItem>
@@ -225,22 +210,6 @@ export default function Register({
                         />
                     </div>
 
-                    {showVillage && (
-                        <FormField
-                            control={form.control}
-                            name="village"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>القرية</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    )}
-
                     <FormField
                         control={form.control}
                         name="area_id"
@@ -250,7 +219,7 @@ export default function Register({
                                 <Select
                                     onValueChange={field.onChange}
                                     defaultValue={field.value}
-                                    disabled={!selectedCity}
+                                    disabled={!form.watch("city")}
                                 >
                                     <FormControl>
                                         <SelectTrigger>
@@ -258,7 +227,7 @@ export default function Register({
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {filteredAreas.map((area) => (
+                                        {areas.map((area) => (
                                             <SelectItem
                                                 key={area.id}
                                                 value={area.id.toString()}
@@ -273,6 +242,23 @@ export default function Register({
                         )}
                     />
 
+                    {
+                        showVillage && (
+                            <FormField
+                                control={form.control}
+                                name="village"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>القرية</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        )
+                    }
                     <FormField
                         control={form.control}
                         name="address"

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Area;
+use App\Models\City;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +21,9 @@ class AreaFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->unique(true)->sentence(2),
+            'name' => $this->faker->unique()->sentence(2),
+            'has_village' => $this->faker->boolean(),
+            'city_id' => City::factory(),
         ];
     }
 }

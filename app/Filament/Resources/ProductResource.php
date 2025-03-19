@@ -7,6 +7,7 @@ use App\Filament\Imports\ProductImporter;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
+use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -92,11 +93,12 @@ class ProductResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
-                Forms\Components\Select::make('category_id')
+                SelectTree::make('category_id')
                     ->label('الفئة')
-                    ->relationship('category', 'name')
+                    ->relationship('category', 'name', 'parent_id')
+                    ->parentNullValue(-1)
+                    ->enableBranchNode()
                     ->searchable()
-                    ->preload()
                     ->required(),
             ]);
     }

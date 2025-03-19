@@ -33,4 +33,19 @@ class Category extends Model
             ->useLogName('category')
             ->setDescriptionForEvent(fn(string $eventName) => "تم " . __("general.events.$eventName") . " الفئة");
     }
+
+    public function determineTitleColumnName(): string
+    {
+        return 'name';
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
 }

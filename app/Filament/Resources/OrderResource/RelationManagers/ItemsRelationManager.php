@@ -4,6 +4,8 @@ namespace App\Filament\Resources\OrderResource\RelationManagers;
 
 use App\Enums\OrderStatus;
 use App\Services\OrderServices;
+use App\Services\NotificationService;
+use App\Notifications\Templates\OrderItemsCancelledTemplate;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -111,7 +113,15 @@ class ItemsRelationManager extends RelationManager
                         })->toArray();
 
                         app(OrderServices::class)->cancelledItems($order, $itemsToCancel);
-
+                        app(NotificationService::class)->sendToUser(
+                            $order->customer,
+                            new OrderItemsCancelledTemplate,
+                            [
+                                'order_code' => $order->code,
+                                'items_count' => count($itemsToCancel),
+                                'order_id' => $order->id,
+                            ]
+                        );
                         Notification::make()
                             ->title('تم إلغاء الأصناف بنجاح')
                             ->success()

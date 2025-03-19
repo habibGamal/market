@@ -67,7 +67,7 @@ class ViewOrder extends ViewRecord
                 ->action(function ($record, array $data, $action) {
                     try {
                         app(DriverServices::class)->deliverOrder($record, $record->items, $data['items']);
-
+                        notifyCustomerWithOrderStatus($record->fresh());
                         Notification::make()
                             ->title('تم تسليم الأصناف وإرجاع الكميات المتبقية بنجاح')
                             ->success()

@@ -1,13 +1,11 @@
 import { cn } from "@/lib/utils";
-import { ShoppingBag, Bell, PackageOpen, ClipboardList, TruckIcon } from "lucide-react";
+import { ShoppingBag, Bell, PackageOpen, ClipboardList, TruckIcon, XCircle } from "lucide-react";
+import { useRelativeTime } from "@/Hooks/useRelativeTime";
+import { useNotificationAction } from "@/Hooks/useNotificationAction";
+import { Notification } from "@/types";
 
-interface NotificationItemProps {
-    type: "order" | "delivery" | "offer" | "status" | "general";
-    title: string;
-    description: string;
-    date: string;
-    isRead: boolean;
-    onClick?: () => void;
+interface NotificationItemProps extends Notification {
+    onRead?: (id: string) => void;
 }
 
 const iconMap = {
@@ -16,25 +14,32 @@ const iconMap = {
     offer: PackageOpen,
     status: ClipboardList,
     general: Bell,
+    'order-items-cancelled': XCircle,
 };
 
 export function NotificationItem({
+    id,
     type,
     title,
     description,
     date,
     isRead,
-    onClick,
+    data,
+    onRead,
 }: NotificationItemProps) {
     const Icon = iconMap[type];
-    const formattedDate = new Intl.RelativeTimeFormat('ar', { numeric: 'auto' }).format(
-        -Math.round((new Date().getTime() - new Date(date).getTime()) / (1000 * 60 * 60 * 24)),
-        'day'
-    );
+    const { formatRelativeTime } = useRelativeTime();
+    const { handleNotificationClick } = useNotificationAction();
+
+    // Format date using the custom hook
+    const formattedDate = formatRelativeTime(date);
+
+    // Handle click using the custom hook
+    const handleClick = () => handleNotificationClick(id, data, onRead);
 
     return (
         <div
-            onClick={onClick}
+            onClick={handleClick}
             className={cn(
                 "flex gap-4 p-4 transition-colors cursor-pointer",
                 !isRead && "bg-primary-50/50",

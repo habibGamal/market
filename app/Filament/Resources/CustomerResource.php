@@ -6,11 +6,13 @@ use App\Filament\Resources\CustomerResource\Pages;
 use App\Models\Customer;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Actions\BulkActionGroup;
+use Illuminate\Database\Eloquent\Builder;
 
 class CustomerResource extends Resource
 {
@@ -56,25 +58,38 @@ class CustomerResource extends Resource
 
                 Section::make('العنوان')
                     ->schema([
+                        Forms\Components\Select::make('gov_id')
+                            ->label('المحافظة')
+                            ->relationship('gov', 'name')
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->live(),
+                        Forms\Components\Select::make('city_id')
+                            ->label('المدينة')
+                            ->relationship('city', 'name', fn (Builder $query, Get $get) =>
+                                $query->where('gov_id', $get('gov_id'))
+                            )
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->live()
+                            ->disabled(fn (Get $get) => !$get('gov_id')),
                         Forms\Components\Select::make('area_id')
                             ->label('المنطقة')
-                            ->relationship('area', 'name')
-                            ->required(),
+                            ->relationship('area', 'name', fn (Builder $query, Get $get) =>
+                                $query->where('city_id', $get('city_id'))
+                            )
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->disabled(fn (Get $get) => !$get('city_id')),
                         Forms\Components\TextInput::make('location')
                             ->label('الموقع')
                             ->required()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('gov')
-                            ->label('المحافظة')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('city')
-                            ->label('المدينة')
-                            ->required()
-                            ->maxLength(255),
                         Forms\Components\TextInput::make('village')
                             ->label('القرية')
-                            ->required()
                             ->maxLength(255),
                         Forms\Components\Textarea::make('address')
                             ->label('العنوان التفصيلي')
@@ -109,11 +124,11 @@ class CustomerResource extends Resource
                 Tables\Columns\TextColumn::make('area.name')
                     ->label('المنطقة')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('gov')
+                Tables\Columns\TextColumn::make('gov.name')
                     ->label('المحافظة')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('city')
+                Tables\Columns\TextColumn::make('city.name')
                     ->label('المدينة')
                     ->searchable()
                     ->sortable(),

@@ -15,8 +15,8 @@ class Customer extends Authenticatable
     protected $fillable = [
         'name',
         'location',
-        'gov',
-        'city',
+        'gov_id',
+        'city_id',
         'village',
         'area_id',
         'address',
@@ -47,6 +47,16 @@ class Customer extends Authenticatable
     public function area()
     {
         return $this->belongsTo(Area::class);
+    }
+
+    public function gov()
+    {
+        return $this->belongsTo(Gov::class);
+    }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
     }
 
     public function businessType()

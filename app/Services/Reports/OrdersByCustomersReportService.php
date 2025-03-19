@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ReturnOrderItem;
+use App\Services\OrdersStatsService;
 use Carbon\Carbon;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
@@ -59,7 +60,7 @@ class OrdersByCustomersReportService
             ->leftJoinSub($cancelsSubQuery, 'cancels', 'customers.id', '=', 'cancels.customer_id');
     }
 
-    public function getBestCustomerStats($start = null, $end = null,$query): array
+    public function getBestCustomerStats($start = null, $end = null, $query): array
     {
         $bestCustomer = $query->clone()->reorder()->orderByDesc('order_items.total_sales')->limit(1)->first();
 
@@ -79,23 +80,18 @@ class OrdersByCustomersReportService
 
     public function loadCustomerStats(Customer $customer): Customer
     {
-        $result = $customer->orders()
-            ->withSum('items', 'profit')
-            ->withSum('returnItems', 'profit')
-            ->withSum('returnItems', 'total')
-            ->get();
+        $statsService = app(OrdersStatsService::class);
+        $orders = $statsService->getOrdersWithStats($customer->orders());
+        $stats = $statsService->calculateOrderStats($orders);
 
-        $customer->orders_count = $customer->orders()->count();
-        $customer->total_sales = $result->sum('total');
-        $customer->total_profit = $result->sum(function ($order) {
-            return $order->items_sum_profit - $order->return_items_sum_profit;
-        });
-        $customer->total_returns = $result->sum('return_items_sum_total');
-        $customer->total_cancelled = $result->where('status', '=', 'cancelled')->sum('total');
+        $customer->orders_count = $stats['total_orders'];
+        $customer->total_sales = $stats['total_sales'];
+        $customer->total_profit = $stats['total_profit'];
+        $customer->total_returns = $stats['total_returns'];
+        $customer->total_cancelled = $stats['total_cancelled'];
 
         return $customer;
     }
-
 
     public function getCustomerOrdersChartData($customer, $start = null, $end = null): array
     {

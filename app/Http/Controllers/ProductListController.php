@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Brand;
 use App\Models\Category;
-use App\Models\Product;
-use App\Models\Section;
+use App\Services\ProductListService;
 use App\Services\SectionService;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -13,7 +12,8 @@ use Inertia\Inertia;
 class ProductListController extends Controller
 {
     public function __construct(
-        protected SectionService $sectionService
+        protected SectionService $sectionService,
+        protected ProductListService $productListService
     ) {}
 
     public function index()
@@ -25,51 +25,22 @@ class ProductListController extends Controller
             abort(404, 'نوع القائمة غير صالح');
         }
 
-        $query = match($model) {
-            'section' => $this->getSectionProducts($id),
-            'category' => $this->getCategoryProducts($id),
-            'brand' => $this->getBrandProducts($id),
-        };
+        // Get base query for products based on model and ID
+        $baseQuery = $this->productListService->getProducts($model, $id);
 
-        $baseQuery = $query->clone();
+        // Apply filters and get paginated results
+        $query = $this->productListService->applyFilters($baseQuery->clone());
+        $pagination = $query->paginate(10);
 
-        // Apply filters
-        if (request()->has('categories')) {
-            $categories = explode(',', request('categories'));
-            $query->whereIn('category_id', $categories);
-        }
+        // Get categories and brands for filtering
+        $categories = $this->productListService->getFilterCategories($baseQuery);
+        $brands = $this->productListService->getFilterBrands($baseQuery);
 
-        if (request()->has('brands')) {
-            $brands = explode(',', request('brands'));
-            $query->whereIn('brand_id', $brands);
-        }
-
-        // Apply price filters
-        if (request()->has('min_price')) {
-            $query->where('packet_price', '>=', request('min_price'));
-        }
-
-        if (request()->has('max_price')) {
-            $query->where('packet_price', '<=', request('max_price'));
-        }
-
-        // Apply sorting
-        $sortBy = request('sort_by', 'created_at');
-        $sortDirection = request('sort_direction', 'desc');
-
-        $allowedSortFields = ['created_at', 'name', 'packet_price'];
-        if (in_array($sortBy, $allowedSortFields)) {
-            $query->orderBy($sortBy, $sortDirection);
-        }
-
-        $pagination = $query->clone()->paginate(10);
-
-        // Get all categories and brands for filters
-        $categories = Category::whereIn('id', $baseQuery->clone()->pluck('category_id')->unique())->select('id', 'name')->get();
-        $brands = Brand::whereIn('id', $baseQuery->clone()->pluck('brand_id')->unique())->select('id', 'name')->get();
+        // Get title based on model type
+        $title = $this->getTitle($model, $id);
 
         return Inertia::render('Products/Section', [
-            'title' => $this->title,
+            'title' => $title,
             'products' => inertia()->merge($pagination->items()),
             'pagination' => Arr::except($pagination->toArray(), ['data']),
             'categories' => $categories,
@@ -79,54 +50,22 @@ class ProductListController extends Controller
 
     public function search()
     {
-        $query = request('q');
-        $baseQuery = Product::query();
+        $searchQuery = request('q');
 
-        if ($query) {
-            $baseQuery->where(function($q) use ($query) {
-                $q->where('name', 'like', "%{$query}%")
-                  ->orWhere('barcode', 'like', "%{$query}%");
-            });
-        }
+        // Get base query for search
+        $baseQuery = $this->productListService->getSearchQuery($searchQuery);
 
-        // Apply filters
-        if (request()->has('categories')) {
-            $categories = explode(',', request('categories'));
-            $baseQuery->whereIn('category_id', $categories);
-        }
+        // Apply filters and get paginated results
+        $query = $this->productListService->applyFilters($baseQuery);
+        $pagination = $query->paginate(10);
 
-        if (request()->has('brands')) {
-            $brands = explode(',', request('brands'));
-            $baseQuery->whereIn('brand_id', $brands);
-        }
-
-        // Apply price filters
-        if (request()->has('min_price')) {
-            $baseQuery->where('packet_price', '>=', request('min_price'));
-        }
-
-        if (request()->has('max_price')) {
-            $baseQuery->where('packet_price', '<=', request('max_price'));
-        }
-
-        // Apply sorting
-        $sortBy = request('sort_by', 'created_at');
-        $sortDirection = request('sort_direction', 'desc');
-
-        $allowedSortFields = ['created_at', 'name', 'packet_price'];
-        if (in_array($sortBy, $allowedSortFields)) {
-            $baseQuery->orderBy($sortBy, $sortDirection);
-        }
-
-        $pagination = $baseQuery->paginate(10);
-
-        // Get all categories and brands for filters
-        $categories = Category::select('id', 'name')->get();
-        $brands = Brand::select('id', 'name')->get();
+        // Get all categories and brands for filtering
+        $categories = $this->productListService->getAllCategories();
+        $brands = $this->productListService->getAllBrands();
 
         return Inertia::render('Products/Search', [
             'title' => 'نتائج البحث',
-            'query' => $query,
+            'query' => $searchQuery,
             'products' => inertia()->merge($pagination->items()),
             'pagination' => Arr::except($pagination->toArray(), ['data']),
             'categories' => $categories,
@@ -134,26 +73,16 @@ class ProductListController extends Controller
         ]);
     }
 
-    protected string $title = '';
-
-    protected function getSectionProducts($id)
+    /**
+     * Get title based on model type and ID
+     */
+    protected function getTitle(string $model, int $id): string
     {
-        $section = Section::findOrFail($id);
-        $this->title = $section->title;
-        return $this->sectionService->getProductsOfSection($section);
-    }
-
-    protected function getCategoryProducts($id)
-    {
-        $category = Category::findOrFail($id);
-        $this->title = $category->name;
-        return $category->products();
-    }
-
-    protected function getBrandProducts($id)
-    {
-        $brand = Brand::findOrFail($id);
-        $this->title = $brand->name;
-        return $brand->products();
+        return match($model) {
+            'section' => app(\App\Models\Section::class)::findOrFail($id)->title ?? 'القسم',
+            'category' => Category::findOrFail($id)->name ?? 'الفئة',
+            'brand' => Brand::findOrFail($id)->name ?? 'العلامة التجارية',
+            default => 'المنتجات',
+        };
     }
 }

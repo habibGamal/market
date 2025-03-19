@@ -33,3 +33,39 @@ if (!function_exists('printAction')) {
             ->color('gray');
     }
 }
+
+if (!function_exists('settings')) {
+    /**
+     * Access the settings service.
+     *
+     * @param string|\App\Enums\SettingKey|null $key
+     * @param mixed $default
+     * @return mixed|\App\Services\SettingsService
+     */
+    function settings(string|\App\Enums\SettingKey $key = null, mixed $default = null): mixed
+    {
+        $settings = app('settings');
+
+        if ($key === null) {
+            return $settings;
+        }
+
+        return $settings->get($key, $default);
+    }
+}
+
+
+if (!function_exists('notifyCustomerWithOrderStatus')) {
+    function notifyCustomerWithOrderStatus($order): void
+    {
+        app(\App\Services\NotificationService::class)->sendToUser(
+            $order->customer,
+            new \App\Notifications\Templates\StatusTemplate(),
+            [
+                'order_id' => $order->id,
+                'order_code' => $order->id,
+                'status' => $order->status->value
+            ]
+        );
+    }
+}
