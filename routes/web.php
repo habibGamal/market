@@ -87,6 +87,7 @@ Route::middleware(['auth:customer'])->group(function () {
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('/orders', [OrderController::class, 'placeOrder'])->name('orders.place');
         Route::get('/place-order', [OrderController::class, 'previewPlaceOrder'])->name('place-order.show');
+        Route::get('/returns', [OrderController::class, 'returns'])->name('returns.index');
     });
     Route::post('/subscribe', function () {
         $user = auth()->user();

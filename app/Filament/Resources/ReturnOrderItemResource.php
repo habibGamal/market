@@ -141,6 +141,7 @@ class ReturnOrderItemResource extends Resource
                     ])
                     ->action(function ($records, array $data) {
                         app(DriverServices::class)->assignReturnOrdersToDriver($records, $data['driver_id']);
+                        notifyCustomerWithReturnOrderStatus($records->first()->order, ReturnOrderStatus::DRIVER_PICKUP->value);
                     })
                     ->deselectRecordsAfterCompletion(),
                 Tables\Actions\DeleteBulkAction::make()

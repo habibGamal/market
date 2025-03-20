@@ -39,10 +39,6 @@ class ReturnOrderItem extends Model
         'status' => ReturnOrderStatus::class,
     ];
 
-    protected $appends = [
-        'left_packets',
-        'left_pieces',
-    ];
 
     public function order(): BelongsTo
     {

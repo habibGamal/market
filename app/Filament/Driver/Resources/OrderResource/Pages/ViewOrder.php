@@ -49,14 +49,14 @@ class ViewOrder extends ViewRecord
                                 ->numeric()
                                 ->required()
                                 ->minValue(0)
-                                ->maxValue(fn($get, $record) => $record->packets_quantity)
+                                ->maxValue(fn($get,$record) => $record->items->find($get('item_id'))->packets_quantity)
                                 ->columnSpan(1),
                             Forms\Components\TextInput::make('piece_quantity')
                                 ->label('عدد القطع المستلمة')
                                 ->numeric()
                                 ->required()
                                 ->minValue(0)
-                                ->maxValue(fn($get, $record) => $record->packets_quantity)
+                                ->maxValue(fn($get, $record) =>$record->items->find($get('item_id'))->piece_quantity)
                                 ->columnSpan(1),
                         ])
                         ->columns(2)

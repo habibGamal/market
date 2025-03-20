@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\OrderResource\RelationManagers;
 
 use App\Enums\OrderStatus;
+use App\Enums\ReturnOrderStatus;
 use App\Services\OrderServices;
 use App\Services\NotificationService;
 use App\Notifications\Templates\OrderItemsCancelledTemplate;
@@ -194,6 +195,7 @@ class ItemsRelationManager extends RelationManager
                         })->toArray();
                         try {
                             app(OrderServices::class)->returnItems($order, $itemsToReturn);
+                            notifyCustomerWithReturnOrderStatus($order, ReturnOrderStatus::PENDING->value);
                             Notification::make()
                                 ->title('تم إرجاع الأصناف بنجاح')
                                 ->success()
@@ -208,6 +210,7 @@ class ItemsRelationManager extends RelationManager
                             )->halt()->failure();
                         }
                     })
+                    ->deselectRecordsAfterCompletion()
                     ->modalWidth(MaxWidth::FiveExtraLarge),
             ]);
     }

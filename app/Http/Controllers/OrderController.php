@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\ReturnOrderItem;
 use App\Notifications\Templates\OrderTemplate;
 use App\Services\CartService;
 use App\Services\NotificationService;
 use App\Services\PlaceOrderServices;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 
 class OrderController extends Controller
@@ -15,7 +17,6 @@ class OrderController extends Controller
     public function __construct(
         private readonly CartService $cartService,
         private readonly PlaceOrderServices $placeOrderServices,
-        private readonly NotificationService $notificationService,
     ) {
     }
 
@@ -75,10 +76,13 @@ class OrderController extends Controller
             'cancelledItems.product',
             'returnItems.product',
             'offers'
-        ])->append(([
-                        'net_total',
-                    ]));
+        ])
+            ->append([
+                'net_total',
+            ])
+        ;
 
+        // dd($order);
         return Inertia::render('Orders/Show', [
             'order' => $order
         ]);
@@ -96,11 +100,7 @@ class OrderController extends Controller
             }
 
             $order = $this->placeOrderServices->placeOrder($cart);
-            $this->notificationService->sendToUser(
-                $order->customer,
-                new OrderTemplate,
-                ['order_id' => $order->id, 'order_code' => $order->id]
-            );
+            notifyCustomerWithOrderStatus($order);
 
             return response()->json([
                 'message' => 'تم إتمام الطلب بنجاح',
@@ -112,5 +112,24 @@ class OrderController extends Controller
                 'message' => $e->getMessage()
             ], 422);
         }
+    }
+
+    public function returns()
+    {
+        $customer = auth('customer')->user();
+        $returnItems = ReturnOrderItem::query()
+            ->whereHas('order', function($query) use ($customer) {
+                $query->where('customer_id', $customer->id);
+            })
+            ->with(['order', 'product'])
+            ->orderByDesc('created_at')
+            ->paginate(10);
+
+        return Inertia::render('Returns/Index', [
+            'returns' => inertia()->merge(
+                $returnItems->items()
+            ),
+            'pagination' => Arr::except($returnItems->toArray(), ['data']),
+        ]);
     }
 }

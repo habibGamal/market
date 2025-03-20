@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ShoppingBag, Bell, PackageOpen, ClipboardList, TruckIcon, XCircle } from "lucide-react";
+import { ShoppingBag, Bell, PackageOpen, ClipboardList, TruckIcon, XCircle, PackageX } from "lucide-react";
 import { useRelativeTime } from "@/Hooks/useRelativeTime";
 import { useNotificationAction } from "@/Hooks/useNotificationAction";
 import { Notification } from "@/types";
@@ -15,6 +15,7 @@ const iconMap = {
     status: ClipboardList,
     general: Bell,
     'order-items-cancelled': XCircle,
+    'return-status': PackageX,
 };
 
 export function NotificationItem({

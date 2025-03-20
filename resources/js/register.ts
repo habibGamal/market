@@ -26,7 +26,7 @@ export const registerSW = () => {
                         await registration.pushManager.subscribe({
                             userVisibleOnly: true,
                             applicationServerKey: urlBase64ToUint8Array(
-                                "BMPu9W4TkXuCKiAEmN5N-iTthZEPhMy67-CahchBHXolnLNKAmVZCedcRHw2jTyQ_dzoUc9VTr1WtezBNYxC2_c"
+                                import.meta.env.VITE_VAPID_PUBLIC_KEY
                             ),
                         });
 

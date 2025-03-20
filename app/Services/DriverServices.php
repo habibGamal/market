@@ -16,7 +16,8 @@ class DriverServices
 {
     public function __construct(
         private readonly OrderServices $orderServices
-    ) {}
+    ) {
+    }
 
     public function assignOrdersToDriver(Collection $orders, int $driverId): void
     {
@@ -85,18 +86,30 @@ class DriverServices
     public function markReturnItemsAsReceivedFromCustomer(Collection $returnItems): void
     {
         $driver = Driver::find(auth()->id());
+        DB::transaction(function () use ($returnItems, $driver) {
+            $returnItems->each(function (ReturnOrderItem $item) use ($driver) {
+                // Update return item status
+                $item->update([
+                    'status' => ReturnOrderStatus::RECEIVED_FROM_CUSTOMER
+                ]);
 
-        $returnItems->each(function (ReturnOrderItem $item) use ($driver) {
-            // Update return item status
-            $item->update([
-                'status' => ReturnOrderStatus::RECEIVED_FROM_CUSTOMER
-            ]);
+                // Check if product already exists in driver's returned products
+                $existingPivot = $driver->returnedProducts()->where('product_id', $item->product_id)->first();
 
-            // Add to driver's returned products
-            $driver->returnedProducts()->attach($item->product_id, [
-                'packets_quantity' => $item->packets_quantity,
-                'piece_quantity' => $item->piece_quantity
-            ]);
+                if ($existingPivot) {
+                    // Update existing record by adding quantities
+                    $driver->returnedProducts()->updateExistingPivot($item->product_id, [
+                        'packets_quantity' => $existingPivot->pivot->packets_quantity + $item->packets_quantity,
+                        'piece_quantity' => $existingPivot->pivot->piece_quantity + $item->piece_quantity
+                    ]);
+                } else {
+                    // Add new record
+                    $driver->returnedProducts()->attach($item->product_id, [
+                        'packets_quantity' => $item->packets_quantity,
+                        'piece_quantity' => $item->piece_quantity
+                    ]);
+                }
+            });
         });
     }
 

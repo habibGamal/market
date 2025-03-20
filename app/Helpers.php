@@ -60,11 +60,26 @@ if (!function_exists('notifyCustomerWithOrderStatus')) {
     {
         app(\App\Services\NotificationService::class)->sendToUser(
             $order->customer,
-            new \App\Notifications\Templates\StatusTemplate(),
+            new \App\Notifications\Templates\OrderStatusTemplate(),
             [
                 'order_id' => $order->id,
                 'order_code' => $order->id,
                 'status' => $order->status->value
+            ]
+        );
+    }
+}
+
+if (!function_exists('notifyCustomerWithReturnOrderStatus')) {
+    function notifyCustomerWithReturnOrderStatus($returnOrder, $status): void
+    {
+        app(\App\Services\NotificationService::class)->sendToUser(
+            $returnOrder->customer,
+            new \App\Notifications\Templates\ReturnOrderStatusTemplate(),
+            [
+                'order_id' => $returnOrder->id,
+                'order_code' => $returnOrder->id,
+                'status' => $status
             ]
         );
     }

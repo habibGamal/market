@@ -128,10 +128,9 @@ class Settings extends Page
         foreach ($data as $key => $value) {
             $settingType = $this->getSettingType($key);
 
-            Setting::set($key, $value, $settingType);
+            settings()->set($key, $value, $settingType);
         }
 
-        Cache::forget('settings');
 
         Notification::make()
             ->title('تم حفظ الإعدادات بنجاح')

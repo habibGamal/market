@@ -24,15 +24,15 @@ class DatabaseSeeder extends Seeder
             ]);
         });
 
-        // BusinessType::factory()->create([
-        //     'name' => 'سوبرماركت',
-        // ]);
+        BusinessType::factory()->create([
+            'name' => 'سوبرماركت',
+        ]);
 
-        // BusinessType::factory()->create([
-        //     'name' => 'صيدلية',
-        // ]);
+        BusinessType::factory()->create([
+            'name' => 'صيدلية',
+        ]);
         Customer::factory()->create([
-            'phone' => '01021153539',
+            'phone' => '01000000000',
             'phone_verified_at' => now(),
             'password' => 'password',
         ]);

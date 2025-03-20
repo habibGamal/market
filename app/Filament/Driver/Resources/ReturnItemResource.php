@@ -6,6 +6,7 @@ use App\Filament\Driver\Resources\ReturnItemResource\Pages;
 use App\Models\ReturnOrderItem;
 use App\Enums\ReturnOrderStatus;
 use App\Services\DriverServices;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -130,8 +131,21 @@ class ReturnItemResource extends Resource
                     ->modalDescription('هل أنت متأكد من استلام المرتجعات المحددة؟')
                     ->modalSubmitActionLabel('تأكيد')
                     ->color('success')
-                    ->action(function (Collection $records) {
+                    ->deselectRecordsAfterCompletion()
+                    ->action(function (Collection $records, $action) {
+                        $records->each(function (ReturnOrderItem $record) use ($action) {
+                            if ($record->status !== ReturnOrderStatus::DRIVER_PICKUP) {
+                                $action->failureNotification(
+                                    Notification::make()
+                                        ->title('خطأ')
+                                        ->body('لا يمكن استلام المرتجعات التي ليست في حالة استلام السائق.')
+                                        ->danger()
+                                        ->send()
+                                )->halt()->failure();
+                            }
+                        });
                         app(DriverServices::class)->markReturnItemsAsReceivedFromCustomer($records);
+                        notifyCustomerWithReturnOrderStatus($records->first()->order, ReturnOrderStatus::RECEIVED_FROM_CUSTOMER->value);
                     })
             ])
             ->checkIfRecordIsSelectableUsing(

@@ -1,16 +1,4 @@
-/// <reference lib="webworker" />
-// self.addEventListener("push", (event: PushEvent) => {
-//     // Parse the push payload with type safety
-//     const payload: PushNotificationPayload = event.data?.json() || {
-//         title: "New Notification",
-//     };
-//     event.waitUntil(
-//         self.registration.showNotification(payload.title, {
-//             body: payload.body,
-//             icon: payload.icon || "/logo192.png", // Default icon
-//         })
-//     );
-// });
+
 // Service Worker Lifecycle Events
 self.addEventListener("install", function (event) {
     event.waitUntil(caches

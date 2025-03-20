@@ -124,6 +124,9 @@ export interface ReturnItem {
     total: number;
     status: string;
     return_reason: string;
+    order_id: number;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface Offer {

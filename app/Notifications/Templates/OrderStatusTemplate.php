@@ -3,7 +3,7 @@ namespace App\Notifications\Templates;
 
 use App\Enums\OrderStatus;
 
-class StatusTemplate extends BaseTemplate
+class OrderStatusTemplate extends BaseTemplate
 {
     /**
      * Get the type of notification

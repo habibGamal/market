@@ -17,7 +17,8 @@ class PlaceOrderServices
         private readonly StockServices $stockServices,
         private readonly OrderServices $orderServices,
         private readonly OfferService $offerService,
-        private readonly CartService $cartService
+        private readonly CartService $cartService,
+        private readonly CustomerPointsService $customerPointsService
     ) {
     }
 
@@ -46,7 +47,7 @@ class PlaceOrderServices
             $order = $this->getOrCreateTodayOrder($cart->customer_id);
 
             // Convert cart items to order items format
-            $orderItems = $cart->items->map(function ($item) {
+            $cartItems = $cart->items->map(function ($item) {
                 return [
                     'product_id' => $item->product_id,
                     'packets_quantity' => $item->packets_quantity,
@@ -58,7 +59,7 @@ class PlaceOrderServices
             })->toArray();
 
             // Add items to order
-            $this->orderServices->addOrderItems($order, $orderItems);
+            $this->orderServices->addOrderItems($order, $cartItems);
 
             // ensure order total statisfy minimum order total
             $minTotalOrder = (float) settings(SettingKey::MIN_TOTAL_ORDER, 0);
@@ -67,9 +68,7 @@ class PlaceOrderServices
             }
 
             // add points to the customer based on total cart (as total order is accumilative)
-            $ratingPointsPercent = (float) settings(SettingKey::RATING_POINTS_PERCENT, 0);
-            $order->customer->rating_points +=  $recalculatedTotal * ($ratingPointsPercent / 100);
-            $order->customer->save();
+            $this->customerPointsService->addPoints($order->customer, $recalculatedTotal);
 
             // apply offers
             $discountData = $this->offerService->calculateOrderDiscount($order);
@@ -125,6 +124,8 @@ class PlaceOrderServices
             }
             throw $e;
         }
+
+        return $preview; // Add missing return
     }
 
     /**
@@ -177,17 +178,20 @@ class PlaceOrderServices
     private function getOrCreateTodayOrder(int $customerId): Order
     {
         $today = Carbon::today();
-
-        return Order::firstOrCreate(
-            [
-                'customer_id' => $customerId,
-                'created_at' => $today,
-                'status' => OrderStatus::PENDING,
-            ],
-            [
-                'total' => 0,
-                'created_at' => Carbon::now(), // Set current time for new orders
-            ]
-        );
+        $order = Order::where('customer_id', $customerId)
+            ->whereDate('created_at', $today)
+            ->where('status', OrderStatus::PENDING->value)
+            ->first();
+        if ($order) {
+            return $order;
+        } else {
+            return Order::create(
+                [
+                    'status' => OrderStatus::PENDING->value,
+                    'customer_id' => $customerId,
+                    'total' => 0,
+                ]
+            );
+        }
     }
 }

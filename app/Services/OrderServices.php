@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\DB;
 class OrderServices
 {
     public function __construct(
-        private readonly StockServices $stockServices
+        private readonly StockServices $stockServices,
+        private readonly CustomerPointsService $customerPointsService,
     ) {}
 
     /**
@@ -88,6 +89,7 @@ class OrderServices
     public function cancelledItems(Order $order, array $items)
     {
         return DB::transaction(function () use ($order, $items) {
+            $cancelledItems = collect();
             foreach ($items as $itemData) {
                 $orderItem = $itemData['order_item'];
                 $orderItem->load('product');  // Ensure product is loaded
@@ -97,7 +99,7 @@ class OrderServices
                 $this->stockServices->undoReserve($orderItem->product, $totalPiecesToUndo);
 
                 // Create the cancelled item record
-                $order->cancelledItems()->create([
+                $cancelledItem = $order->cancelledItems()->create([
                     'product_id' => $itemData['product_id'],
                     'packets_quantity' => $itemData['packets_quantity'],
                     'packet_price' => $itemData['packet_price'],
@@ -107,6 +109,7 @@ class OrderServices
                     'officer_id' => auth()->id(),
                     'notes' => $itemData['notes'] ?? null
                 ]);
+                $cancelledItems->push($cancelledItem);
 
                 // Update the original order item quantities
                 $newPacketsQuantity = $orderItem->packets_quantity - $itemData['packets_quantity'];
@@ -128,6 +131,10 @@ class OrderServices
                 $order->update(['status' => OrderStatus::CANCELLED]);
                 $order->driverTask()->delete();
             }
+
+            // remove points from the customer
+            $totalCancelledItems = $cancelledItems->sum('total');
+            $this->customerPointsService->removePoints($order->customer, $totalCancelledItems);
 
             $this->updateOrderTotal($order);
         });
@@ -173,7 +180,13 @@ class OrderServices
                     'driver_id' => $itemData['driver_id'] ?? null
                 ];
             }
-            return $order->returnItems()->createMany($returnItems);
+            $returnItemsRecords = $order->returnItems()->createMany($returnItems);
+
+            // remove points from the customer
+            $totalRecentReturns = $returnItemsRecords->sum('total');
+            $this->customerPointsService->removePoints($order->customer, $totalRecentReturns);
+
+            return $returnItemsRecords;
         });
     }
 

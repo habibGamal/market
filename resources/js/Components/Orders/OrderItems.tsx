@@ -27,7 +27,7 @@ export function OrderItems({ items, status }: OrderItemsProps) {
                         >
                             <div className="flex items-start">
                                 {item.product.image && (
-                                    <div className="flex-shrink-0 w-20 h-20 bg-secondary-100 rounded-md overflow-hidden">
+                                    <div className="flex-shrink-0 w-16 h-16 bg-secondary-100 rounded-md overflow-hidden">
                                         <FallbackImage
                                             src={item.product.image}
                                             alt={item.product.name}

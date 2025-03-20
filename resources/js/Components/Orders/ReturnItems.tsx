@@ -28,12 +28,9 @@ export function ReturnItems({ items }: ReturnItemsProps) {
                         >
                             <div className="flex justify-between">
                                 <div>
-                                    <div className="flex items-center gap-2">
-                                        <h4 className="font-medium text-secondary-900">
-                                            {item.product.name}
-                                        </h4>
-                                        <ReturnStatusBadge status={item.status} />
-                                    </div>
+                                    <h4 className="font-medium text-secondary-900">
+                                        {item.product.name}
+                                    </h4>
                                     <div className="mt-1 text-sm text-secondary-500">
                                         {item.packets_quantity > 0 && (
                                             <span className="block">
@@ -46,15 +43,31 @@ export function ReturnItems({ items }: ReturnItemsProps) {
                                             </span>
                                         )}
                                         {item.return_reason && (
-                                            <span className="block mt-1 text-amber-500">
-                                                سبب الإرجاع: {item.return_reason}
+                                            <span className="block my-1 text-amber-500">
+                                                سبب الإرجاع:{" "}
+                                                {item.return_reason}
                                             </span>
                                         )}
                                     </div>
                                 </div>
-                                <div className="text-amber-600 font-medium">
-                                    - {item.total} ج.م
+                                <div className="flex-shrink-0">
+                                    <div className=" text-amber-600 font-medium">
+                                        - {item.total} ج.م
+                                    </div>
                                 </div>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-secondary-500">
+                                    تاريخ الإرجاع:{" "}
+                                    {new Date(
+                                        item.created_at
+                                    ).toLocaleDateString("ar-EG", {
+                                        year: "numeric",
+                                        month: "2-digit",
+                                        day: "2-digit",
+                                    })}
+                                </span>
+                                <ReturnStatusBadge status={item.status} />
                             </div>
                         </div>
                     ))}
