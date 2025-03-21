@@ -42,7 +42,7 @@ Route::get('/products', function () {
 })->name('products.index');
 Route::get('/categories', function () {
     return Inertia::render('Categories/Index', [
-        'categories' => Category::all()
+        'categories' => Category::where('parent_id','-1')->get()
     ]);
 })->name('categories.index');
 Route::get('/search', [ProductListController::class, 'search'])->name('search');
@@ -80,6 +80,7 @@ Route::middleware(['auth:customer'])->group(function () {
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
         Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
+        Route::post('/notifications/{id}/track-click', [NotificationController::class, 'trackClick'])->name('notifications.trackClick');
         Route::post('/notifications/test', [NotificationController::class, 'sendTestNotification'])->name('notifications.test');
 
         // Order routes

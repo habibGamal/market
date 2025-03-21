@@ -22,6 +22,7 @@ return new class extends Migration
             $table->text('before_discount');
             $table->integer('packet_to_piece');
             $table->integer('min_packets_stock_limit')->default(0);
+            $table->boolean('is_active')->default(true);
             $table->foreignId('brand_id')->constrained();
             $table->foreignId('category_id')->constrained();
             $table->unique(['name', 'barcode']);

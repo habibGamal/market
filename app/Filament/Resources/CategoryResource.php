@@ -51,11 +51,12 @@ class CategoryResource extends Resource
                     ->label('الصورة')
                     ->image()
                     ->imageResizeMode('cover')
-                    ->imageResizeTargetWidth('200')
-                    ->imageResizeTargetHeight('200')
+                    ->imageResizeTargetWidth('480')
+                    ->imageResizeTargetHeight('480')
                     ->directory('categories-images')
                     ->required()
                     ->imageEditor()
+                    ->optimize('webp')
                     ->imageCropAspectRatio('1:1'),
             ]);
     }

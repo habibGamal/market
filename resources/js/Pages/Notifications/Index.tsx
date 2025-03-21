@@ -1,23 +1,32 @@
-import { useState } from "react";
-import { Head } from "@inertiajs/react";
+import { useEffect, useState } from "react";
+import { Head, router, usePage } from "@inertiajs/react";
 import { NotificationItem } from "@/Components/Notifications/NotificationItem";
 import { Bell } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import axios from "axios";
-import { Notification } from "@/types";
+import { Notification, Pagination } from "@/types";
+import { PaginationLoadMore } from "@/Components/Products/PaginationLoadMore";
+import { Skeleton } from "@/Components/ui/skeleton";
 
 interface Props {
-    notifications: Notification[];
+    notifications: Pagination<Notification>["data"];
+    pagination: Pagination<Notification>["pagination"];
 }
 
-export default function Notifications({ notifications: initialNotifications }: Props) {
-    const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
-
+export default function Notifications({
+    notifications: initNotifications,
+    pagination,
+}: Props) {
+    const [notifications, setNotifications] =
+        useState<Notification[]>(initNotifications);
+    const props = usePage().props;
     const handleNotificationRead = (id: string) => {
         // Update local state to mark notification as read
-        setNotifications(prevNotifications =>
-            prevNotifications.map(notification =>
-                notification.id === id ? { ...notification, isRead: true } : notification
+        setNotifications((prevNotifications) =>
+            prevNotifications.map((notification) =>
+                notification.id === id
+                    ? { ...notification, isRead: true }
+                    : notification
             )
         );
     };
@@ -25,17 +34,23 @@ export default function Notifications({ notifications: initialNotifications }: P
     const markAllAsRead = async () => {
         try {
             await axios.post("/notifications/read-all");
-
-            // Update local state
-            setNotifications(prevNotifications =>
-                prevNotifications.map(notification => ({ ...notification, isRead: true }))
-            );
+            router.reload();
         } catch (error) {
             console.error("Error marking all notifications as read:", error);
         }
     };
 
-    const unreadCount = notifications.filter(n => !n.isRead).length;
+    const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+    useEffect(() => {
+        setNotifications(initNotifications);
+    }, [initNotifications]);
+
+    const CardSkeleton = () => (
+        <div className="space-y-2 min-w-[200px] h-[80px] my-4 bg-white rounded-lg shadow-sm">
+            <Skeleton className="w-full h-[100%] rounded-lg" />
+        </div>
+    );
 
     if (notifications.length === 0) {
         return (
@@ -63,18 +78,20 @@ export default function Notifications({ notifications: initialNotifications }: P
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-secondary-900">الإشعارات</h1>
+                        <h1 className="text-2xl font-bold text-secondary-900">
+                            الإشعارات
+                        </h1>
                         {unreadCount > 0 && (
                             <p className="mt-1 text-sm text-secondary-500">
-                                لديك {unreadCount} {unreadCount === 1 ? 'إشعار جديد' : 'إشعارات جديدة'}
+                                لديك {unreadCount}{" "}
+                                {unreadCount === 1
+                                    ? "إشعار جديد"
+                                    : "إشعارات جديدة"}
                             </p>
                         )}
                     </div>
                     {unreadCount > 0 && (
-                        <Button
-                            variant="outline"
-                            onClick={markAllAsRead}
-                        >
+                        <Button variant="outline" onClick={markAllAsRead}>
                             تحديد الكل كمقروء
                         </Button>
                     )}
@@ -96,6 +113,19 @@ export default function Notifications({ notifications: initialNotifications }: P
                         />
                     ))}
                 </div>
+
+                {/* Load More Pagination */}
+                {notifications && notifications.length > 0 && (
+                    <PaginationLoadMore
+                        dataKey={"notifications"}
+                        paginationKey={"pagination"}
+                        sectionKey={"page"}
+                        currentPage={pagination.current_page}
+                        nextPageUrl={pagination.next_page_url}
+                        total={pagination.total}
+                        LoadingSkeleton={CardSkeleton}
+                    />
+                )}
             </div>
         </>
     );

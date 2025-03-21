@@ -30,6 +30,13 @@ class PlaceOrderServices
     public function placeOrder(Cart $cart): Order
     {
         return DB::transaction(function () use ($cart) {
+            // Check for inactive products
+            foreach ($cart->items as $item) {
+                if (!$item->product->is_active) {
+                    throw new \Exception("المنتج {$item->product->name} غير متاح حالياً");
+                }
+            }
+
             // Re-evaluate cart total
             $recalculatedTotal = $this->recalculateCartTotal($cart);
             // Cast to decimal for consistent comparison

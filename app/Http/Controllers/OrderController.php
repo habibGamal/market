@@ -26,8 +26,8 @@ class OrderController extends Controller
         $orders = Order::where('customer_id', $customer->id)
             ->with(['items.product'])
             ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($order) {
+            ->paginate(10)
+            ->through(function ($order) {
                 return [
                     'id' => $order->id,
                     'total' => $order->total,
@@ -40,7 +40,10 @@ class OrderController extends Controller
             });
 
         return Inertia::render('Orders/Index', [
-            'orders' => $orders,
+            'orders' => inertia()->merge(
+                $orders->items()
+            ),
+            'pagination' => Arr::except($orders->toArray(), ['data']),
         ]);
     }
 
@@ -118,7 +121,7 @@ class OrderController extends Controller
     {
         $customer = auth('customer')->user();
         $returnItems = ReturnOrderItem::query()
-            ->whereHas('order', function($query) use ($customer) {
+            ->whereHas('order', function ($query) use ($customer) {
                 $query->where('customer_id', $customer->id);
             })
             ->with(['order', 'product'])

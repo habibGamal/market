@@ -32,6 +32,8 @@ export interface User {
     id: number;
     name: string;
     email: string;
+    phone: string;
+    address: string;
     email_verified_at?: string;
 }
 
@@ -228,7 +230,7 @@ export interface NotificationData {
 
 export interface Notification {
     id: string;
-    type: "order" | "delivery" | "offer" | "status" | "general" | "order-items-cancelled";
+    type: "order" | "delivery" | "promotion" | "status" | "general" | "order-items-cancelled";
     title: string;
     description: string;
     date: string;

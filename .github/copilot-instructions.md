@@ -1,3 +1,5 @@
+- when i chat with u answer me in english
+
 - this is ecommerce b2b web app that target mobile first (also desktop view) so that the website should be more likely to mobile apps
 - this project uses react , tailwind , shadcn/ui components and inertia so that communicate with laravel as a backend
 - for any modification follow the app theme : colors , fonts , identity , buttons , menus ,..etc
@@ -11,7 +13,6 @@
 - before any edit in filamentphp code look for its documentaion frist https://filamentphp.com/docs
 - when testing a filamentphp resource then follow the filament testing guide from the docs https://filamentphp.com/docs
 - when asking you for a testing follow the project convention of other test files
-- #file:guide.md for any needed commands
 - when you implement Observer use laravel ObservedBy attribute don't register it in event service provider
 - when i ask you to implement a report look for the existing reports and migration files to know how to implement queries for the report and implement service for the report queries and always use ReportFilter for filtering periods
 - review all migration files to understand the structure of the models

@@ -19,21 +19,23 @@ export function useNotificationAction() {
         onRead?: (id: string) => void
     ) => {
         try {
+            // Mark as read if not already read
             await axios.post(`/notifications/${id}/read`);
+            if (onRead) onRead(id);
 
-            // Call the callback if provided
-            if (onRead) {
-                onRead(id);
-            }
+            // Track click
+            await axios.post(`/notifications/${id}/track-click`);
 
-            // Navigate to relevant page if there's a URL in notification data
-            const targetUrl = data?.action_url || data?.url;
-
-            if (targetUrl) {
-                router.visit(targetUrl);
+            // Navigate based on notification type and data
+            if (data?.url) {
+                router.visit(data.url);
+            } else if (data?.action_url) {
+                router.visit(data.action_url);
+            } else if (data?.order_id) {
+                router.visit(`/orders/${data.order_id}`);
             }
         } catch (error) {
-            console.error("Error marking notification as read:", error);
+            console.error("Error handling notification:", error);
         }
     };
 

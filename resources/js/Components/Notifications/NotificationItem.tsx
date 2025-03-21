@@ -4,14 +4,14 @@ import { useRelativeTime } from "@/Hooks/useRelativeTime";
 import { useNotificationAction } from "@/Hooks/useNotificationAction";
 import { Notification } from "@/types";
 
-interface NotificationItemProps extends Notification {
+interface NotificationItemProps extends Omit<Notification, 'stats'> {
     onRead?: (id: string) => void;
 }
 
 const iconMap = {
     order: ShoppingBag,
     delivery: TruckIcon,
-    offer: PackageOpen,
+    promotion: PackageOpen,
     status: ClipboardList,
     general: Bell,
     'order-items-cancelled': XCircle,

@@ -36,14 +36,15 @@ class ProductResource extends Resource
         return $form
             ->schema([
                 Forms\Components\FileUpload::make('image')
-                    ->label('الصورة')
                     ->image()
-                    ->imageResizeMode('cover')
-                    ->imageResizeTargetWidth('200')
-                    ->imageResizeTargetHeight('200')
-                    ->directory('product-images')
+                    ->label('الصورة')
                     ->imageEditor()
+                    ->imageResizeMode('cover')
+                    ->imageResizeTargetWidth('480')
+                    ->imageResizeTargetHeight('480')
+                    ->directory('product-images')
                     ->imageCropAspectRatio('1:1')
+                    ->optimize('webp')
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('name')
                     ->label('الاسم')
@@ -51,6 +52,9 @@ class ProductResource extends Resource
                 Forms\Components\TextInput::make('barcode')
                     ->label('الباركود')
                     ->required(),
+                Forms\Components\Toggle::make('is_active')
+                    ->label('نشط')
+                    ->default(true),
                 Forms\Components\TextInput::make('min_packets_stock_limit')
                     ->label('الحد الأدنى للمخزون (عبوات)')
                     ->numeric()
@@ -121,6 +125,9 @@ class ProductResource extends Resource
                     ->label('الباركود')
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->label('نشط')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('packet_cost')
                     ->label('تكلفة العبوة')
                     ->sortable(),
