@@ -24,6 +24,7 @@ import { router } from "@inertiajs/react";
 import { Eye, EyeOff } from "lucide-react";
 import { PasswordInput } from "@/Components/ui/password-input";
 import { Governorate } from "@/types";
+import { registerSW } from "@/register";
 
 interface Props {
     businessTypes: Array<{ id: string; name: string }>;
@@ -105,6 +106,9 @@ export default function Register({ businessTypes, govs }: Props) {
             },
             onFinish: () => {
                 setIsLoading(false);
+            },
+            onSuccess: async () => {
+                await registerSW();
             },
             onError: (errors) => {
                 Object.entries(errors).forEach(([key, value]) => {
@@ -242,23 +246,21 @@ export default function Register({ businessTypes, govs }: Props) {
                         )}
                     />
 
-                    {
-                        showVillage && (
-                            <FormField
-                                control={form.control}
-                                name="village"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>القرية</FormLabel>
-                                        <FormControl>
-                                            <Input {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        )
-                    }
+                    {showVillage && (
+                        <FormField
+                            control={form.control}
+                            name="village"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>القرية</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    )}
                     <FormField
                         control={form.control}
                         name="address"

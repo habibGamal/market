@@ -37,7 +37,7 @@ class TakeDatabaseSnapshot extends Command
         $filePath = $directoryPath . '/' . $fileName;
 
         $command = sprintf(
-            'mysqldump --user=%s --password=%s --host=%s %s users products brands categories sections business_types customers sliders business_type_category sessions roles permissions role_has_permissions model_has_roles model_has_permissions driver_accounts > %s',
+            'mysqldump --user=%s --password=%s --host=%s %s users  brands categories sections business_types customers sliders business_type_category sessions roles permissions role_has_permissions model_has_roles model_has_permissions driver_accounts > %s',
             env('DB_USERNAME'),
             env('DB_PASSWORD'),
             env('DB_HOST'),

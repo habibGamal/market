@@ -1,58 +1,68 @@
 import axios from "axios";
 
-export const registerSW = () => {
-    if ("serviceWorker" in navigator) {
-        window.addEventListener("load", async () => {
-            try {
-                const registration = await navigator.serviceWorker.register(
-                    "/sw.js",
-                    {
-                        type: "module",
-                        scope: "/",
-                    }
-                );
-                console.log("ServiceWorker registered");
-                if (!("Notification" in window)) {
-                    console.log("This browser does not support notifications.");
-                    return;
-                }
-                // Request permission for push notifications
-                const permission = await Notification.requestPermission();
+export const subscribeUserToPush = async (registration: ServiceWorkerRegistration) => {
+    if (!("Notification" in window)) {
+        console.log("This browser does not support notifications.");
+        return null;
+    }
 
-                if (permission === "granted") {
-                    const r = await navigator.serviceWorker.ready;
+    const permission = await Notification.requestPermission();
 
-                    const subscription =
-                        await registration.pushManager.subscribe({
-                            userVisibleOnly: true,
-                            applicationServerKey: urlBase64ToUint8Array(
-                                import.meta.env.VITE_VAPID_PUBLIC_KEY
-                            ),
-                        });
+    if (permission === "granted") {
+        try {
+            const subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(
+                    import.meta.env.VITE_VAPID_PUBLIC_KEY
+                ),
+            });
 
-                    console.log(
-                        "Push notification subscription:",
-                        subscription,
-                        subscription.getKey('p256dh'),
-                        subscription.getKey('auth')
-                    );
+            console.log("Push notification subscription obtained");
+            return subscription;
+        } catch (error) {
+            console.error("Failed to subscribe to push notifications:", error);
+            return null;
+        }
+    }
+    return null;
+};
 
-                    try {
-                        console.log((r as any).periodicSync);
-                        await (r as any).periodicSync.register("notify", {
-                            minInterval: 5000,
-                        });
-                    } catch (e) {
-                        console.error("Error registering periodic sync", e);
-                    }
+export const registerSW = async () => {
+    if (!("serviceWorker" in navigator)) return null;
 
-                    // Send subscription to your server
-                    await axios.post("/subscribe", subscription);
-                }
-            } catch (error) {
-                console.error("ServiceWorker registration failed:", error);
+    try {
+        const registration = await navigator.serviceWorker.register(
+            "/sw.js",
+            {
+                type: "module",
+                scope: "/",
             }
-        });
+        );
+        console.log("ServiceWorker registered");
+
+        const subscription = await subscribeUserToPush(registration);
+
+        if (subscription) {
+            try {
+                const r = await navigator.serviceWorker.ready;
+                try {
+                    await (r as any).periodicSync.register("notify", {
+                        minInterval: 5000,
+                    });
+                } catch (e) {
+                    console.error("Error registering periodic sync", e);
+                }
+
+                await axios.post("/subscribe", subscription);
+            } catch (error) {
+                console.error("Error sending subscription to server:", error);
+            }
+        }
+
+        return registration;
+    } catch (error) {
+        console.error("ServiceWorker registration failed:", error);
+        return null;
     }
 };
 

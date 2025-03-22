@@ -14,6 +14,7 @@ import * as z from "zod";
 import { useState } from "react";
 import { Link, router } from "@inertiajs/react";
 import { PasswordInput } from "@/Components/ui/password-input";
+import { registerSW } from "@/register";
 
 const formSchema = z.object({
     phone: z.string().min(11, "رقم الهاتف يجب أن يكون 11 رقم"),
@@ -38,6 +39,9 @@ export default function Login() {
             },
             onFinish: () => {
                 setIsLoading(false);
+            },
+            onSuccess: async () => {
+                await registerSW();
             },
             onError: (errors) => {
                 Object.entries(errors).forEach(([key, value]) => {
