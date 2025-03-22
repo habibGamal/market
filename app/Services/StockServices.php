@@ -59,8 +59,21 @@ class StockServices
             }
 
             if ($remainingQuantity > 0) {
-                throw new \Exception('الكمية المطلوبة غير متوفرة');
+                throw new \Exception('الكمية المطلوبة غير متوفرة', 540);
             }
+        });
+    }
+
+    public function revaluateProductReservations(Product $product, callable $callback)
+    {
+        DB::transaction(function () use ($product, $callback) {
+            $stockItems = $product->stockItems()->where('piece_quantity', '>', 0)->lockForUpdate()->get();
+            $totalReservedQuantity = $stockItems->sum('reserved_quantity');
+            StockItem::whereIn('id', $stockItems->pluck('id'))
+                ->update(['reserved_quantity' => 0]);
+            $stockItems->fresh();
+            $callback();
+            $this->reserve($product, $totalReservedQuantity);
         });
     }
 
@@ -164,6 +177,35 @@ class StockServices
         });
     }
 
+
+    /**
+     * Mark quantities as unavailable
+     * @param \App\Models\Product $product
+     * @param array $quantities
+     * ex: $quantities = [
+     *  '2025-02-12' => 10,
+     *  '2025-02-13' => 20,
+     * ]
+     * @return void
+     */
+    public function undoUnavailable(Product $product, array $quantities)
+    {
+        DB::transaction(function () use ($product, $quantities) {
+            $stockItems = $product->stockItems()->whereIn('release_date', array_keys($quantities))->lockForUpdate()->get();
+
+            $this->validateStockReleaseDates($quantities, $stockItems);
+
+            $stockItems->each(function ($stockItem) use ($quantities) {
+                if ($stockItem->unavailable_quantity >= $quantities[$stockItem->release_date]) {
+                    $stockItem->decrement('unavailable_quantity', $quantities[$stockItem->release_date]);
+                } else {
+                    throw new \Exception("الكمية المتاحة للمنتج {$stockItem->product->name} بتاريخ {$stockItem->release_date} غير كافية. الكمية المتاحة هي {$stockItem->unavailable_quantity}");
+                }
+            });
+        });
+    }
+
+
     /**
      * @param \App\Models\Product $product
      * @param array $quantities
@@ -177,6 +219,8 @@ class StockServices
     {
         DB::transaction(function () use ($product, $quantities) {
             $stockItems = $product->stockItems()->whereIn('release_date', array_keys($quantities))->lockForUpdate()->get();
+
+            $this->validateStockReleaseDates($quantities, $stockItems);
 
             $stockItems->each(function ($stockItem) use ($quantities) {
                 if ($stockItem->reserved_quantity < $quantities[$stockItem->release_date]) {
@@ -209,6 +253,8 @@ class StockServices
         DB::transaction(function () use ($product, $quantities) {
             $stockItems = $product->stockItems()->whereIn('release_date', array_keys($quantities))->lockForUpdate()->get();
 
+            $this->validateStockReleaseDates($quantities, $stockItems);
+
             $stockItems->each(function ($stockItem) use ($quantities) {
                 if ($stockItem->unavailable_quantity < $quantities[$stockItem->release_date]) {
                     throw new \Exception('الكمية المتاحة غير كافية');
@@ -223,5 +269,53 @@ class StockServices
                 }
             });
         });
+    }
+
+    /**
+    * Remove quantities from stock
+    * @param \App\Models\Product $product
+    * @param array $quantities
+    * ex: $quantities = [
+    *  '2025-02-12' => 10,
+    *  '2025-02-13' => 20,
+    * ]
+    * @return void
+    */
+    public function removeFromStock(Product $product, array $quantities)
+    {
+        DB::transaction(function () use ($product, $quantities) {
+            $stockItems = $product->stockItems()->whereIn('release_date', array_keys($quantities))->lockForUpdate()->get();
+
+            $this->validateStockReleaseDates($quantities, $stockItems);
+
+            $stockItems->each(function ($stockItem) use ($quantities) {
+                $availableQuantity = $stockItem->piece_quantity - $stockItem->reserved_quantity - $stockItem->unavailable_quantity;
+                if ($availableQuantity < $quantities[$stockItem->release_date]) {
+                    throw new \Exception("الكمية المتاحة للمنتج {$stockItem->product->name} بتاريخ {$stockItem->release_date} غير كافية");
+                }
+                $stockItem->decrement('piece_quantity', $quantities[$stockItem->release_date]);
+                if ($stockItem->piece_quantity === 0) {
+                    $stockItem->delete();
+                }
+            });
+        });
+    }
+
+
+
+    /**
+     * Validate stock dates
+     * @param array $quantities
+     * @param \Illuminate\Support\Collection $stockItems
+     * @return void
+     */
+    protected function validateStockReleaseDates(array $quantities, $stockItems)
+    {
+        $stockDates = $stockItems->pluck('release_date')->toArray();
+        $invalidDates = array_diff(array_keys($quantities), $stockDates);
+
+        if (!empty($invalidDates)) {
+            throw new \Exception('التواريخ غير صحيحة: ' . implode(', ', $invalidDates));
+        }
     }
 }

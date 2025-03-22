@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Filament\Resources\ReturnPurchaseInvoiceResource\Pages;
+namespace App\Filament\Resources\StockCountingResource\Pages;
 
-use App\Filament\Resources\ReturnPurchaseInvoiceResource;
+use App\Filament\Resources\StockCountingResource;
 use App\Filament\Traits\InvoiceLikeEditActions;
 use App\Filament\Traits\InvoiceLikeEditCloseHandler;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
-use App\Services\ReturnPurchaseInvoiceServices;
+use App\Services\StockCountingServices;
 
-class EditReturnPurchaseInvoice extends EditRecord
+class EditStockCounting extends EditRecord
 {
     use InvoiceLikeEditActions, InvoiceLikeEditCloseHandler;
 
-    protected static string $resource = ReturnPurchaseInvoiceResource::class;
+    protected static string $resource = StockCountingResource::class;
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
@@ -22,7 +22,7 @@ class EditReturnPurchaseInvoice extends EditRecord
             \DB::transaction(function () use ($record, $data) {
                 $record->update($data);
                 if ($record->closed && $record->wasChanged('status')) {
-                    app(ReturnPurchaseInvoiceServices::class)->processReturnPurchaseInvoice($record);
+                    app(StockCountingServices::class)->processStockCounting($record);
                 }
             });
         }catch (\Exception $e) {

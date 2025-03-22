@@ -23,8 +23,14 @@ class ReturnPurchaseInvoiceObserver
 
     public function updated(ReturnPurchaseInvoice $returnPurchaseInvoice): void
     {
-        if ($returnPurchaseInvoice->isDirty('status') && $returnPurchaseInvoice->closed) {
-            app(ReturnPurchaseInvoiceServices::class)->markItemsAsUnavailable($returnPurchaseInvoice);
-        }
+
     }
+
+    public function deleting(ReturnPurchaseInvoice $returnPurchaseInvoice): void
+    {
+        app(ReturnPurchaseInvoiceServices::class)->deleteReturnPurchaseInvoice($returnPurchaseInvoice);
+    }
+
+
+
 }

@@ -2,12 +2,10 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Exports\WasteExporter;
 use App\Filament\Interfaces\InvoiceResource;
-use App\Filament\Resources\WasteResource\Pages;
-use App\Filament\Resources\WasteResource\RelationManagers\ItemsRelationManager;
+use App\Filament\Resources\StockCountingResource\Pages;
 use App\Models\Product;
-use App\Models\Waste;
+use App\Models\StockCounting;
 use App\Models\StockItem;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
@@ -24,28 +22,30 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 
-class WasteResource extends InvoiceResource
+class StockCountingResource extends InvoiceResource
 {
-    protected static ?string $model = Waste::class;
+    protected static ?string $model = StockCounting::class;
 
     protected static ?string $navigationGroup = 'إدارة المخزن';
 
-    protected static ?string $navigationIcon = 'heroicon-o-trash';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static ?string $modelLabel = 'هدر';
+    protected static ?string $modelLabel = 'جرد المخزون';
 
-    protected static ?string $pluralModelLabel = 'الهدر';
+    protected static ?string $pluralModelLabel = 'جرد المخزون';
 
     public static function csvTitles(): array
     {
         return [
             'product_id' => 'الرقم المرجعي للمنتج',
             'product_name' => 'المنتج',
-            'packets_quantity' => 'عدد العبوات',
-            'piece_quantity' => 'عدد القطع',
+            'old_packets_quantity' => 'عدد العبوات القديم',
+            'old_piece_quantity' => 'عدد القطع القديم',
+            'new_packets_quantity' => 'عدد العبوات الجديد',
+            'new_piece_quantity' => 'عدد القطع الجديد',
             'packet_cost' => 'سعر العبوة',
             'release_date' => 'تاريخ الانتاج',
-            'total' => 'الإجمالي',
+            'total_diff' => 'الفرق',
         ];
     }
 
@@ -54,27 +54,39 @@ class WasteResource extends InvoiceResource
         return $form
             ->extraAttributes([
                 'x-data' => "{
-                    computeItemTotal(e) {
-                        const index = e.getAttribute('id').replace('data.items.','').replace('.total','');
+                    computeItemDiff(e) {
+                        const index = e.getAttribute('id').replace('data.items.','').replace('.total_diff','');
                         const item = \$wire.data.items[index];
                         if(!item) return 0;
+
                         const packetCost = parseFloat(item.packet_cost);
-                        const packetsQuantity = parseFloat(item.packets_quantity || 0);
-                        const pieceQuantity = parseFloat(item.piece_quantity || 0);
-                        const product = item._meta?.product;
+                        const oldPacketsQuantity = parseFloat(item.old_packets_quantity || 0);
+                        const oldPieceQuantity = parseFloat(item.old_piece_quantity || 0);
+                        const newPacketsQuantity = parseFloat(item.new_packets_quantity || 0);
+                        const newPieceQuantity = parseFloat(item.new_piece_quantity || 0);
                         const packetToPiece = item.product_packet_to_piece;
 
-                        return ((packetsQuantity * packetCost) + ((pieceQuantity / packetToPiece) * packetCost)).toFixed(2);
+                        const oldTotalInPieces = (oldPacketsQuantity * packetToPiece) + oldPieceQuantity;
+                        const newTotalInPieces = (newPacketsQuantity * packetToPiece) + newPieceQuantity;
+                        const diffInPieces = newTotalInPieces - oldTotalInPieces;
+
+                        return ((diffInPieces / packetToPiece) * packetCost).toFixed(2);
                     },
                     computeInvoiceTotal() {
                         const items = Object.values(Object.assign({},\$wire.data.items));
                         return parseFloat(items.reduce((acc, item) => {
                             const packetCost = parseFloat(item.packet_cost);
-                            const packetsQuantity = parseFloat(item.packets_quantity || 0);
-                            const pieceQuantity = parseFloat(item.piece_quantity || 0);
+                            const oldPacketsQuantity = parseFloat(item.old_packets_quantity || 0);
+                            const oldPieceQuantity = parseFloat(item.old_piece_quantity || 0);
+                            const newPacketsQuantity = parseFloat(item.new_packets_quantity || 0);
+                            const newPieceQuantity = parseFloat(item.new_piece_quantity || 0);
                             const packetToPiece = item.product_packet_to_piece;
 
-                            return acc + ((packetsQuantity * packetCost) + ((pieceQuantity / packetToPiece) * packetCost));
+                            const oldTotalInPieces = (oldPacketsQuantity * packetToPiece) + oldPieceQuantity;
+                            const newTotalInPieces = (newPacketsQuantity * packetToPiece) + newPieceQuantity;
+                            const diffInPieces = newTotalInPieces - oldTotalInPieces;
+
+                            return acc + ((diffInPieces / packetToPiece) * packetCost);
                         }, 0)).toFixed(2);
                     }
                 }",
@@ -87,8 +99,16 @@ class WasteResource extends InvoiceResource
                         self::updatedAtPlaceholder(),
                         self::officerPlaceholder(),
                         self::totalPlaceholder(),
+                        // Forms\Components\TextInput::make('total_diff')
+                        //     ->label('إجمالي الفرق')
+                        //     ->disabled()
+                        //     ->dehydrated(false)
+                        //     ->extraAlpineAttributes([
+                        //         'wire:ignore' => true,
+                        //         'x-effect' => "setTimeout(() => { $el.value = computeInvoiceTotal() }, 200)",
+                        //     ]),
                         self::statusSelect()->disabled(fn($record) => $record == null),
-                        self::notesTextarea(),
+                        self::notesTextarea()->name('note'),
                     ]),
                 Section::make('المنتجات')
                     ->schema([
@@ -113,7 +133,7 @@ class WasteResource extends InvoiceResource
                                 $product = Product::with('stockItems')->find($state);
                                 $items = [...$get('items')];
                                 $newItems = $product->stockItems->map(function ($stockItem) {
-                                    $availableQuantity = $stockItem->piece_quantity  - $stockItem->unavailable_quantity;
+                                    $availableQuantity = $stockItem->piece_quantity;
                                     if ($availableQuantity <= 0) {
                                         return null;
                                     }
@@ -124,20 +144,41 @@ class WasteResource extends InvoiceResource
                                         'product_id' => $stockItem->product_id,
                                         'product_name' => $stockItem->product->name,
                                         'product_packet_to_piece' => $stockItem->product->packet_to_piece,
-                                        'packets_quantity' => $packetsQuantity,
-                                        'piece_quantity' => $pieceQuantity,
+                                        'old_packets_quantity' => $packetsQuantity,
+                                        'old_piece_quantity' => $pieceQuantity,
+                                        'new_packets_quantity' => $packetsQuantity,
+                                        'new_piece_quantity' => $pieceQuantity,
                                         'packet_cost' => $stockItem->product->packet_cost,
                                         'release_date' => $stockItem->release_date,
+                                        'is_new' => false,
                                     ];
-                                })->filter()->toArray();
+                                })->filter();
+
+                                $existingIndexes = collect($items)
+                                    ->map(fn($item) => $item['product_id'] . '_' . $item['release_date']);
+
+                                $newItems = $newItems
+                                    ->filter(fn($item) => !$existingIndexes->contains($item['product_id'] . '_' . $item['release_date']))
+                                    ->values()
+                                    ->toArray();
+
                                 if (empty($newItems)) {
-                                    \Filament\Notifications\Notification::make()
-                                        ->warning()
-                                        ->title('لا يوجد مخزون')
-                                        ->send();
-                                    $set('product_id', null);
-                                    return;
+                                    $newItems = [
+                                        [
+                                            'product_id' => $state,
+                                            'product_name' => $product->name,
+                                            'product_packet_to_piece' => $product->packet_to_piece,
+                                            'old_packets_quantity' => 0,
+                                            'old_piece_quantity' => 0,
+                                            'new_packets_quantity' => 0,
+                                            'new_piece_quantity' => 0,
+                                            'packet_cost' => $product->packet_cost,
+                                            'release_date' => now(),
+                                            'is_new' => true,
+                                        ]
+                                    ];
                                 }
+
                                 array_push($items, ...$newItems);
                                 $set('items', $items);
                                 $set('product_id', null);
@@ -145,30 +186,45 @@ class WasteResource extends InvoiceResource
                             ->columnSpan(6),
                     ]),
                 TableRepeater::make('items')
-                    ->label('عناصر الهدر')
+                    ->label('عناصر الجرد')
                     ->relationship('items', fn($query) => $query->with('product:id,name,packet_to_piece'))
                     ->headers([
-                        Header::make('product_name')->label('المنتج')->width('150px'),
-                        Header::make('packets_quantity')->label('عدد العبوات')->width('150px'),
-                        Header::make('piece_quantity')->label('عدد القطع')->width('150px'),
-                        Header::make('packet_cost')->label('سعر العبوة')->width('150px'),
-                        Header::make('release_date')->label('تاريخ الإنتاج')->width('150px'),
-                        Header::make('total')->label('الإجمالي')->width('150px'),
+                        Header::make('product_name')->label('المنتج')->width('100px'),
+                        Header::make('old_packets_quantity')->label('العبوات (قديم)')->width('100px'),
+                        Header::make('old_piece_quantity')->label('القطع (قديم)')->width('100px'),
+                        Header::make('new_packets_quantity')->label('العبوات (جديد)')->width('100px'),
+                        Header::make('new_piece_quantity')->label('القطع (جديد)')->width('100px'),
+                        Header::make('packet_cost')->label('سعر العبوة')->width('100px'),
+                        Header::make('release_date')->label('تاريخ الإنتاج')->width('100px'),
+                        Header::make('total_diff')->label('الفرق')->width('100px'),
                     ])
                     ->schema([
+                        Forms\Components\Hidden::make('is_new'),
                         Forms\Components\Hidden::make('product_id'),
                         Forms\Components\Hidden::make('product_packet_to_piece')->dehydrated(false)
                             ->formatStateUsing(fn($state, $record) => $record ? $record->product->packet_to_piece : $state),
                         Forms\Components\TextInput::make('product_name')
                             ->formatStateUsing(fn($state, $record) => $record ? $record->product_name : $state)
                             ->disabled(),
-                        Forms\Components\TextInput::make('packets_quantity')
-                            ->label('عدد العبوات')
+                        Forms\Components\TextInput::make('old_packets_quantity')
+                            ->label('عدد العبوات (قديم)')
+                            ->numeric()
+                            ->required()
+                            ->disabled()
+                            ->minValue(0),
+                        Forms\Components\TextInput::make('old_piece_quantity')
+                            ->label('عدد القطع (قديم)')
+                            ->numeric()
+                            ->required()
+                            ->disabled()
+                            ->minValue(0),
+                        Forms\Components\TextInput::make('new_packets_quantity')
+                            ->label('عدد العبوات (جديد)')
                             ->numeric()
                             ->required()
                             ->minValue(0),
-                        Forms\Components\TextInput::make('piece_quantity')
-                            ->label('عدد القطع')
+                        Forms\Components\TextInput::make('new_piece_quantity')
+                            ->label('عدد القطع (جديد)')
                             ->numeric()
                             ->required()
                             ->minValue(0),
@@ -176,18 +232,31 @@ class WasteResource extends InvoiceResource
                             ->label('تكلفة العبوة')
                             ->numeric()
                             ->required()
+                            ->disabled()
                             ->minValue(0),
                         DatePicker::make('release_date')
                             ->label('تاريخ الإنتاج')
-                            ->disabled()
-                            ->dehydrated(true)
-                            ->required(),
-                        Forms\Components\TextInput::make('total')
-                            ->label('الإجمالي')
+                            ->required()
+                            ->disabled(fn($get) => !$get('is_new'))
+                            ->rules([
+                                fn($get) => function($attribute, $value, $fail) use ($get) {
+                                    if (!$get('is_new')) return;
+
+                                    $exists = StockItem::where('product_id', $get('product_id'))
+                                        ->where('release_date', $value)
+                                        ->exists();
+
+                                    if ($exists) {
+                                        $fail('تاريخ الإنتاج موجود مسبقاً لهذا المنتج');
+                                    }
+                                }
+                            ]),
+                        Forms\Components\TextInput::make('total_diff')
+                            ->label('الفرق')
                             ->disabled()
                             ->extraAlpineAttributes([
                                 'wire:ignore' => true,
-                                ':value' => 'computeItemTotal($el)',
+                                ':value' => 'computeItemDiff($el)',
                             ])
                     ])
                     ->columnSpan('full')
@@ -197,7 +266,7 @@ class WasteResource extends InvoiceResource
                     ->deletable(true)
                     ->reorderable(false)
                     ->cloneable(false)
-                    ->columns(7)
+                    ->columns(9)
             ]);
     }
 
@@ -206,11 +275,11 @@ class WasteResource extends InvoiceResource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id')
-                    ->label('رقم الإذن')
+                    ->label('رقم الجرد')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('total')
-                    ->label('المجموع')
+                Tables\Columns\TextColumn::make('total_diff')
+                    ->label('إجمالي الفرق')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
@@ -226,17 +295,13 @@ class WasteResource extends InvoiceResource
                     ->sortable(),
             ])
             ->filters(static::filters())
-            ->headerActions([
-                Tables\Actions\ExportAction::make()
-                    ->exporter(WasteExporter::class),
-            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\DeleteAction::make()->action(function (Waste $record, $action) {
-                    try{
+                Tables\Actions\DeleteAction::make()->action(function (StockCounting $record, $action) {
+                    try {
                         $record->delete();
-                    }catch (\Exception $e){
+                    } catch (\Exception $e) {
                         \Filament\Notifications\Notification::make()
                             ->danger()
                             ->title($e->getMessage())
@@ -255,9 +320,9 @@ class WasteResource extends InvoiceResource
             ])->columnSpanFull()
                 ->alignEnd(),
             TextEntry::make('id')
-                ->label('رقم الإذن'),
-            TextEntry::make('total')
-                ->label('المجموع'),
+                ->label('رقم الجرد'),
+            TextEntry::make('total_diff')
+                ->label('إجمالي الفرق'),
             TextEntry::make('status')
                 ->badge()
                 ->label('الحالة'),
@@ -281,10 +346,10 @@ class WasteResource extends InvoiceResource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListWastes::route('/'),
-            'create' => Pages\CreateWaste::route('/create'),
-            'edit' => Pages\EditWaste::route('/{record}/edit'),
-            'view' => Pages\ViewWaste::route('/{record}'),
+            'index' => Pages\ListStockCountings::route('/'),
+            'create' => Pages\CreateStockCounting::route('/create'),
+            'edit' => Pages\EditStockCounting::route('/{record}/edit'),
+            'view' => Pages\ViewStockCounting::route('/{record}'),
         ];
     }
 }

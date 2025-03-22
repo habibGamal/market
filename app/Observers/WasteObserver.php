@@ -31,9 +31,7 @@ class WasteObserver
      */
     public function updated(Waste $waste): void
     {
-        if ($waste->isDirty('status') && $waste->closed) {
-            app(WasteServices::class)->processWaste($waste);
-        }
+
     }
 
     /**
@@ -48,9 +46,9 @@ class WasteObserver
     /**
      * Handle the Waste "deleted" event.
      */
-    public function deleted(Waste $waste): void
+    public function deleting(Waste $waste): void
     {
-        //
+        app(WasteServices::class)->deleteWaste($waste);
     }
 
     /**

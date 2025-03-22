@@ -116,7 +116,7 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
                                 $product = Product::with('stockItems')->find($state);
                                 $items = [...$get('items')];
                                 $newItems = $product->stockItems->map(function ($stockItem) {
-                                    $availableQuantity = $stockItem->piece_quantity - $stockItem->reserved_quantity - $stockItem->unavailable_quantity;
+                                    $availableQuantity = $stockItem->piece_quantity  - $stockItem->unavailable_quantity;
                                     if ($availableQuantity <= 0) {
                                         return null;
                                     }
@@ -227,7 +227,16 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()->action(function (ReturnPurchaseInvoice $record, $action) {
+                    try{
+                        $record->delete();
+                    }catch (\Exception $e){
+                        \Filament\Notifications\Notification::make()
+                            ->danger()
+                            ->title($e->getMessage())
+                            ->send();
+                    }
+                }),
             ])
             ->bulkActions([]);
     }
