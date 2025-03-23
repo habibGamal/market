@@ -20,8 +20,104 @@
             line-height: 1.3;
             margin: 0;
             padding: 0;
-            width: 58mm;
-            font-size: 8pt;
+            width: 48mm;
+            font-size: 7pt;
+        }
+
+        .receipt-container {
+            width: 100%;
+            padding: 0 0.5mm;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5mm;
+        }
+
+        .header img {
+            display: block;
+            margin: 0 auto;
+            width: 25px;
+            height: 25px;
+        }
+
+        .header h1 {
+            font-size: 9pt;
+            font-weight: bold;
+            margin: 1.5mm 0;
+        }
+
+        .divider {
+            border-top: 1px dashed var(--border-color);
+            margin: 1.5mm 0;
+        }
+
+        .info-item {
+            margin-bottom: 1mm;
+            font-size: 6pt;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-label {
+            font-weight: bold;
+        }
+
+        .item-container {
+            margin-bottom: 2mm;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 1mm;
+        }
+
+        .item-container .item-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.5mm;
+        }
+
+
+        .item-container .nested-item-container {
+            display: flex;
+            gap: 10mm;
+        }
+
+        .item-label {
+            font-weight: bold;
+            font-size: 6pt;
+        }
+
+        .item-value {
+            font-size: 6pt;
+            word-break: break-word;
+        }
+
+        .total {
+            font-weight: bold;
+            margin-top: 1.5mm;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 1.5mm;
+            font-size: 6pt;
+            padding-bottom: 4mm;
+        }
+
+        .centered {
+            text-align: center;
+        }
+
+        .print-btn {
+            display: block;
+            margin: 10px auto;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
         @media print {
@@ -30,91 +126,29 @@
             }
 
             body {
-                width: 58mm;
+                width: 48mm;
                 margin: 0;
                 padding: 0;
-            }
-
-            .receipt-container {
-                width: 100%;
-                padding: 2mm;
-            }
-
-            .receipt-container img {
-                width: 30px;
-                height: 30px;
-            }
-
-            .receipt-container h1 {
-                font-size: 10pt;
-                font-weight: bold;
-                margin: 2mm 0;
-            }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 8pt;
-            }
-
-            td, th {
-                padding: 1mm;
-                text-align: right;
-            }
-
-            .border-bottom {
-                border-bottom: 1px dashed var(--border-color);
-            }
-
-            .centered {
-                text-align: center;
-            }
-
-            .info-item {
-                margin-bottom: 1mm;
-            }
-
-            .info-label {
-                font-weight: bold;
-            }
-
-            .total {
-                font-weight: bold;
-                margin-top: 2mm;
-            }
-
-            .header {
-                text-align: center;
-                margin-bottom: 3mm;
-            }
-
-            .divider {
-                border-top: 1px dashed var(--border-color);
-                margin: 2mm 0;
-            }
-
-            .footer {
-                text-align: center;
-                margin-top: 3mm;
-                font-size: 7pt;
             }
         }
     </style>
 </head>
 
 <body>
-    <button onclick="window.print()" class="no-print" style="display: block; margin: 10px auto; padding: 5px 10px;">
+    <button onclick="window.print()" class="no-print print-btn">
         طباعة
     </button>
 
     <div class="receipt-container">
         <div class="header">
-            <img src="{{ $template->getLogoUrl() }}" alt="Logo" style="display: block; margin: 0 auto; width: 30px; height: 30px;">
-            <h1 class="centered">{{ $template->getTitle() }}</h1>
-            <div style="font-size: 7pt; text-align: center;">{{ now()->format('Y/m/d H:i') }}</div>
-            <div class="divider"></div>
+            <img src="{{ $template->getLogoUrl() }}" alt="Logo">
+            <h1>{{ $template->getTitle() }}</h1>
+            <div style="font-size: 7pt;">{{ now()->format('Y/m/d H:i') }}</div>
         </div>
 
+        <div class="divider"></div>
+
+        <!-- Information Section -->
         <div>
             @foreach ($template->getInfos() as $key => $value)
                 <div class="info-item">
@@ -124,28 +158,51 @@
             @endforeach
         </div>
 
-        @if ($template->getItemHeaders() && $template->getItems())
+        <!-- Items Section -->
+        @if ($template->getItems())
             <div class="divider"></div>
-            <table>
-                <thead>
-                    <tr>
-                        @foreach ($template->getItemHeaders() as $header)
-                            <th class="border-bottom">{{ $header }}</th>
-                        @endforeach
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($template->getItems() as $item)
-                        <tr>
-                            @foreach ($item as $value)
-                                <td class="border-bottom">{{ $value }}</td>
-                            @endforeach
-                        </tr>
+
+            @php
+                $itemHeaders = $template->getItemHeaders() ?? [];
+            @endphp
+
+            <!-- Items List -->
+            @foreach ($template->getItems() as $item)
+                <div class="item-container">
+                    @php
+                        $itemArray = is_array($item) ? $item : [];
+                    @endphp
+
+                    @foreach ($itemArray as $index => $value)
+                        @if (is_array($value))
+                            <div class="item-row">
+                                <div class="nested-item-container">
+                                    @php
+                                        $nestedItemArray = $value;
+                                    @endphp
+
+                                    @foreach ($nestedItemArray as $nestedIndex => $nestedValue)
+                                        <div class="item-row">
+                                            <span
+                                                class="item-label">{{ isset($itemHeaders[$index][$nestedIndex]) ? $itemHeaders[$index][$nestedIndex] . ':' : '' }}</span>
+                                            <span class="item-value">{!! $nestedValue !!}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @else
+                            <div class="item-row">
+                                <span
+                                    class="item-label">{{ isset($itemHeaders[$index]) ? $itemHeaders[$index] . ':' : '' }}</span>
+                                <span class="item-value">{!! $value !!}</span>
+                            </div>
+                        @endif
                     @endforeach
-                </tbody>
-            </table>
+                </div>
+            @endforeach
         @endif
 
+        <!-- Total Section -->
         @if ($template->getTotal())
             <div class="divider"></div>
             <div class="total">
@@ -155,6 +212,8 @@
         @endif
 
         <div class="divider"></div>
+
+        <!-- Footer Section -->
         <div class="footer">
             شكراً لتعاملكم معنا
         </div>

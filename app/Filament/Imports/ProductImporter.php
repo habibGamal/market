@@ -76,6 +76,6 @@ class ProductImporter extends Importer
 
     public function getJobRetryUntil(): ?CarbonInterface
     {
-        return now()->addMilliseconds(1000);
+        return now()->addMilliseconds(10000);
     }
 }

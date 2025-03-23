@@ -161,7 +161,7 @@ class Order extends Model
         if ($netPacketsQty > 0) {
             $quantityDisplay .= $netPacketsQty . ' عبوة';
             if ($netPieceQty > 0) {
-                $quantityDisplay .= ' و ';
+                $quantityDisplay .= "<br/>";
             }
         }
         if ($netPieceQty > 0) {
@@ -208,14 +208,20 @@ class Order extends Model
             ->info('العنوان', $this->customer->address)
             ->info('الحالة', $this->status->getLabel())
             ->total($this->netTotal)
-            ->itemHeaders(['المنتج', 'الكمية', 'السعر', 'الإجمالي'])
+            ->itemHeaders(['المنتج', ['عبوات', 'سعر العبوة'], ['قطع', 'سعر القطعة'], 'الإجمالي'])
             ->items($this->items->map(function ($item) use ($returnedItems) {
                 $netQuantity = $this->calculateNetQuantity($item, $returnedItems);
 
                 return [
                     $item->product->name,
-                    $netQuantity['quantityDisplay'],
-                    $item->piece_price,
+                    [
+                        $netQuantity['netPacketsQty'],
+                        $item->packet_price,
+                    ],
+                    [
+                        $netQuantity['netPieceQty'],
+                        $item->piece_price,
+                    ],
                     $netQuantity['netTotal']
                 ];
             })->toArray())
