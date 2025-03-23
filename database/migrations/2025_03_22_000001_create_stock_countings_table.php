@@ -14,7 +14,7 @@ return new class extends Migration
             $table->decimal('total_diff', 10, 2);
             $table->string('status')->default(InvoiceStatus::DRAFT->value);
             $table->foreignId('officer_id')->constrained('users');
-            $table->text('note')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

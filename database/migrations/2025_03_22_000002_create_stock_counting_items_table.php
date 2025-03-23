@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('stock_counting_items', function (Blueprint $table) {
             $table->id();
-            $table->bool('is_new')->default(false);
+            $table->boolean('is_new')->default(false);
             $table->foreignId('product_id')->constrained();
             $table->integer('old_packets_quantity')->default(0);
             $table->integer('old_piece_quantity')->default(0);

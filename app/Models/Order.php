@@ -140,6 +140,91 @@ class Order extends Model
         );
     }
 
+    /**
+     * Calculate the net quantity for an order item after returns
+     *
+     * @param OrderItem $item The order item
+     * @param array $returnedItems Collection of returned items grouped by product_id
+     * @return array Contains 'netPieceQty', 'netPacketsQty', 'quantityDisplay', and 'netTotal'
+     */
+    protected function calculateNetQuantity($item, $returnedItems)
+    {
+        // Get returned quantities for this product (or zero if none)
+        $returned = $returnedItems[$item->product_id] ?? ['piece_quantity' => 0, 'packets_quantity' => 0];
+
+        // Calculate net quantities after returns
+        $netPieceQty = max(0, $item->piece_quantity - $returned['piece_quantity']);
+        $netPacketsQty = max(0, $item->packets_quantity - $returned['packets_quantity']);
+
+        // Format quantity display
+        $quantityDisplay = '';
+        if ($netPacketsQty > 0) {
+            $quantityDisplay .= $netPacketsQty . ' عبوة';
+            if ($netPieceQty > 0) {
+                $quantityDisplay .= ' و ';
+            }
+        }
+        if ($netPieceQty > 0) {
+            $quantityDisplay .= $netPieceQty . ' قطعة';
+        }
+
+        // If everything was returned
+        if ($netPieceQty == 0 && $netPacketsQty == 0) {
+            $quantityDisplay = 'مرتجع بالكامل';
+        }
+
+        // Calculate the net total for this item after returns
+        $netTotal = $item->total -
+            ($returned['piece_quantity'] * $item->piece_price) -
+            ($returned['packets_quantity'] * $item->packet_price);
+
+        return [
+            'netPieceQty' => $netPieceQty,
+            'netPacketsQty' => $netPacketsQty,
+            'quantityDisplay' => $quantityDisplay,
+            'netTotal' => $netTotal
+        ];
+    }
+
+    public function printTemplate()
+    {
+        $this->loadMissing('items.product', 'customer', 'returnItems');
+
+        // Get returned items by product_id for easy lookup
+        $returnedItems = $this->returnItems->groupBy('product_id')
+            ->map(function ($items) {
+                return [
+                    'piece_quantity' => $items->sum('piece_quantity'),
+                    'packets_quantity' => $items->sum('packets_quantity')
+                ];
+            });
+
+        $template = printTemplate()
+            ->title('طلب')
+            ->info('رقم الطلب', $this->id)
+            ->info('تاريخ الطلب', $this->created_at->format('Y-m-d h:i:s A'))
+            ->info('العميل', $this->customer->name)
+            ->info('رقم الهاتف', $this->customer->phone)
+            ->info('العنوان', $this->customer->address)
+            ->info('الحالة', $this->status->getLabel())
+            ->total($this->netTotal)
+            ->itemHeaders(['المنتج', 'الكمية', 'السعر', 'الإجمالي'])
+            ->items($this->items->map(function ($item) use ($returnedItems) {
+                $netQuantity = $this->calculateNetQuantity($item, $returnedItems);
+
+                return [
+                    $item->product->name,
+                    $netQuantity['quantityDisplay'],
+                    $item->piece_price,
+                    $netQuantity['netTotal']
+                ];
+            })->toArray())
+            ->layout58mm();
+
+
+        return $template;
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

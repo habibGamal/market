@@ -12,6 +12,7 @@ use Filament\Forms;
 use Filament\Forms\Components\Repeater;
 use Illuminate\Support\Collection;
 use App\Services\DriverServices;
+use Filament\Actions;
 
 class ViewOrder extends ViewRecord
 {
@@ -85,7 +86,9 @@ class ViewOrder extends ViewRecord
                 ->modalWidth(MaxWidth::Medium)
                 ->requiresConfirmation()
                 ->modalHeading('تسليم الأصناف للعميل')
-                ->modalSubmitActionLabel('تسليم')
+                ->modalSubmitActionLabel('تسليم'),
+
+                printAction(Actions\Action::make('print')),
         ];
     }
 }

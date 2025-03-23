@@ -10,8 +10,6 @@ class ViewReturnPurchaseInvoice extends ViewRecord
 {
     protected static string $resource = ReturnPurchaseInvoiceResource::class;
 
-
-
     public function getRelationManagers(): array
     {
         return [

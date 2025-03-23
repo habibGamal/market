@@ -23,7 +23,7 @@ class StockCounting extends Model
         'total_diff',
         'status',
         'officer_id',
-        'note',
+        'notes',
     ];
 
     protected $casts = [

@@ -99,14 +99,6 @@ class StockCountingResource extends InvoiceResource
                         self::updatedAtPlaceholder(),
                         self::officerPlaceholder(),
                         self::totalPlaceholder(),
-                        // Forms\Components\TextInput::make('total_diff')
-                        //     ->label('إجمالي الفرق')
-                        //     ->disabled()
-                        //     ->dehydrated(false)
-                        //     ->extraAlpineAttributes([
-                        //         'wire:ignore' => true,
-                        //         'x-effect' => "setTimeout(() => { $el.value = computeInvoiceTotal() }, 200)",
-                        //     ]),
                         self::statusSelect()->disabled(fn($record) => $record == null),
                         self::notesTextarea()->name('note'),
                     ]),
@@ -134,9 +126,9 @@ class StockCountingResource extends InvoiceResource
                                 $items = [...$get('items')];
                                 $newItems = $product->stockItems->map(function ($stockItem) {
                                     $availableQuantity = $stockItem->piece_quantity;
-                                    if ($availableQuantity <= 0) {
-                                        return null;
-                                    }
+                                    // if ($availableQuantity <= 0) {
+                                    //     return null;
+                                    // }
                                     $packetsQuantity = (int) ($availableQuantity / $stockItem->product->packet_to_piece);
                                     $pieceQuantity = $availableQuantity % $stockItem->product->packet_to_piece;
 
@@ -211,12 +203,14 @@ class StockCountingResource extends InvoiceResource
                             ->numeric()
                             ->required()
                             ->disabled()
+                            ->dehydrated(true)
                             ->minValue(0),
                         Forms\Components\TextInput::make('old_piece_quantity')
                             ->label('عدد القطع (قديم)')
                             ->numeric()
                             ->required()
                             ->disabled()
+                            ->dehydrated(true)
                             ->minValue(0),
                         Forms\Components\TextInput::make('new_packets_quantity')
                             ->label('عدد العبوات (جديد)')
@@ -233,6 +227,7 @@ class StockCountingResource extends InvoiceResource
                             ->numeric()
                             ->required()
                             ->disabled()
+                            ->dehydrated(true)
                             ->minValue(0),
                         DatePicker::make('release_date')
                             ->label('تاريخ الإنتاج')
@@ -250,7 +245,8 @@ class StockCountingResource extends InvoiceResource
                                         $fail('تاريخ الإنتاج موجود مسبقاً لهذا المنتج');
                                     }
                                 }
-                            ]),
+                            ])
+                            ->dehydrated(true),
                         Forms\Components\TextInput::make('total_diff')
                             ->label('الفرق')
                             ->disabled()
@@ -335,12 +331,6 @@ class StockCountingResource extends InvoiceResource
                 ->label('تاريخ التحديث')
                 ->dateTime(),
         ])->columns(3);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-        ];
     }
 
     public static function getPages(): array

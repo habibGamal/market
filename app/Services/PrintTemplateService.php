@@ -13,6 +13,6 @@ class PrintTemplateService
         }
         $template =  $model->printTemplate();
         $template->validate();
-        return view('print_template', ['template' => $template]);
+        return view($template->getLayout(), ['template' => $template]);
     }
 }

@@ -14,6 +14,18 @@ class PrintTemplate
 
     protected $items = null;
 
+    protected $layout = 'print_template';
+
+    public function layout58mm(){
+        $this->layout = 'print_58mm_template';
+        return $this;
+    }
+
+    public function getLayout(): string
+    {
+        return $this->layout;
+    }
+
     public function getTitle(): ?string
     {
         return $this->title;
