@@ -33,8 +33,8 @@ interface Props {
 
 const formSchema = z.object({
     name: z.string().min(3, "الاسم يجب أن يكون 3 أحرف على الأقل"),
-    gov: z.string().min(1, "المحافظة مطلوبة"),
-    city: z.string().min(1, "المدينة مطلوبة"),
+    gov_id: z.string().min(1, "المحافظة مطلوبة"),
+    city_id: z.string().min(1, "المدينة مطلوبة"),
     village: z.string().optional(),
     area_id: z.string().min(1, "المنطقة مطلوبة"),
     address: z.string().min(10, "العنوان يجب أن يكون 10 أحرف على الأقل"),
@@ -56,8 +56,8 @@ export default function Register({ businessTypes, govs }: Props) {
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
-            gov: "",
-            city: "",
+            gov_id: "",
+            city_id: "",
             village: "",
             area_id: "",
             address: "",
@@ -70,16 +70,16 @@ export default function Register({ businessTypes, govs }: Props) {
         },
     });
     const cities =
-        govs.find((g) => g.id.toString() === form.watch("gov"))?.cities ?? [];
+        govs.find((g) => g.id.toString() === form.watch("gov_id"))?.cities ?? [];
 
     const areas =
-        cities.find((c) => c.id.toString() === form.watch("city"))?.areas ?? [];
+        cities.find((c) => c.id.toString() === form.watch("city_id"))?.areas ?? [];
 
     const showVillage =
         form.watch("area_id") &&
         govs
-            .find((g) => g.id.toString() === form.watch("gov"))
-            ?.cities.find((c) => c.id.toString() === form.watch("city"))
+            .find((g) => g.id.toString() === form.watch("gov_id"))
+            ?.cities.find((c) => c.id.toString() === form.watch("city_id"))
             ?.areas.find((a) => a.id.toString() === form.watch("area_id"))
             ?.has_village;
 
@@ -152,7 +152,7 @@ export default function Register({ businessTypes, govs }: Props) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
                             control={form.control}
-                            name="gov"
+                            name="gov_id"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>المحافظة</FormLabel>
@@ -183,14 +183,14 @@ export default function Register({ businessTypes, govs }: Props) {
 
                         <FormField
                             control={form.control}
-                            name="city"
+                            name="city_id"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>المدينة</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
-                                        disabled={!form.watch("gov")}
+                                        disabled={!form.watch("gov_id")}
                                     >
                                         <FormControl>
                                             <SelectTrigger>
@@ -223,7 +223,7 @@ export default function Register({ businessTypes, govs }: Props) {
                                 <Select
                                     onValueChange={field.onChange}
                                     defaultValue={field.value}
-                                    disabled={!form.watch("city")}
+                                    disabled={!form.watch("city_id")}
                                 >
                                     <FormControl>
                                         <SelectTrigger>

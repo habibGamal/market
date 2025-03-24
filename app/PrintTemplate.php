@@ -5,8 +5,14 @@ namespace App;
 class PrintTemplate
 {
     protected $title;
+
     protected $logoUrl = '/icon512_maskable.png';
+
     protected $infos = [];
+
+    protected $footerInfos = [];
+
+    protected $footerContent = '';
 
     protected $total = null;
 
@@ -16,7 +22,8 @@ class PrintTemplate
 
     protected $layout = 'print_template';
 
-    public function layout58mm(){
+    public function layout58mm()
+    {
         $this->layout = 'print_58mm_template';
         return $this;
     }
@@ -39,6 +46,16 @@ class PrintTemplate
     public function getInfos(): array
     {
         return $this->infos;
+    }
+
+    public function getFooterInfos(): array
+    {
+        return $this->footerInfos;
+    }
+
+    public function getFooter(): string
+    {
+        return $this->footerContent;
     }
 
     public function getTotal(): ?float
@@ -72,6 +89,18 @@ class PrintTemplate
     public function info(string $key, string $value)
     {
         $this->infos[$key] = $value;
+        return $this;
+    }
+
+    public function footerInfo(string $key, string $value)
+    {
+        $this->footerInfos[$key] = $value;
+        return $this;
+    }
+
+    public function footer(string $footer)
+    {
+        $this->footerContent = $footer;
         return $this;
     }
 

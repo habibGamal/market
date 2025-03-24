@@ -29,9 +29,9 @@ class RegisterController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'min:3'],
-            'gov' => ['required', 'string'],
-            'city' => ['required', 'string'],
-            'village' => ['required_if:city,1,4'], // Required only for specific cities
+            'gov_id' => ['required', 'exists:govs,id'],
+            'city_id' => ['required', 'exists:cities,id'],
+            'village' => ['required_if:city_id,1,4'], // Required only for specific cities
             'area_id' => ['required', 'exists:areas,id'],
             'address' => ['required', 'string', 'min:10'],
             'location' => ['nullable', 'string'], // Will contain geo coordinates

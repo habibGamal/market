@@ -27,11 +27,13 @@
             .no-print {
                 display: none;
             }
+
             body * {
                 visibility: hidden;
             }
 
-            .print-container, .print-container * {
+            .print-container,
+            .print-container * {
                 visibility: visible;
             }
 
@@ -110,7 +112,8 @@
                 print-color-adjust: exact;
             }
 
-            .info-label, .info-value {
+            .info-label,
+            .info-value {
                 padding: 0.4rem 0.8rem;
                 font-size: 12px;
             }
@@ -121,6 +124,7 @@
             opacity: 0.5;
             font-size: 0.8em;
         }
+
         .sortable.desc:after {
             content: ' \25BC';
         }
@@ -168,22 +172,36 @@
         }
     </style>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
 
-            const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
-                v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
-            )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+            const comparer = (idx, asc) => (a, b) => {
+                const v1 = getCellValue(a, idx);
+                const v2 = getCellValue(b, idx);
+                // If both values are numbers, do numeric comparison
+                if (v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2)) {
+                    return asc ? v1 - v2 : v2 - v1;
+                }
+                // Otherwise do string comparison
+                return asc ? v1.toString().localeCompare(v2) : v2.toString().localeCompare(v1);
+            };
 
             document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
                 const table = th.closest('table');
-                Array.from(table.querySelectorAll('tr:nth-child(n+2)'))
-                    .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
-                    .forEach(tr => table.appendChild(tr));
+                const tbody = table.querySelector('tbody');
+                const colIndex = Array.from(th.parentNode.children).indexOf(th);
+                this.asc = th.classList.contains('sortable') && !th.classList.contains('desc');
+
+                // Select only rows from tbody for sorting
+                Array.from(tbody.querySelectorAll('tr'))
+                    .sort(comparer(colIndex, this.asc))
+                    .forEach(tr => tbody.appendChild(tr));
 
                 // Toggle sorting direction class
-                document.querySelectorAll('th').forEach(header => header.classList.remove('desc', 'sortable'));
-                th.classList.toggle('desc', !this.asc);
+                document.querySelectorAll('th').forEach(header => {
+                    header.classList.remove('desc', 'sortable');
+                });
+                th.classList.toggle('desc', this.asc);
                 th.classList.add('sortable');
             })));
         });
@@ -191,9 +209,12 @@
 </head>
 
 <body class="bg-gray-50 p-4 md:p-8">
-    <button onclick="window.print()" class="mb-6 bg-blue-600 hover:bg-blue-700 transition-colors text-white py-2 px-6 rounded-lg shadow-sm no-print flex items-center mx-auto">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+    <button onclick="window.print()"
+        class="mb-6 bg-blue-600 hover:bg-blue-700 transition-colors text-white py-2 px-6 rounded-lg shadow-sm no-print flex items-center mx-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
         </svg>
         طباعة
     </button>
@@ -222,7 +243,8 @@
                     <thead>
                         <tr class="bg-gray-100">
                             @foreach ($template->getItemHeaders() as $header)
-                                <th class="py-4 px-6 font-semibold text-gray-700 border-b cursor-pointer hover:bg-gray-200 transition-colors">
+                                <th
+                                    class="py-4 px-6 font-semibold text-gray-700 border-b cursor-pointer hover:bg-gray-200 transition-colors">
                                     {{ $header }}
                                 </th>
                             @endforeach

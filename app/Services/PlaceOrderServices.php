@@ -30,6 +30,11 @@ class PlaceOrderServices
     public function placeOrder(Cart $cart): Order
     {
         return DB::transaction(function () use ($cart) {
+            // Check if selling is stopped in settings
+            if (settings(SettingKey::STOP_SELLING, false)) {
+                throw new \Exception('تم إيقاف البيع مؤقتاً، يرجى المحاولة لاحقاً');
+            }
+
             // Check for inactive products
             foreach ($cart->items as $item) {
                 if (!$item->product->is_active) {

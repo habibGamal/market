@@ -25,8 +25,9 @@
         }
 
         .receipt-container {
-            width: 100%;
-            padding: 0 0.5mm;
+            width: 90%;
+            margin: 0 auto;
+            /* font-weight: 600; */
         }
 
         .header {
@@ -48,13 +49,13 @@
         }
 
         .divider {
-            border-top: 1px dashed var(--border-color);
+            border-top: 1px dashed #000;
             margin: 1.5mm 0;
         }
 
         .info-item {
             margin-bottom: 1mm;
-            font-size: 6pt;
+            font-size: 8pt;
             display: flex;
             justify-content: space-between;
         }
@@ -65,7 +66,7 @@
 
         .item-container {
             margin-bottom: 2mm;
-            border-bottom: 1px dashed var(--border-color);
+            border-bottom: 1px dashed #000;
             padding-bottom: 1mm;
         }
 
@@ -83,17 +84,18 @@
 
         .item-label {
             font-weight: bold;
-            font-size: 6pt;
+            font-size: 8pt;
         }
 
         .item-value {
-            font-size: 6pt;
+            font-size: 8pt;
             word-break: break-word;
         }
 
         .total {
             font-weight: bold;
             margin-top: 1.5mm;
+            font-size: 9pt;
             display: flex;
             justify-content: space-between;
         }
@@ -129,6 +131,11 @@
                 width: 48mm;
                 margin: 0;
                 padding: 0;
+            }
+
+            .cutting-line {
+                border-top: 1px dashed var(--border-color);
+                margin-top: 5mm;
             }
         }
     </style>
@@ -207,16 +214,32 @@
             <div class="divider"></div>
             <div class="total">
                 <span>المجموع الكلي:</span>
-                <span>{{ $template->getTotal() }}</span>
+                <span>{{ number_format($template->getTotal(), 2) }}</span>
             </div>
         @endif
 
         <div class="divider"></div>
-
+        <!-- Footer Info Section -->
+        @if (!empty($template->getFooterInfos()))
+            <div>
+                @foreach ($template->getFooterInfos() as $key => $value)
+                    <div class="info-item">
+                        <span class="info-label">{{ $key }}:</span>
+                        <span class="info-value">{{ $value }}</span>
+                    </div>
+                @endforeach
+            </div>
+            <div class="divider"></div>
+        @endif
         <!-- Footer Section -->
         <div class="footer">
-            شكراً لتعاملكم معنا
+            @if ($template->getFooter())
+                <div class="centered">
+                    {!! $template->getFooter() !!}
+                </div>
+            @endif
         </div>
+        <div class="cutting-line"></div>
     </div>
 </body>
 

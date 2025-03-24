@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\OrderStatus;
+use App\Enums\SettingKey;
 use App\Observers\OrderObserver;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -198,7 +199,6 @@ class Order extends Model
                     'packets_quantity' => $items->sum('packets_quantity')
                 ];
             });
-
         $template = printTemplate()
             ->title('طلب')
             ->info('رقم الطلب', $this->id)
@@ -208,12 +208,15 @@ class Order extends Model
             ->info('العنوان', $this->customer->address)
             ->info('الحالة', $this->status->getLabel())
             ->total($this->netTotal)
-            ->itemHeaders(['المنتج', ['عبوات', 'سعر العبوة'], ['قطع', 'سعر القطعة'], 'الإجمالي'])
+            ->itemHeaders([['المنتج', 'الإجمالي'], ['عبوات', 'سعر العبوة'], ['قطع', 'سعر القطعة']])
             ->items($this->items->map(function ($item) use ($returnedItems) {
                 $netQuantity = $this->calculateNetQuantity($item, $returnedItems);
 
                 return [
-                    $item->product->name,
+                    [
+                        $item->product->name,
+                        $netQuantity['netTotal']
+                    ],
                     [
                         $netQuantity['netPacketsQty'],
                         $item->packet_price,
@@ -222,9 +225,9 @@ class Order extends Model
                         $netQuantity['netPieceQty'],
                         $item->piece_price,
                     ],
-                    $netQuantity['netTotal']
                 ];
             })->toArray())
+            ->footer(settings(SettingKey::ORDER_RECEIPT_FOOTER, '') ?? '')
             ->layout58mm();
 
 
