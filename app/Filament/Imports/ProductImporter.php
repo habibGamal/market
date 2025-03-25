@@ -37,15 +37,10 @@ class ProductImporter extends Importer
             ImportColumn::make('expiration')->label('مدة الصلاحية'),
 
             ImportColumn::make('brand')->label('العلامة التجارية')
-                ->relationship(resolveUsing: function (string $state): ?Brand {
-                    return Brand::query()
-                        ->firstOrCreate(['name' => $state], ['name' => $state]);
-                }),
+                ->relationship(),
             ImportColumn::make('category')->label('الفئة')
-                ->relationship(resolveUsing: function (string $state): ?Category {
-                    return Category::query()
-                        ->firstOrCreate(['name' => $state], ['name' => $state]);
-                }),
+                ->relationship()
+            ,
         ];
     }
 
@@ -74,8 +69,8 @@ class ProductImporter extends Importer
         return $body;
     }
 
-    public function getJobRetryUntil(): ?CarbonInterface
-    {
-        return now()->addMilliseconds(10000);
-    }
+    // public function getJobRetryUntil(): ?CarbonInterface
+    // {
+    //     return now();
+    // }
 }

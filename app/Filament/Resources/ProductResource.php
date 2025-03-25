@@ -115,6 +115,8 @@ class ProductResource extends Resource
                     ->exporter(ProductExporter::class),
                 ImportAction::make()
                     ->importer(ProductImporter::class)
+                    ->job(\App\Jobs\CustomImportCsv::class)
+
             ])
             ->columns([
                 Tables\Columns\TextColumn::make('name')

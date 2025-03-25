@@ -179,4 +179,12 @@ class Product extends Model
     {
         return $this->hasMany(ReturnOrderItem::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<CartItem>
+     */
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
 }

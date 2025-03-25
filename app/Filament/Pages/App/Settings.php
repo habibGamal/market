@@ -6,10 +6,12 @@ use App\Enums\SettingKey;
 use App\Models\Setting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -32,6 +34,10 @@ class Settings extends Page
 
         foreach ($settings as $setting) {
             $this->data[$setting->key] = $setting->value;
+            // If the setting type is boolean, cast it to true/false
+            if ($this->getSettingType($setting->key) === 'boolean') {
+                $this->data[$setting->key] = (bool) $setting->value;
+            }
         }
     }
 
@@ -92,7 +98,29 @@ class Settings extends Page
                                         ->step(0.01)
                                         ->suffix('%')
                                         ->required(),
+
+                                    Toggle::make(SettingKey::STOP_SELLING->value)
+                                        ->label(SettingKey::STOP_SELLING->getLabel())
+                                        ->helperText('عند تفعيل هذا الخيار سيتم إيقاف البيع في التطبيق')
+                                        ->onColor('danger')
                                 ]),
+
+                                RichEditor::make(SettingKey::ORDER_RECEIPT_FOOTER->value)
+                                    ->label(SettingKey::ORDER_RECEIPT_FOOTER->getLabel())
+                                    ->placeholder('أدخل نص تذييل قسيمة الطلب')
+                                    ->helperText('هذا النص سوف يظهر في أسفل قسيمة الطلب المطبوعة')
+                                    ->columnSpanFull()
+                                    ->toolbarButtons([
+                                        'bold',
+                                        'italic',
+                                        'underline',
+                                        'strike',
+                                        'bulletList',
+                                        'orderedList',
+                                        'alignLeft',
+                                        'alignCenter',
+                                        'alignRight',
+                                    ]),
                             ]),
 
                         // Invoices Settings Tab (Empty for now)

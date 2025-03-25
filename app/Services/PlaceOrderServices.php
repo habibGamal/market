@@ -30,6 +30,11 @@ class PlaceOrderServices
     public function placeOrder(Cart $cart): Order
     {
         return DB::transaction(function () use ($cart) {
+            // Check if selling is stopped in settings
+            if (settings(SettingKey::STOP_SELLING, false)) {
+                throw new \Exception('تم إيقاف البيع مؤقتاً، يرجى المحاولة لاحقاً');
+            }
+
             // Check for inactive products
             foreach ($cart->items as $item) {
                 if (!$item->product->is_active) {
@@ -39,6 +44,12 @@ class PlaceOrderServices
 
             // Re-evaluate cart total
             $recalculatedTotal = $this->recalculateCartTotal($cart);
+
+            // Check for zero total
+            if ($recalculatedTotal <= 0) {
+                throw new \Exception('لا يمكن إنشاء طلب فارغ، يرجى إضافة منتجات إلى السلة');
+            }
+
             // Cast to decimal for consistent comparison
             $recalculatedTotal = (float) number_format($recalculatedTotal, 2, '.', '');
 
@@ -46,12 +57,6 @@ class PlaceOrderServices
             if ($recalculatedTotal != $cart->total) {
                 throw new \Exception('هناك تغييرات في الأسعار أو العروض. يرجى تحديث السلة');
             }
-
-            // Check product limits for customer area
-            $this->validateProductLimits($cart);
-
-            // Get or create today's order
-            $order = $this->getOrCreateTodayOrder($cart->customer_id);
 
             // Convert cart items to order items format
             $cartItems = $cart->items->map(function ($item) {
@@ -65,29 +70,47 @@ class PlaceOrderServices
                 ];
             })->toArray();
 
+            // Get or create today's order
+            $order = $this->getOrCreateTodayOrder($cart->customer_id);
+
             // Add items to order
             $this->orderServices->addOrderItems($order, $cartItems);
 
-            // ensure order total statisfy minimum order total
-            $minTotalOrder = (float) settings(SettingKey::MIN_TOTAL_ORDER, 0);
-            if ($order->total < $minTotalOrder) {
-                throw new \Exception("الحد الأدنى لإجمالي الطلب هو $minTotalOrder");
-            }
+            // Order Validation & Evaluation
+
+            $this->orderValidationAndEvaluation($order);
 
             // add points to the customer based on total cart (as total order is accumilative)
             $this->customerPointsService->addPoints($order->customer, $recalculatedTotal);
-
-            // apply offers
-            $discountData = $this->offerService->calculateOrderDiscount($order);
-            $order->offers()->sync($discountData['applied_offers']->pluck('id'));
-            $order->discount = $discountData['discount'];
-            $order->save();
 
             // Clean up cart
             $this->cartService->emptyCart($cart);
 
             return $order;
         });
+    }
+
+    /**
+     * Validate order and evaluate total, limits and minimum requirements
+     *
+     * @throws \Exception if validation fails
+     */
+    public function orderValidationAndEvaluation(Order $order): void
+    {
+        // Check product limits for customer area
+        $this->validateProductLimits($order);
+
+        // ensure order total satisfies minimum order total
+        $minTotalOrder = (float) settings(SettingKey::MIN_TOTAL_ORDER, 0);
+        if ($order->total < $minTotalOrder) {
+            throw new \Exception("الحد الأدنى لإجمالي الطلب هو $minTotalOrder");
+        }
+
+        // apply offers
+        $discountData = $this->offerService->calculateOrderDiscount($order);
+        $order->offers()->sync($discountData['applied_offers']->pluck('id'));
+        $order->discount = $discountData['discount'];
+        $order->save();
     }
 
     /**
@@ -151,11 +174,11 @@ class PlaceOrderServices
      *
      * @throws \Exception if limits are exceeded
      */
-    private function validateProductLimits(Cart $cart): void
+    private function validateProductLimits(Order $order): void
     {
-        foreach ($cart->items as $item) {
+        foreach ($order->items as $item) {
             $limit = ProductLimit::where('product_id', $item->product_id)
-                ->where('area_id', $cart->customer->area_id)
+                ->where('area_id', $order->customer->area_id)
                 ->first();
 
             if (!$limit)

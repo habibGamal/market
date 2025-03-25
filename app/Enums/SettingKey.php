@@ -16,12 +16,16 @@ enum SettingKey: string implements HasColor, HasIcon, HasLabel
     // Order Settings
     case MIN_TOTAL_ORDER = 'min_total_order';
     case RATING_POINTS_PERCENT = 'rating_points_percent';
+    case STOP_SELLING = 'stop_selling';
+
+    case ORDER_RECEIPT_FOOTER = 'order_receipt_footer';
 
     public function getColor(): ?string
     {
         return match ($this) {
             self::APP_NAME, self::APP_ICON, self::APP_LOGO => 'blue',
             self::MIN_TOTAL_ORDER, self::RATING_POINTS_PERCENT => 'amber',
+            self::STOP_SELLING => 'danger',
             default => 'gray',
         };
     }
@@ -34,6 +38,8 @@ enum SettingKey: string implements HasColor, HasIcon, HasLabel
             self::APP_LOGO => 'heroicon-o-photo',
             self::MIN_TOTAL_ORDER => 'heroicon-o-currency-dollar',
             self::RATING_POINTS_PERCENT => 'heroicon-o-star',
+            self::STOP_SELLING => 'heroicon-o-no-symbol',
+            self::ORDER_RECEIPT_FOOTER => 'heroicon-o-document-text',
             default => 'heroicon-o-cog',
         };
     }
@@ -46,6 +52,8 @@ enum SettingKey: string implements HasColor, HasIcon, HasLabel
             self::APP_LOGO => 'شعار التطبيق',
             self::MIN_TOTAL_ORDER => 'الحد الأدنى لإجمالي الطلب',
             self::RATING_POINTS_PERCENT => 'نسبة نقاط التقييم',
+            self::STOP_SELLING => 'إيقاف البيع',
+            self::ORDER_RECEIPT_FOOTER => 'دباجة إيصال الطلب',
         };
     }
 
@@ -56,25 +64,9 @@ enum SettingKey: string implements HasColor, HasIcon, HasLabel
             self::APP_ICON, self::APP_LOGO => 'image',
             self::MIN_TOTAL_ORDER => 'float',
             self::RATING_POINTS_PERCENT => 'float',
+            self::STOP_SELLING => 'boolean',
+            self::ORDER_RECEIPT_FOOTER => 'text',
         };
     }
 
-    public function getGroup(): string
-    {
-        return match ($this) {
-            self::APP_NAME, self::APP_ICON, self::APP_LOGO => 'system',
-            self::MIN_TOTAL_ORDER, self::RATING_POINTS_PERCENT => 'orders',
-            default => 'general',
-        };
-    }
-
-    public static function getGroups(): array
-    {
-        return [
-            'system' => 'إعدادات النظام',
-            'orders' => 'إعدادات الطلبات',
-            'invoices' => 'إعدادات الفواتير',
-            'notifications' => 'إعدادات الإشعارات',
-        ];
-    }
 }

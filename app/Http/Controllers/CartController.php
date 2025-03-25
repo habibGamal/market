@@ -35,6 +35,10 @@ class CartController extends Controller
                 'pieces' => 'required|integer|min:0',
             ]);
 
+            if ($validated['packets'] === 0 && $validated['pieces'] === 0) {
+                throw new \Exception('يجب تحديد كمية واحدة على الأقل من الكرتون أو القطع');
+            }
+
             $updatedItem = $this->cartService->updateItemQuantity(
                 $item,
                 $validated['packets'],
@@ -61,6 +65,10 @@ class CartController extends Controller
                 'packets' => 'required|integer|min:0',
                 'pieces' => 'required|integer|min:0',
             ]);
+
+            if ($validated['packets'] === 0 && $validated['pieces'] === 0) {
+                throw new \Exception('يجب تحديد كمية واحدة على الأقل من الكرتون أو القطع');
+            }
 
             $cart = $this->cartService->getOrCreateCart(auth('customer')->id());
             $product = Product::findOrFail($validated['product_id']);

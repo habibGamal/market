@@ -14,7 +14,7 @@
 - when testing a filamentphp resource then follow the filament testing guide from the docs https://filamentphp.com/docs
 - when asking you for a testing follow the project convention of other test files
 - when you implement Observer use laravel ObservedBy attribute don't register it in event service provider
-- when i ask you to implement a report look for the existing reports and migration files to know how to implement queries for the report and implement service for the report queries and always use ReportFilter for filtering periods
+- when i ask you to implement a report look for the existing reports and migration files to know how to implement queries for the report and implement service for the report queries
 - review all migration files to understand the structure of the models
 - review all models files to understand the relations
 - review all services to understantd the operations
