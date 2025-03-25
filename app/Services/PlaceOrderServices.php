@@ -78,7 +78,7 @@ class PlaceOrderServices
 
             // Order Validation & Evaluation
 
-            $this->orderValidationAndEvaluation($order);
+            $this->orderEvaluation($order);
 
             // add points to the customer based on total cart (as total order is accumilative)
             $this->customerPointsService->addPoints($order->customer, $recalculatedTotal);
@@ -95,15 +95,17 @@ class PlaceOrderServices
      *
      * @throws \Exception if validation fails
      */
-    public function orderValidationAndEvaluation(Order $order): void
+    public function orderEvaluation(Order $order, $skipValidation = false): void
     {
-        // Check product limits for customer area
-        $this->validateProductLimits($order);
+        if($skipValidation === false) {
+            // Check product limits for customer area
+            $this->validateProductLimits($order);
 
-        // ensure order total satisfies minimum order total
-        $minTotalOrder = (float) settings(SettingKey::MIN_TOTAL_ORDER, 0);
-        if ($order->total < $minTotalOrder) {
-            throw new \Exception("الحد الأدنى لإجمالي الطلب هو $minTotalOrder");
+            // ensure order total satisfies minimum order total
+            $minTotalOrder = (float) settings(SettingKey::MIN_TOTAL_ORDER, 0);
+            if ($order->total < $minTotalOrder) {
+                throw new \Exception("الحد الأدنى لإجمالي الطلب هو $minTotalOrder");
+            }
         }
 
         // apply offers

@@ -4,10 +4,15 @@ namespace App\Filament\Resources\OrderResource\RelationManagers;
 
 use App\Filament\Actions\Tables\CancelOrderItemsBulkAction;
 use App\Filament\Actions\Tables\ReturnOrderItemsBulkAction;
+use App\Notifications\Templates\OrderItemsCancelledTemplate;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
+use App\Services\OrderServices;
+use App\Services\PlaceOrderServices;
+use App\Services\NotificationService;
 use Filament\Tables\Table;
 
 class ItemsRelationManager extends RelationManager
@@ -44,20 +49,45 @@ class ItemsRelationManager extends RelationManager
             ])
             ->bulkActions([
                 CancelOrderItemsBulkAction::make()
-                    ->failedAction(function ($arguments) {
-                        $this->replaceMountedAction('forceCancel', $arguments);
-                    })
+                    ->bindPage($this)
+                    ->forceActionName('forceCancel')
                 ,
                 ReturnOrderItemsBulkAction::make(),
             ]);
+    }
+
+
+    public function cancelProcess($order, $itemsToCancel, $force = false)
+    {
+        \DB::transaction(function () use ($order, $itemsToCancel, $force) {
+            app(OrderServices::class)->cancelledItems($order, $itemsToCancel);
+            app(PlaceOrderServices::class)->orderEvaluation($order, skipValidation: $force);
+        });
+
+        app(NotificationService::class)->sendToUser(
+            $order->customer,
+            new OrderItemsCancelledTemplate,
+            [
+                'order_code' => $order->code,
+                'items_count' => count($itemsToCancel),
+                'order_id' => $order->id,
+            ]
+        );
+
+        Notification::make()
+            ->title('تم إلغاء الأصناف بنجاح')
+            ->success()
+            ->send();
     }
 
     public function forceCancelAction(): \Filament\Actions\Action
     {
         return \Filament\Actions\Action::make('force_cancel')
             ->requiresConfirmation()
-            ->action(function (array $arguments) {
-
+            ->label('إلغاء الأصناف المحددة')
+            ->modalDescription(fn(array $arguments) => $arguments['message'])
+            ->action(function (\Filament\Actions\Action $action, array $arguments) {
+                $this->cancelProcess(...$arguments['callback_arguments']);
             });
     }
 

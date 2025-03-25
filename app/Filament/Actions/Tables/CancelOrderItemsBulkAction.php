@@ -21,6 +21,10 @@ class CancelOrderItemsBulkAction extends BulkAction
     protected array $failedActionArguments = [];
     protected ?\Closure $whenFailedCallback = null;
 
+    protected $forceAction = null;
+
+    protected $page = null;
+
     public static function getDefaultName(): ?string
     {
         return 'cancel';
@@ -93,41 +97,32 @@ class CancelOrderItemsBulkAction extends BulkAction
                 })->toArray();
 
                 try {
-                    \DB::transaction(function () use ($order, $itemsToCancel) {
-                        app(OrderServices::class)->cancelledItems($order, $itemsToCancel);
-                        // app(PlaceOrderServices::class)->orderValidationAndEvaluation($order);
-                    });
-
-                    app(NotificationService::class)->sendToUser(
-                        $order->customer,
-                        new OrderItemsCancelledTemplate,
-                        [
-                            'order_code' => $order->code,
-                            'items_count' => count($itemsToCancel),
-                            'order_id' => $order->id,
-                        ]
-                    );
-
-                    Notification::make()
-                        ->title('تم إلغاء الأصناف بنجاح')
-                        ->success()
-                        ->send();
+                    $this->page->cancelProcess($order, $itemsToCancel);
                 } catch (\Exception $e) {
-                    // Show confirmation dialog for validation errors
-
-                    $this->failedActionArguments = [
-                        'order' => $order,
-                        'items' => $itemsToCancel,
-                        'error' => $e->getMessage(),
-                    ];
-                    $this->whenFailedCallback && ($this->whenFailedCallback)($this->failedActionArguments);
+                    $this->getLivewire()->replaceMountedAction($this->forceAction, [
+                        'callback' => 'cancelProcess',
+                        'callback_arguments' => [
+                            $order,
+                            $itemsToCancel,
+                            true
+                        ],
+                        'message' => $e->getMessage(),
+                        'label' => 'إلغاء الأصناف المحددة',
+                    ]);
                 }
             })
             ->visible(fn() => $this->getLivewire()->getOwnerRecord()->status === OrderStatus::PENDING);
     }
 
-    public function failedAction(\Closure $callback){
-        $this->whenFailedCallback = $callback;
+    public function bindPage($page)
+    {
+        $this->page = $page;
+        return $this;
+    }
+
+    public function forceActionName(string $name)
+    {
+        $this->forceAction = $name;
         return $this;
     }
 
