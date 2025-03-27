@@ -58,23 +58,45 @@ class ProductResource extends Resource
                 Forms\Components\TextInput::make('min_packets_stock_limit')
                     ->label('الحد الأدنى للمخزون (عبوات)')
                     ->numeric()
+                    ->minValue(0)
                     ->required(),
                 Forms\Components\TextInput::make('packet_to_piece')
                     ->label('عدد القطع في العبوة')
                     ->numeric()
+                    ->minValue(1)
                     ->required(),
                 Forms\Components\TextInput::make('packet_cost')
                     ->label('تكلفة العبوة')
                     ->numeric()
+                    ->minValue(0)
                     ->required(),
                 Forms\Components\TextInput::make('packet_price')
                     ->label('سعر العبوة')
                     ->numeric()
-                    ->required(),
+                    ->required()
+                    ->minValue(0)
+                    ->rule(
+                        fn(Forms\Get $get) =>
+                        function (string $attribute, $value, \Closure $fail) use ($get) {
+                            $packetCost = $get('packet_cost');
+                            if ($value < $packetCost) {
+                                $fail('يجب أن يكون سعر العبوة أكبر من أو يساوي تكلفة العبوة');
+                            }
+                        }
+                    ),
                 Forms\Components\TextInput::make('piece_price')
                     ->label('سعر القطعة')
                     ->numeric()
-                    ->required(),
+                    ->required()
+                    ->rule(
+                        fn(Forms\Get $get) =>
+                        function (string $attribute, $value, \Closure $fail) use ($get) {
+                            $cost = $get('packet_cost') / $get('packet_to_piece');
+                            if ($value < $cost) {
+                                $fail('يجب أن يكون سعر القطعة أكبر من أو يساوي تكلفة القطعة');
+                            }
+                        }
+                    ),
                 Forms\Components\TextInput::make('before_discount.packet_price')
                     ->label('سعر العبوة قبل الخصم')
                     ->numeric()

@@ -45,6 +45,12 @@ const navLinks: NavLink[] = [
         requiresAuth: true,
     },
     {
+        href: "/my-reports",
+        label: "تقاريري",
+        icon: <FileText className="h-5 w-5" />,
+        requiresAuth: true,
+    },
+    {
         href: "/profile",
         label: "الملف الشخصي",
         icon: <User className="h-5 w-5" />,

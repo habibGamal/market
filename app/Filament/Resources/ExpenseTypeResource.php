@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\ExpenseTypeExporter;
 use App\Filament\Resources\ExpenseTypeResource\Pages;
 use App\Models\ExpenseType;
 use Filament\Forms;
@@ -47,14 +48,14 @@ class ExpenseTypeResource extends Resource implements HasShieldPermissions
             ->filters([
                 //
             ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(ExpenseTypeExporter::class),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

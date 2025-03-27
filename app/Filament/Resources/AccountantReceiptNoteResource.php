@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\AccountantReceiptNoteExporter;
 use App\Filament\Resources\AccountantReceiptNoteResource\Pages;
 use App\Models\AccountantReceiptNote;
 use App\Models\Driver;
@@ -124,6 +125,11 @@ class AccountantReceiptNoteResource extends Resource
             ])
             ->filters([
                 //
+            ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(AccountantReceiptNoteExporter::class),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

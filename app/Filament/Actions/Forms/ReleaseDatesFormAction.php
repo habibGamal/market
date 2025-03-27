@@ -47,7 +47,19 @@ class ReleaseDatesFormAction extends Action
                                 ->required(),
                             DatePicker::make('release_date')
                                 ->label('الوقت')
-                                ->required(),
+                                ->required()
+                                ->rules([
+                                    function($get, $record) {
+                                        return function($attribute, $value, $fail) use ($get, $record) {
+                                            $product = \App\Models\Product::find($record->product_id);
+                                            if (!$product) return;
+
+                                            if ($product->isExpired(\Carbon\Carbon::parse($value))) {
+                                                $fail('منتج منتهي الصلاحية');
+                                            }
+                                        };
+                                    }
+                                ]),
                         ])
                         ->reorderable(false)
                 ]

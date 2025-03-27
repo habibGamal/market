@@ -72,12 +72,12 @@ class AreaResource extends Resource
                     ->label('الاسم')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('city.name')
-                    ->label('المدينة')
-                    ->searchable()
-                    ->sortable(),
                 TextColumn::make('city.gov.name')
                     ->label('المحافظة')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('city.name')
+                    ->label('المدينة')
                     ->searchable()
                     ->sortable(),
                 ToggleColumn::make('has_village')

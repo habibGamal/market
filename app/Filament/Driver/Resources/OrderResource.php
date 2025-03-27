@@ -2,6 +2,8 @@
 
 namespace App\Filament\Driver\Resources;
 
+use App\Enums\DriverStatus;
+use App\Enums\OrderStatus;
 use App\Filament\Driver\Resources\OrderResource\Pages;
 use App\Filament\Driver\Resources\OrderResource\RelationManagers\ItemsRelationManager;
 use App\Filament\Driver\Resources\OrderResource\RelationManagers\ReturnItemsRelationManager;
@@ -66,6 +68,7 @@ class OrderResource extends Resource
                             Tables\Columns\TextColumn::make('customer.area.name')
                                 ->label('المنطقة')
                                 ->sortable()
+                                ->searchable()
                                 ->color('gray')
                                 ->formatSateUsingLabelPrefix(),
                         ])->space(1),
@@ -85,8 +88,23 @@ class OrderResource extends Resource
                     ]),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
-                    ->label('الحالة'),
+                Tables\Filters\SelectFilter::make('driverTask.status')
+                    ->query(
+                        fn($query, $data) => !empty($data['values'])
+                            ? $query->whereHas(
+                                'driverTask',
+                                fn($query) => $query->whereIn('status', $data['values'])
+                              )
+                            : $query
+                    )
+                    ->label('الحالة')
+                    ->multiple()
+                    ->options(DriverStatus::toSelectArray()),
+                Tables\Filters\SelectFilter::make('area')
+                    ->label('المنطقة')
+                    ->multiple()
+                    ->preload()
+                    ->relationship('customer.area', 'name')
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

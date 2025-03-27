@@ -54,4 +54,9 @@ class ReceiptNoteItem extends Model
             return [$item['release_date'] => $item['piece_quantity']];
         })->toArray();
     }
+
+    public function receiptNote()
+    {
+        return $this->belongsTo(ReceiptNote::class);
+    }
 }

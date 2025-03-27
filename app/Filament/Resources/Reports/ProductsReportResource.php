@@ -3,6 +3,12 @@
 namespace App\Filament\Resources\Reports;
 
 use App\Filament\Resources\Reports\ProductsReportResource\Pages;
+use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers\OrderItemsRelationManager;
+use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers\ReturnOrderItemsRelationManager;
+use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers\CancelOrderItemsRelationManager;
+use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers\ReceiptNoteItemsRelationManager;
+use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers\ReturnPurchaseItemsRelationManager;
+use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers\WasteItemsRelationManager;
 use App\Filament\Widgets\ProductsStatsOverview;
 use App\Models\Product;
 use App\Services\Reports\ProductReportService;
@@ -141,7 +147,14 @@ class ProductsReportResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            OrderItemsRelationManager::class,
+            ReturnOrderItemsRelationManager::class,
+            CancelOrderItemsRelationManager::class,
+            ReceiptNoteItemsRelationManager::class,
+            ReturnPurchaseItemsRelationManager::class,
+            WasteItemsRelationManager::class,
+        ];
     }
 
     public static function getWidgets(): array

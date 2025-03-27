@@ -25,7 +25,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Awcodes\TableRepeater\Header;
 use App\Filament\Exports\ReceiptNoteExporter;
-
+use Filament\Forms\Set;
 
 class ReceiptNoteResource extends Resource implements HasShieldPermissions
 {
@@ -121,7 +121,22 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                             ->disabled(),
                         Forms\Components\DatePicker::make('release_dates.0.release_date')
                             ->label('تاريخ الإنتاج')
-                            ->required(),
+                            ->required()
+                            ->rules([
+                                function($get) {
+                                    return function($attribute, $value, $fail) use ($get) {
+                                        $productId = $get('product_id');
+                                        if (!$productId) return;
+
+                                        $product = \App\Models\Product::find($productId);
+                                        if (!$product) return;
+
+                                        if ($product->isExpired(\Carbon\Carbon::parse($value))) {
+                                            $fail('منتج منتهي الصلاحية');
+                                        }
+                                    };
+                                }
+                            ]),
                         Actions::make(
                             [
                                 ReleaseDatesFormAction::make(),

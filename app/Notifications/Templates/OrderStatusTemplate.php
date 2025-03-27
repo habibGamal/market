@@ -38,7 +38,7 @@ class OrderStatusTemplate extends BaseTemplate
         $status = $data['status'] ?? OrderStatus::PENDING->value;
 
         return match ($status) {
-            OrderStatus::PENDING->value => "طلبك رقم #{$orderCode} قيد الانتظار للمراجعة",
+            OrderStatus::PENDING->value => "تم تأكيد طلبك رقم #{$orderCode}",
             OrderStatus::CANCELLED->value => "تم إلغاء طلبك رقم #{$orderCode}",
             OrderStatus::PREPARING->value => "جاري تحضير طلبك رقم #{$orderCode}",
             OrderStatus::OUT_FOR_DELIVERY->value => "طلبك رقم #{$orderCode} في الطريق إليك",

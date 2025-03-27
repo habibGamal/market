@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\ExpenseExporter;
 use App\Filament\Resources\ExpenseResource\Pages;
 use App\Models\Expense;
 use Filament\Forms;
@@ -132,6 +133,11 @@ class ExpenseResource extends Resource implements HasShieldPermissions
                     ),
             ])
             ->filtersFormColumns(3)
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(ExpenseExporter::class),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

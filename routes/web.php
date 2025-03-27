@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\CustomerReportController;
 use App\Http\Controllers\PageBuilderController;
 use App\Http\Controllers\ProductListController;
 use App\Http\Controllers\ProfileController;
@@ -89,6 +90,8 @@ Route::middleware(['auth:customer'])->group(function () {
         Route::post('/orders', [OrderController::class, 'placeOrder'])->name('orders.place');
         Route::get('/place-order', [OrderController::class, 'previewPlaceOrder'])->name('place-order.show');
         Route::get('/returns', [OrderController::class, 'returns'])->name('returns.index');
+
+        Route::get('/my-reports', [CustomerReportController::class, 'show'])->name('my-reports.show');
     });
     Route::post('/subscribe', function () {
         $user = auth()->user();

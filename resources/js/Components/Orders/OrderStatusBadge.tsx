@@ -25,7 +25,7 @@ export function OrderStatusBadge({ status }: OrderStatusBadgeProps) {
     const getStatusName = (status: string) => {
         switch (status) {
             case "pending":
-                return "قيد الانتظار";
+                return "تم تأكيد الطلب";
             case "preparing":
                 return "قيد التحضير";
             case "out_for_delivery":

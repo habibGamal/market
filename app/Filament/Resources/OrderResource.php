@@ -10,9 +10,11 @@ use App\Models\DriverTask;
 use App\Enums\OrderStatus;
 use App\Enums\DriverStatus;
 use Filament\Forms;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\Section;
@@ -84,6 +86,10 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->label('رقم الطلب')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('customer.name')
                     ->label('اسم العميل')
                     ->searchable(),
@@ -98,7 +104,12 @@ class OrderResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total')
                     ->label('المجموع')
-                    ->money('EGP'),
+                    ->money('EGP')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('netTotal')
+                    ->label('الصافي')
+                    ->money('EGP')
+                    ->tooltip('إجمالي الطلب بعد خصم المرتجعات والخصومات'),
                 Tables\Columns\TextColumn::make('status')
                     ->label('الحالة')
                     ->badge(),
@@ -110,10 +121,30 @@ class OrderResource extends Resource
             ->filters([
                 SelectFilter::make('status')
                     ->label('الحالة')
+                    ->multiple()
                     ->options(OrderStatus::class),
                 SelectFilter::make('customer.area_id')
                     ->label('المنطقة')
+                    ->multiple()
                     ->relationship('customer.area', 'name'),
+                Filter::make('created_at')
+                    ->form([
+                        DateTimePicker::make('created_from')
+                            ->label('من تاريخ'),
+                        DateTimePicker::make('created_until')
+                            ->label('إلى تاريخ'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

@@ -35,7 +35,7 @@ enum DriverStatus: string implements HasColor, HasIcon, HasLabel
         return match ($this) {
             self::PENDING => 'قيد الانتظار',
             self::RECEIVED => 'تم الاستلام من المخزن',
-            self::DONE => 'مكتمل',
+            self::DONE => 'تم التسليم',
         };
     }
 

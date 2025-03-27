@@ -36,6 +36,7 @@ class ReceiptNoteServices
             'status' => InvoiceStatus::DRAFT,
             'total' => $purchaseInvoice->total,
             'officer_id' => auth()->id(),
+            'notes'=> $purchaseInvoice->notes,
         ]);
 
         $purchaseInvoice->receipt()->associate($receipt)->save();

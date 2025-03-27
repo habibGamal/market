@@ -187,4 +187,44 @@ class Product extends Model
     {
         return $this->hasMany(CartItem::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ReceiptNoteItem>
+     */
+    public function receiptNoteItems()
+    {
+        return $this->hasMany(ReceiptNoteItem::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ReturnPurchaseInvoiceItem>
+     */
+    public function returnPurchaseItems()
+    {
+        return $this->hasMany(ReturnPurchaseInvoiceItem::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<WasteItem>
+     */
+    public function wasteItems()
+    {
+        return $this->hasMany(WasteItem::class);
+    }
+
+    public function isExpired(\Carbon\Carbon $releaseDate): bool
+    {
+        if (!isset($this->expiration_duration) || !isset($this->expiration_unit)) {
+            return false;
+        }
+
+        $expirationDate = match($this->expiration_unit) {
+            ExpirationUnit::DAY => $releaseDate->addDays($this->expiration_duration),
+            ExpirationUnit::WEEK => $releaseDate->addWeeks($this->expiration_duration),
+            ExpirationUnit::MONTH => $releaseDate->addMonths($this->expiration_duration),
+            ExpirationUnit::YEAR => $releaseDate->addYears($this->expiration_duration),
+        };
+
+        return $expirationDate->isPast();
+    }
 }
