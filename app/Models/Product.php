@@ -25,7 +25,8 @@ class Product extends Model
         'expiration',
         'is_new',
         'is_deal',
-        'prices'
+        'prices',
+        'has_stock',
     ];
 
     public function getPacketsQuantityAttribute()
@@ -38,6 +39,11 @@ class Product extends Model
     {
         $this->loadMissing('stockItems');
         return $this->stockItems->sum('piece_quantity') - $this->stockItems->sum('unavailable_quantity') - $this->stockItems->sum('reserved_quantity');
+    }
+
+    public function getHasStockAttribute(): bool
+    {
+        return $this->getAvailablePiecesQuantityAttribute() > 0;
     }
 
     public function getExpirationAttribute()

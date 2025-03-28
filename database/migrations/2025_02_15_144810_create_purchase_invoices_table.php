@@ -20,6 +20,8 @@ return new class extends Migration
             $table->foreignId('officer_id')->constrained('users');
             $table->foreignId('receipt_note_id')->nullable()->constrained('receipt_notes')->nullOnDelete();
             $table->foreignId('supplier_id')->constrained('suppliers');
+            $table->date('execution_date')->nullable();
+            $table->date('payment_date')->nullable();
             $table->timestamps();
         });
     }

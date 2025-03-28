@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Jobs\ExportCsv;
+use App\Jobs\ImportCsv;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
 use Filament\Tables\Columns\Column;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +12,8 @@ use Illuminate\Support\HtmlString;
 use Illuminate\Support\ServiceProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
+use Filament\Actions\Exports\Jobs\ExportCsv as BaseExportCsv;
+use Filament\Actions\Imports\Jobs\ImportCsv as BaseImportCsv;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,7 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(BaseExportCsv::class, ExportCsv::class);
+        $this->app->bind(BaseImportCsv::class, ImportCsv::class);
     }
 
     /**
@@ -37,10 +42,11 @@ class AppServiceProvider extends ServiceProvider
             'green' => Color::Green,
         ]);
 
-        Column::macro('formatSateUsingLabelPrefix', function() {
-            return $this->formatStateUsing(function(Column $column, $state) {
+        Column::macro('formatSateUsingLabelPrefix', function () {
+            return $this->formatStateUsing(function (Column $column, $state) {
                 return new HtmlString('<span class="font-medium">' . $column->getLabel() . '</span>: ' . $state);
             });
         });
+
     }
 }

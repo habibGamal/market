@@ -85,6 +85,20 @@ class PurchaseInvoiceResource extends InvoiceResource
             ])
             ->schema([
                 ...self::invoiceHeader(),
+
+                Section::make('بيانات الفاتورة')
+                    ->schema([
+                        Forms\Components\DatePicker::make('execution_date')
+                            ->label('تاريخ التنفيذ')
+                            ->nullable()
+                            ->minDate(today()),
+                        Forms\Components\DatePicker::make('payment_date')
+                            ->label('تاريخ الدفع')
+                            ->nullable()
+                            ->minDate(today()),
+                    ])
+                    ->columns(2),
+
                 Section::make('بيانات المورد')
                     ->schema([
                         Select::make('supplier_id')
@@ -180,6 +194,14 @@ class PurchaseInvoiceResource extends InvoiceResource
                     ->badge()
                     ->label('الحالة')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('execution_date')
+                    ->label('تاريخ التنفيذ')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('payment_date')
+                    ->label('تاريخ الدفع')
+                    ->date()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('officer.name')
                     ->label('المسؤول')
                     ->searchable()
@@ -225,6 +247,12 @@ class PurchaseInvoiceResource extends InvoiceResource
             TextEntry::make('status')
                 ->badge()
                 ->label('الحالة'),
+            TextEntry::make('execution_date')
+                ->label('تاريخ التنفيذ')
+                ->date(),
+            TextEntry::make('payment_date')
+                ->label('تاريخ الدفع')
+                ->date(),
             TextEntry::make('officer.name')
                 ->label('المسؤول'),
             TextEntry::make('supplier.name')

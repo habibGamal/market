@@ -31,7 +31,7 @@ class AccountantIssueNoteResource extends Resource
     {
         return $form
             ->schema([
-                Grid::make(3)->schema([
+                Grid::make(2)->schema([
                     MorphToSelect::make('forModel')
                         ->label('نوع المستند')
                         ->types([
@@ -40,7 +40,11 @@ class AccountantIssueNoteResource extends Resource
                                 ->modifyOptionsQueryUsing(function ($query) {
                                     $query->needAccountantIsssueNote();
                                 })
-                                ->titleAttribute('id'),
+                                ->titleAttribute('id')
+                                ->getOptionLabelFromRecordUsing(function ($record) {
+                                    $paymentDate = $record->purchaseInvoice->payment_date ? $record->purchaseInvoice->payment_date->format('Y-m-d') : 'غير محدد';
+                                    return "اذن استلام #{$record->id} - " . $record->purchaseInvoice->supplier->name . " - " . $paymentDate;
+                                }),
                         ])
                         ->live()
                         ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {

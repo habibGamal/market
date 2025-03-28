@@ -97,6 +97,7 @@ export interface Product {
     prices: ProductPrices;
     is_new?: boolean;
     is_deal?: boolean;
+    has_stock?: boolean;
 }
 
 export interface OrderItem {

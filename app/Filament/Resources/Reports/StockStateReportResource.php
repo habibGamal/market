@@ -49,7 +49,10 @@ class StockStateReportResource extends Resource
                     ->sortable(),
                 TextColumn::make('available_stock')
                     ->label('كمية المتاح')
-                    ->numeric()
+                    ->formatStateUsing(function ($state, Product $record) {
+                        $packets = $state / $record->packet_to_piece;
+                        return "{$state} قطعة = {$packets} عبوة";
+                    })
                     ->color('success')
                     ->sortable(),
                 TextColumn::make('available_stock_cost')
@@ -59,7 +62,10 @@ class StockStateReportResource extends Resource
                     ->sortable(),
                 TextColumn::make('returned_stock')
                     ->label('كمية المرتجع من المشتريات')
-                    ->numeric()
+                    ->formatStateUsing(function ($state, Product $record) {
+                        $packets = $state / $record->packet_to_piece;
+                        return "{$state} قطعة = {$packets} عبوة";
+                    })
                     ->color('warning')
                     ->sortable(),
                 TextColumn::make('returned_stock_cost')
@@ -69,7 +75,10 @@ class StockStateReportResource extends Resource
                     ->sortable(),
                 TextColumn::make('waste_stock')
                     ->label('كمية الهالك')
-                    ->numeric()
+                    ->formatStateUsing(function ($state, Product $record) {
+                        $packets = $state / $record->packet_to_piece;
+                        return "{$state} قطعة = {$packets} عبوة";
+                    })
                     ->color('danger')
                     ->sortable(),
                 TextColumn::make('waste_stock_cost')

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\GovExporter;
 use App\Filament\Resources\GovResource\Pages;
 use App\Models\Gov;
 use Filament\Forms;
@@ -66,8 +67,14 @@ class GovResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\ExportBulkAction::make()->exporter(GovExporter::class),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(GovExporter::class),
             ]);
     }
 

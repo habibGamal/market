@@ -82,7 +82,7 @@ class OrdersByCustomersReportService
     {
         $statsService = app(OrdersStatsService::class);
         $orders = $statsService->getOrdersWithStats($customer->orders());
-        $stats = $statsService->calculateOrderStats($orders);
+        $stats = $statsService->calculateOrdersStats($orders);
 
         $customer->orders_count = $stats['total_orders'];
         $customer->total_sales = $stats['total_sales'];

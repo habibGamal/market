@@ -51,7 +51,8 @@ class ProductResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('barcode')
                     ->label('الباركود')
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: true),
                 Forms\Components\Toggle::make('is_active')
                     ->label('نشط')
                     ->default(true),
@@ -137,7 +138,6 @@ class ProductResource extends Resource
                     ->exporter(ProductExporter::class),
                 ImportAction::make()
                     ->importer(ProductImporter::class)
-                    ->job(\App\Jobs\CustomImportCsv::class)
 
             ])
             ->columns([

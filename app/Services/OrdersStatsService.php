@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Collection;
 
 class OrdersStatsService
 {
-    public function calculateOrderStats(Collection $orders): array
+    public function calculateOrdersStats(Collection $orders): array
     {
         $total_orders = $orders->count();
         $total_sales = $orders->sum('total');
+        $total_profit_without_discount = $orders->sum(function ($order) {
+            return $order->items_sum_profit - $order->return_items_sum_profit;
+        });
         $total_profit = $orders->sum(function ($order) {
             return $order->items_sum_profit - $order->return_items_sum_profit - $order->discount;
         });
@@ -20,6 +23,7 @@ class OrdersStatsService
         return [
             'total_orders' => $total_orders,
             'total_sales' => $total_sales,
+            'total_profit_without_discount' => $total_profit_without_discount,
             'total_profit' => $total_profit,
             'total_returns' => $total_returns,
             'average_order_value' => $average_order_value,

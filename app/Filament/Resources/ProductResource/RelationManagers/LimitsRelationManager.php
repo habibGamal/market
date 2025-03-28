@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ProductResource\RelationManagers;
 
+use App\Models\Area;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
@@ -9,6 +10,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class LimitsRelationManager extends RelationManager
@@ -25,17 +27,20 @@ class LimitsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('area_id')
+                Forms\Components\Select::make('selected_areas')
                     ->label('المنطقة')
                     ->relationship('area', 'name')
-                    ->required(),
+                    ->preload()
+                    ->multiple()
+                    ->dehydrated(true)
+                    ->placeholder('الكل'),
                 Grid::make(4)->schema([
                     Forms\Components\TextInput::make('min_packets')
-                        ->label('الحد الأدنى للعلب')
+                        ->label('الحد الأدنى كرتونة')
                         ->numeric()
                         ->required(),
                     Forms\Components\TextInput::make('max_packets')
-                        ->label('الحد الأقصى للعلب')
+                        ->label('الحد الأقصى كرتونة')
                         ->numeric()
                         ->required(),
                     Forms\Components\TextInput::make('min_pieces')
@@ -65,7 +70,23 @@ class LimitsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()->using(function (array $data, string $model, $record): Model {
+                    $limits = [];
+                    $areas = empty($data['selected_areas']) ? Area::select('id')->get()->pluck('id')->toArray() : $data['selected_areas'];
+                    foreach ($areas as $area) {
+                        $limits[] = [
+                            'area_id' => $area,
+                            'min_packets' => $data['min_packets'],
+                            'max_packets' => $data['max_packets'],
+                            'min_pieces' => $data['min_pieces'],
+                            'max_pieces' => $data['max_pieces'],
+                        ];
+                    }
+
+                    return $record->createMany($limits);
+
+                }),
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

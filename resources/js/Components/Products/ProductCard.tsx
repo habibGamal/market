@@ -18,20 +18,23 @@ export function ProductCard({ product }: ProductCardProps) {
         onSuccess: () => setOpen(false),
     });
 
+    // Determine if product is out of stock
+    const isOutOfStock = product.has_stock === false;
+
     return (
-        <div className="relative group flex flex-col justify-between h-full max-w-[250px]">
+        <div className={`relative group flex flex-col justify-between h-full max-w-[250px] ${isOutOfStock ? 'opacity-60' : ''}`}>
             {/* Badge */}
-            {(product.is_new || product.is_deal) && (
+            {(product.is_new || product.is_deal || isOutOfStock) && (
                 <Badge
                     className="absolute top-2 right-2 z-10"
-                    variant={product.is_deal ? "destructive" : "default"}
+                    variant={isOutOfStock ? "outline" : product.is_deal ? "destructive" : "default"}
                 >
-                    {product.is_deal ? "عرض خاص" : "جديد"}
+                    {isOutOfStock ? "غير متوفر" : product.is_deal ? "عرض خاص" : "جديد"}
                 </Badge>
             )}
             {/* Product Image */}
             <Link href={route('products.show', product.id)} preserveState preserveScroll className="block">
-                <div className="relative aspect-square overflow-hidden rounded-lg mb-3">
+                <div className={`relative aspect-square overflow-hidden rounded-lg mb-3 ${isOutOfStock ? 'grayscale' : ''}`}>
                     <FallbackImage
                         src={product.image}
                         alt={product.name}
@@ -76,7 +79,13 @@ export function ProductCard({ product }: ProductCardProps) {
                 {/* Add to Cart Dialog */}
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
-                        <Button className="w-full mt-2">أضف للسلة</Button>
+                        <Button
+                            className="w-full mt-2"
+                            disabled={isOutOfStock}
+                            variant={isOutOfStock ? "outline" : "default"}
+                        >
+                            {isOutOfStock ? "غير متوفر" : "أضف للسلة"}
+                        </Button>
                     </DialogTrigger>
                 </Dialog>
                 <AddToCartModal

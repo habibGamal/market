@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\OrderExporter;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
@@ -149,73 +150,83 @@ class OrderResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
             ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(OrderExporter::class),
+            ])
             ->bulkActions([
-                Tables\Actions\BulkAction::make('assignToDriver')
-                    ->label('تعيين سائق')
-                    ->icon('heroicon-o-truck')
-                    ->form([
-                        Forms\Components\Select::make('driver_id')
-                            ->label('السائق')
-                            ->options(Driver::driversOnly()->select(['id', 'name'])->get()->pluck('name', 'id'))
-                            ->required()
-                    ])
-                    ->action(function ($records, array $data, $action) {
-                        $filteredRecords = $records->filter(
-                            fn($order) => $order->isAssinalbeToDriver
-                        );
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\ExportBulkAction::make()
+                    ->job('')
+                    ->exporter(OrderExporter::class),
+                    Tables\Actions\BulkAction::make('assignToDriver')
+                        ->label('تعيين سائق')
+                        ->icon('heroicon-o-truck')
+                        ->form([
+                            Forms\Components\Select::make('driver_id')
+                                ->label('السائق')
+                                ->options(Driver::driversOnly()->select(['id', 'name'])->get()->pluck('name', 'id'))
+                                ->required()
+                        ])
+                        ->action(function ($records, array $data, $action) {
+                            $filteredRecords = $records->filter(
+                                fn($order) => $order->isAssinalbeToDriver
+                            );
 
-                        if ($filteredRecords->count() !== $records->count()) {
-                            $action->failureNotification(
-                                Notification::make()
-                                    ->title(
-                                        'لا يمكن تعيين سائق للطلبات المحددة'
-                                    )
-                                    ->danger()
-                                    ->send()
-                            )->halt()->failure();
-                        }
-                        app(DriverServices::class)->assignOrdersToDriver($records, $data['driver_id']);
-                    })
-                    ->deselectRecordsAfterCompletion()
-                    ->requiresConfirmation()
-                    ->modalHeading('تعيين سائق للطلبات المحددة')
-                    ->modalSubmitActionLabel('تعيين'),
+                            if ($filteredRecords->count() !== $records->count()) {
+                                $action->failureNotification(
+                                    Notification::make()
+                                        ->title(
+                                            'لا يمكن تعيين سائق للطلبات المحددة'
+                                        )
+                                        ->danger()
+                                        ->send()
+                                )->halt()->failure();
+                            }
+                            app(DriverServices::class)->assignOrdersToDriver($records, $data['driver_id']);
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->requiresConfirmation()
+                        ->modalHeading('تعيين سائق للطلبات المحددة')
+                        ->modalSubmitActionLabel('تعيين'),
 
-                Tables\Actions\BulkAction::make('createIssueNote')
-                    ->label('إنشاء اذن صرف')
-                    ->icon('heroicon-o-document-text')
-                    ->action(function ($records, $action) {
-                        $filteredRecords = $records->filter(
-                            fn($order) => $order->isAbleToMakeIssueNote
-                        );
+                    Tables\Actions\BulkAction::make('createIssueNote')
+                        ->label('إنشاء اذن صرف')
+                        ->icon('heroicon-o-document-text')
+                        ->action(function ($records, $action) {
+                            $filteredRecords = $records->filter(
+                                fn($order) => $order->isAbleToMakeIssueNote
+                            );
 
-                        if ($filteredRecords->count() !== $records->count()) {
-                            $action->failureNotification(
-                                Notification::make()
-                                    ->title(
-                                        'لا يمكن إنشاء إذن صرف للطلبات المحددة'
-                                    )
-                                    ->danger()
-                                    ->send()
-                            )->halt()->failure();
-                        }
+                            if ($filteredRecords->count() !== $records->count()) {
+                                $action->failureNotification(
+                                    Notification::make()
+                                        ->title(
+                                            'لا يمكن إنشاء إذن صرف للطلبات المحددة'
+                                        )
+                                        ->danger()
+                                        ->send()
+                                )->halt()->failure();
+                            }
 
-                        $issueNote = \App\Models\IssueNote::create([
-                            'officer_id' => auth()->id(),
-                            'status' => \App\Enums\InvoiceStatus::DRAFT,
-                            'note_type' => \App\Enums\IssueNoteType::ORDERS,
-                            'total' => 0,
-                        ]);
+                            $issueNote = \App\Models\IssueNote::create([
+                                'officer_id' => auth()->id(),
+                                'status' => \App\Enums\InvoiceStatus::DRAFT,
+                                'note_type' => \App\Enums\IssueNoteType::ORDERS,
+                                'total' => 0,
+                            ]);
 
-                        app(\App\Services\IssueNoteServices::class)
-                            ->fromOrders($issueNote, $records);
-                        $records->fresh()->each(fn($order) => notifyCustomerWithOrderStatus($order));
-                        return redirect()->to(IssueNoteResource::getUrl('edit', ['record' => $issueNote]));
-                    })
-                    ->deselectRecordsAfterCompletion()
-                    ->requiresConfirmation()
-                    ->modalHeading('إنشاء اذن صرف للطلبات المحددة')
-                    ->modalSubmitActionLabel('إنشاء'),
+                            app(\App\Services\IssueNoteServices::class)
+                                ->fromOrders($issueNote, $records);
+                            $records->fresh()->each(fn($order) => notifyCustomerWithOrderStatus($order));
+                            return redirect()->to(IssueNoteResource::getUrl('edit', ['record' => $issueNote]));
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->requiresConfirmation()
+                        ->modalHeading('إنشاء اذن صرف للطلبات المحددة')
+                        ->modalSubmitActionLabel('إنشاء'),
+                ]),
             ]);
     }
 

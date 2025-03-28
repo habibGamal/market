@@ -3,10 +3,10 @@
 namespace App\Jobs;
 
 use Carbon\CarbonInterface;
-use Filament\Actions\Imports\Jobs\ImportCsv;
+use Filament\Actions\Imports\Jobs\ImportCsv as BaseImportCsv;
 
 
-class CustomImportCsv extends ImportCsv
+class ImportCsv extends BaseImportCsv
 {
     public $tries = 1;
 

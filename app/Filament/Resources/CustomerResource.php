@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\CustomerExporter;
 use App\Filament\Resources\CustomerResource\Pages;
 use App\Models\Customer;
 use Filament\Forms;
@@ -157,9 +158,15 @@ class CustomerResource extends Resource
             ->bulkActions([
                 BulkActionGroup::make([
                     Tables\Actions\BulkActionGroup::make([
+                        Tables\Actions\ExportBulkAction::make()->exporter(CustomerExporter::class),
                         Tables\Actions\DeleteBulkAction::make(),
                     ]),
                 ]),
+            ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(CustomerExporter::class),
             ]);
     }
 

@@ -43,9 +43,6 @@ class CartItemsByCustomersReportResource extends Resource
                 Tables\Columns\TextColumn::make('phone')
                     ->label('رقم الهاتف')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('area.name')
-                    ->label('المنطقة')
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('gov.name')
                     ->label('المحافظة')
                     ->searchable()
@@ -53,6 +50,9 @@ class CartItemsByCustomersReportResource extends Resource
                 Tables\Columns\TextColumn::make('city.name')
                     ->label('المدينة')
                     ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('area.name')
+                    ->label('المنطقة')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('cart_items_count')
                     ->label('عدد العناصر في السلة')
@@ -64,23 +64,21 @@ class CartItemsByCustomersReportResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('area_id')
-                    ->label('المنطقة')
-                    ->relationship('area', 'name')
-                    ->multiple()
-                    ->searchable()
-                    ->preload(),
-
                 Tables\Filters\SelectFilter::make('gov_id')
                     ->label('المحافظة')
                     ->relationship('gov', 'name')
                     ->multiple()
                     ->searchable()
                     ->preload(),
-
                 Tables\Filters\SelectFilter::make('city_id')
                     ->label('المدينة')
                     ->relationship('city', 'name')
+                    ->multiple()
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\SelectFilter::make('area_id')
+                    ->label('المنطقة')
+                    ->relationship('area', 'name')
                     ->multiple()
                     ->searchable()
                     ->preload(),
