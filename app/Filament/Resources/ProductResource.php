@@ -35,97 +35,128 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\FileUpload::make('image')
-                    ->image()
-                    ->label('الصورة')
-                    ->imageEditor()
-                    ->imageResizeMode('cover')
-                    ->imageResizeTargetWidth('480')
-                    ->imageResizeTargetHeight('480')
-                    ->directory('product-images')
-                    ->imageCropAspectRatio('1:1')
-                    ->optimize('webp')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('name')
-                    ->label('الاسم')
-                    ->required(),
-                Forms\Components\TextInput::make('barcode')
-                    ->label('الباركود')
-                    ->required(),
-                Forms\Components\Toggle::make('is_active')
-                    ->label('نشط')
-                    ->default(true),
-                Forms\Components\TextInput::make('min_packets_stock_limit')
-                    ->label('الحد الأدنى للمخزون (عبوات)')
-                    ->numeric()
-                    ->minValue(0)
-                    ->required(),
-                Forms\Components\TextInput::make('packet_to_piece')
-                    ->label('عدد القطع في العبوة')
-                    ->numeric()
-                    ->minValue(1)
-                    ->required(),
-                Forms\Components\TextInput::make('packet_cost')
-                    ->label('تكلفة العبوة')
-                    ->numeric()
-                    ->minValue(0)
-                    ->required(),
-                Forms\Components\TextInput::make('packet_price')
-                    ->label('سعر العبوة')
-                    ->numeric()
-                    ->required()
-                    ->minValue(0)
-                    ->rule(
-                        fn(Forms\Get $get) =>
-                        function (string $attribute, $value, \Closure $fail) use ($get) {
-                            $packetCost = $get('packet_cost');
-                            if ($value < $packetCost) {
-                                $fail('يجب أن يكون سعر العبوة أكبر من أو يساوي تكلفة العبوة');
-                            }
-                        }
-                    ),
-                Forms\Components\TextInput::make('piece_price')
-                    ->label('سعر القطعة')
-                    ->numeric()
-                    ->required()
-                    ->rule(
-                        fn(Forms\Get $get) =>
-                        function (string $attribute, $value, \Closure $fail) use ($get) {
-                            $cost = $get('packet_cost') / $get('packet_to_piece');
-                            if ($value < $cost) {
-                                $fail('يجب أن يكون سعر القطعة أكبر من أو يساوي تكلفة القطعة');
-                            }
-                        }
-                    ),
-                Forms\Components\TextInput::make('before_discount.packet_price')
-                    ->label('سعر العبوة قبل الخصم')
-                    ->numeric()
-                    ->required(),
-                Forms\Components\TextInput::make('before_discount.piece_price')
-                    ->label('سعر القطعة قبل الخصم')
-                    ->numeric()
-                    ->required(),
-                Forms\Components\TextInput::make('expiration_duration')
-                    ->label('مدة الصلاحية')
-                    ->numeric()
-                    ->required(),
-                Forms\Components\Select::make('expiration_unit')
-                    ->label('وحدة الصلاحية')
-                    ->options(\App\Enums\ExpirationUnit::values())
-                    ->required(),
-                Forms\Components\Select::make('brand_id')
-                    ->label('العلامة التجارية')
-                    ->relationship('brand', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-                SelectTree::make('category_id')
-                    ->label('الفئة')
-                    ->relationship('category', 'name', 'parent_id')
-                    ->parentNullValue(-1)
-                    ->enableBranchNode()
-                    ->searchable()
-                    ->required(),
+                Forms\Components\Tabs::make('Product Information')
+                    ->tabs([
+                        Forms\Components\Tabs\Tab::make('معلومات أساسية')
+                            ->schema([
+                                Forms\Components\FileUpload::make('image')
+                                    ->image()
+                                    ->label('الصورة')
+                                    ->imageEditor()
+                                    ->imageResizeMode('cover')
+                                    ->imageResizeTargetWidth('480')
+                                    ->imageResizeTargetHeight('480')
+                                    ->directory('product-images')
+                                    ->imageCropAspectRatio('1:1')
+                                    ->optimize('webp')
+                                    ->columnSpanFull(),
+                                Forms\Components\TextInput::make('name')
+                                    ->label('الاسم')
+                                    ->required(),
+                                Forms\Components\TextInput::make('barcode')
+                                    ->label('الباركود')
+                                    ->required()
+                                    ->unique(ignoreRecord: true),
+                                Forms\Components\Toggle::make('is_active')
+                                    ->label('نشط')
+                                    ->default(true),
+                                Forms\Components\TextInput::make('packet_to_piece')
+                                    ->label('عدد القطع في العبوة')
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->required(),
+                                Forms\Components\Select::make('packet_alter_name')
+                                    ->label('الاسم البديل للعبوة')
+                                    ->options([
+                                        'كرتونة' => 'كرتونة',
+                                        'لفة' => 'لفة',
+                                    ])
+                                    ->placeholder('اختر الاسم البديل للعبوة')
+                                    ->helperText('الاسم الذي سيظهر بدلاً من "عبوة" في واجهة المستخدم')
+                                    ->searchable()
+                                    ->allowHtml(),
+                                Forms\Components\Select::make('piece_alter_name')
+                                    ->label('الاسم البديل للقطعة')
+                                    ->options([
+                                        'علبة' => 'علبة',
+                                        'قطعة' => 'قطعة',
+                                    ])
+                                    ->placeholder('اختر الاسم البديل للقطعة')
+                                    ->helperText('الاسم الذي سيظهر بدلاً من "قطعة" في واجهة المستخدم')
+                                    ->searchable()
+                                    ->allowHtml(),
+                                Forms\Components\TextInput::make('expiration_duration')
+                                    ->label('مدة الصلاحية')
+                                    ->numeric()
+                                    ->required(),
+                                Forms\Components\Select::make('expiration_unit')
+                                    ->label('وحدة الصلاحية')
+                                    ->options(\App\Enums\ExpirationUnit::values())
+                                    ->required(),
+                                Forms\Components\Select::make('brand_id')
+                                    ->label('العلامة التجارية')
+                                    ->relationship('brand', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->required(),
+                                SelectTree::make('category_id')
+                                    ->label('الفئة')
+                                    ->relationship('category', 'name', 'parent_id')
+                                    ->parentNullValue(-1)
+                                    ->enableBranchNode()
+                                    ->searchable()
+                                    ->required(),
+                            ]),
+                        Forms\Components\Tabs\Tab::make('الأسعار والتكاليف')
+                            ->schema([
+                                Forms\Components\TextInput::make('min_packets_stock_limit')
+                                    ->label('الحد الأدنى للمخزون (عبوات)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->required(),
+                                Forms\Components\TextInput::make('packet_cost')
+                                    ->label('تكلفة العبوة')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->required(),
+                                Forms\Components\TextInput::make('packet_price')
+                                    ->label('سعر العبوة')
+                                    ->numeric()
+                                    ->required()
+                                    ->minValue(0)
+                                    ->rule(
+                                        fn(Forms\Get $get) =>
+                                        function (string $attribute, $value, \Closure $fail) use ($get) {
+                                            $packetCost = $get('packet_cost');
+                                            if ($value < $packetCost) {
+                                                $fail('يجب أن يكون سعر العبوة أكبر من أو يساوي تكلفة العبوة');
+                                            }
+                                        }
+                                    ),
+                                Forms\Components\TextInput::make('piece_price')
+                                    ->label('سعر القطعة')
+                                    ->numeric()
+                                    ->required()
+                                    ->rule(
+                                        fn(Forms\Get $get) =>
+                                        function (string $attribute, $value, \Closure $fail) use ($get) {
+                                            $cost = $get('packet_cost') / $get('packet_to_piece');
+                                            if ($value < $cost) {
+                                                $fail('يجب أن يكون سعر القطعة أكبر من أو يساوي تكلفة القطعة');
+                                            }
+                                        }
+                                    ),
+                                Forms\Components\TextInput::make('before_discount.packet_price')
+                                    ->label('سعر العبوة قبل الخصم')
+                                    ->numeric()
+                                    ->required(),
+                                Forms\Components\TextInput::make('before_discount.piece_price')
+                                    ->label('سعر القطعة قبل الخصم')
+                                    ->numeric()
+                                    ->required(),
+                            ]),
+                    ])
+                    ->columnSpanFull()
             ]);
     }
 
@@ -137,7 +168,6 @@ class ProductResource extends Resource
                     ->exporter(ProductExporter::class),
                 ImportAction::make()
                     ->importer(ProductImporter::class)
-                    ->job(\App\Jobs\CustomImportCsv::class)
 
             ])
             ->columns([

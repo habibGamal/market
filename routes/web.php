@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Gate;
 Route::get('/', [PageBuilderController::class, 'home']);
 Route::get('/hot-deals', [PageBuilderController::class, 'hotDeals']);
 Route::get('/product-list', [ProductListController::class, 'index']);
+Route::get('/support', [ProfileController::class, 'support'])->name('support');
 Route::get('/products/{product}', function (Product $product) {
     return Inertia::render('Products/Show', [
         'product' => array_merge($product->toArray(), [
@@ -110,7 +111,13 @@ Route::middleware(['auth:customer'])->group(function () {
     Route::delete('/cart', [CartController::class, 'empty'])->name('cart.empty');
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/personal-info', [ProfileController::class, 'editPersonalInfo'])->name('profile.personal-info');
+    Route::post('/profile/update-personal-info', [ProfileController::class, 'updatePersonalInfo'])->name('profile.update-personal-info');
+    Route::get('/profile/change-password', [ProfileController::class, 'editPassword'])->name('profile.change-password');
+    Route::post('/profile/update-password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::get('/profile/address', [ProfileController::class, 'editAddress'])->name('profile.address');
+    Route::post('/profile/update-address', [ProfileController::class, 'updateAddress'])->name('profile.update-address');
+    Route::post('/profile/send-otp', [ProfileController::class, 'sendOtp'])->name('profile.send-otp');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 

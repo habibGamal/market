@@ -30,9 +30,13 @@ class TasksRelationManager extends RelationManager
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('order.total')
-                    ->label('قيمة الطلب')
+                    ->label('اجمالي الطلب')
                     ->money('EGP')
                     ->sortable(),
+                TextColumn::make('order.netTotal')
+                    ->label('صافي اجمالي الطلب')
+                    ->money('EGP')
+                    ->tooltip('المبلغ الصافي بعد خصم المرتجعات والخصومات'),
                 TextColumn::make('status')
                     ->label('الحالة')
                     ->badge()
@@ -57,7 +61,7 @@ class TasksRelationManager extends RelationManager
                 Tables\Actions\Action::make('view')
                     ->label('عرض الطلب')
                     ->icon('heroicon-m-eye')
-                    ->url(fn ($record) => OrderResource::getUrl('view', ['record' => $record->order_id]))
+                    ->url(fn($record) => OrderResource::getUrl('view', ['record' => $record->order_id]))
             ])
             ->bulkActions([
                 //

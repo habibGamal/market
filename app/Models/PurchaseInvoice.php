@@ -16,6 +16,16 @@ class PurchaseInvoice extends Model
 {
     use LogsActivity, InvoiceHistory, HasFactory;
 
+    protected $fillable = [
+        'total',
+        'status',
+        'notes',
+        'officer_id',
+        'receipt_note_id',
+        'supplier_id',
+        'execution_date',
+        'payment_date',
+    ];
 
     public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
     {
@@ -32,10 +42,10 @@ class PurchaseInvoice extends Model
         ]);
     }
 
-
-
     protected $casts = [
         'status' => InvoiceStatus::class,
+        'execution_date' => 'date',
+        'payment_date' => 'date',
     ];
 
     public function officer()
@@ -66,6 +76,8 @@ class PurchaseInvoice extends Model
             ->title('فاتورة شراء')
             ->info('رقم الفاتورة', $this->id)
             ->info('تاريخ الفاتورة', $this->created_at->format('Y-m-d h:i:s A'))
+            ->info('تاريخ التنفيذ', $this->execution_date ? $this->execution_date->format('Y-m-d') : '-')
+            ->info('تاريخ الدفع', $this->payment_date ? $this->payment_date->format('Y-m-d') : '-')
             ->info('تاريخ اخر تحديث', $this->updated_at->format('Y-m-d h:i:s A'))
             ->info('المسؤول', auth()->user()->name)
             ->total($this->total)
@@ -83,6 +95,11 @@ class PurchaseInvoice extends Model
     public function getClosedAttribute()
     {
         return $this->status === InvoiceStatus::CLOSED;
+    }
+
+    public function getDeletableAttribute()
+    {
+        return $this->receipt_note_id === null;
     }
 
     public function getRawStatusAttribute()
@@ -105,7 +122,4 @@ class PurchaseInvoice extends Model
     {
         return $query->closed()->where('receipt_note_id', null);
     }
-
-
-
 }

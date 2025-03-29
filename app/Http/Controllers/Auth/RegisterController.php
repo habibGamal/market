@@ -17,11 +17,8 @@ class RegisterController extends Controller
     public function create()
     {
         return Inertia::render('Register', [
-            'areas' => Area::select('id', 'name', 'has_village', 'city_id')->with('city')->get(),
             'businessTypes' => BusinessType::select('id', 'name')->get(),
             'govs' => Gov::with('cities.areas')->get(),
-            'cities' => City::select('id', 'name', 'gov_id')->get(),
-            'citiesWithVillages' => Area::where('has_village', true)->pluck('city_id')->unique(),
         ]);
     }
 
@@ -31,8 +28,13 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'min:3'],
             'gov_id' => ['required', 'exists:govs,id'],
             'city_id' => ['required', 'exists:cities,id'],
-            'village' => ['required_if:city_id,1,4'], // Required only for specific cities
             'area_id' => ['required', 'exists:areas,id'],
+            'village' => [function ($attribute, $value, $fail) use ($request) {
+                $area = Area::find($request->input('area_id'));
+                if ($area && $area->has_village && empty($value)) {
+                    $fail('حقل القرية مطلوب.');
+                }
+            }],
             'address' => ['required', 'string', 'min:10'],
             'location' => ['nullable', 'string'], // Will contain geo coordinates
             'phone' => ['required', 'string', 'min:11', 'unique:customers'],

@@ -23,7 +23,7 @@ class SearchController extends Controller
         $query = $this->normalizeArabicText($request->get('q'));
 
         // Use TNTSearch with Laravel Scout directly without caching
-        $products = Product::search($query)->get();
+        $products = Product::search($query)->get()->sortByDesc('__tntSearchScore__');
 
         return $products->map(function ($product) {
             return [
@@ -32,7 +32,7 @@ class SearchController extends Controller
                 'image' => $product->image ?? '/images/products/placeholder.jpg',
                 'category' => $product->category?->name ?? 'غير مصنف',
             ];
-        });
+        })->values();
     }
 
     private function normalizeArabicText(string $text): string

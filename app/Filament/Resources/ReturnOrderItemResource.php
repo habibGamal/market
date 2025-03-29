@@ -64,7 +64,23 @@ class ReturnOrderItemResource extends Resource
                         TextEntry::make('updated_at')
                             ->label('آخر تحديث')
                             ->dateTime(),
-                    ])->columns(3)
+                    ])->columns(3),
+                Section::make('معلومات العميل')
+                    ->schema([
+                        TextEntry::make('order.customer.name')
+                            ->label('اسم العميل'),
+                        TextEntry::make('order.customer.phone')
+                            ->label('رقم الهاتف'),
+                        TextEntry::make('order.customer.address')
+                            ->label('العنوان'),
+                        TextEntry::make('order.customer.gov.name')
+                            ->label('المحافظة'),
+                        TextEntry::make('order.customer.city.name')
+                            ->label('المدينة'),
+                        TextEntry::make('order.customer.area.name')
+                            ->label('المنطقة'),
+
+                    ])->columns(3),
             ]);
     }
 
@@ -99,6 +115,14 @@ class ReturnOrderItemResource extends Resource
                 Tables\Columns\TextColumn::make('total')
                     ->label('المجموع')
                     ->money('egp')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('order.customer.name')
+                    ->label('العميل')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('order.customer.phone')
+                    ->label('رقم الهاتف')
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('order.customer.area.name')
                     ->label('المنطقة')

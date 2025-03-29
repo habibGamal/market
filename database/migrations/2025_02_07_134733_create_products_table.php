@@ -17,6 +17,8 @@ return new class extends Migration
             $table->decimal('packet_cost', 8, 2);
             $table->decimal('packet_price', 8, 2);
             $table->decimal('piece_price', 8, 2);
+            $table->string('packet_alter_name')->default('كرتونة');
+            $table->string('piece_alter_name')->default('علبة');
             $table->integer('expiration_duration');
             $table->enum('expiration_unit', ['day', 'week', 'month', 'year']);
             $table->text('before_discount');

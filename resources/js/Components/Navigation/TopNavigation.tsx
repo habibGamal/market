@@ -13,6 +13,7 @@ import {
     LogIn,
     LogOut,
     FileText,
+    HelpCircle,
 } from "lucide-react";
 import { Link, usePage, router } from "@inertiajs/react";
 import React from "react";
@@ -49,6 +50,11 @@ const navLinks: NavLink[] = [
         label: "تقاريري",
         icon: <FileText className="h-5 w-5" />,
         requiresAuth: true,
+    },
+    {
+        href: "/support",
+        label: "الدعم والمساعدة",
+        icon: <HelpCircle className="h-5 w-5" />,
     },
     {
         href: "/profile",

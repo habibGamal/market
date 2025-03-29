@@ -154,7 +154,7 @@ class OrdersByAreasReportService
     {
         $statsService = app(OrdersStatsService::class);
         $orders = $statsService->getOrdersWithStats($area->orders());
-        $stats = $statsService->calculateOrderStats($orders);
+        $stats = $statsService->calculateOrdersStats($orders);
 
         $area->orders_count = $stats['total_orders'];
         $area->total_sales = $stats['total_sales'];

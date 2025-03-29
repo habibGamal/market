@@ -97,6 +97,10 @@ class IssueNoteResource extends InvoiceResource implements HasShieldPermissions
                     ->badge()
                     ->label('الحالة')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('note_type')
+                    ->badge()
+                    ->label('نوع الإذن')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('officer.name')
                     ->label('المسؤول')
                     ->searchable()
@@ -138,6 +142,9 @@ class IssueNoteResource extends InvoiceResource implements HasShieldPermissions
             TextEntry::make('status')
                 ->badge()
                 ->label('الحالة'),
+            TextEntry::make('note_type')
+                ->badge()
+                ->label('نوع الإذن'),
             TextEntry::make('officer.name')
                 ->label('المسؤول'),
             TextEntry::make('created_at')

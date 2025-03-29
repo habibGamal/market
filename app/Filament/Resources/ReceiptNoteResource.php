@@ -123,13 +123,15 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                             ->label('تاريخ الإنتاج')
                             ->required()
                             ->rules([
-                                function($get) {
-                                    return function($attribute, $value, $fail) use ($get) {
+                                function ($get) {
+                                    return function ($attribute, $value, $fail) use ($get) {
                                         $productId = $get('product_id');
-                                        if (!$productId) return;
+                                        if (!$productId)
+                                            return;
 
                                         $product = \App\Models\Product::find($productId);
-                                        if (!$product) return;
+                                        if (!$product)
+                                            return;
 
                                         if ($product->isExpired(\Carbon\Carbon::parse($value))) {
                                             $fail('منتج منتهي الصلاحية');
@@ -179,6 +181,15 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->label('الحالة')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('note_type')
+                    ->badge()
+                    ->label('نوع الإذن')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('purchaseInvoice.id')
+                    ->label('رقم فاتورة المشتريات')
+                    ->url(fn($record) => $record->purchaseInvoice ? PurchaseInvoiceResource::getUrl('view', ['record' => $record->purchaseInvoice]) : null)
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('officer.name')
                     ->label('المسؤول')

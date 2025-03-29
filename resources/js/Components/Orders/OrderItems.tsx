@@ -42,13 +42,13 @@ export function OrderItems({ items, status }: OrderItemsProps) {
                                     <div className="mt-1 text-sm text-secondary-500 space-y-1">
                                         {item.packets_quantity > 0 && (
                                             <div>
-                                                {item.packets_quantity} عبوة ×{" "}
+                                                {item.packets_quantity} {item.product.packet_alter_name} ×{" "}
                                                 {item.packet_price} ج.م
                                             </div>
                                         )}
                                         {item.piece_quantity > 0 && (
                                             <div>
-                                                {item.piece_quantity} قطعة ×{" "}
+                                                {item.piece_quantity} {item.product.piece_alter_name} ×{" "}
                                                 {item.piece_price} ج.م
                                             </div>
                                         )}

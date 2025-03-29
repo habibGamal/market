@@ -40,7 +40,7 @@ export function AddToCartModal({
                 <div className="space-y-4 py-4">
                     <div className="flex gap-2 items-center">
                         <label className="text-sm font-medium min-w-24">
-                            عدد الباكيتات
+                            عدد {product.packet_alter_name}
                         </label>
                         <QuantityInput
                             value={packets}
@@ -49,18 +49,20 @@ export function AddToCartModal({
                             disabled={loading}
                         />
                     </div>
-                    <div className="flex gap-2 items-center">
-                        <label className="text-sm font-medium min-w-24">
-                            عدد القطع
-                        </label>
-                        <QuantityInput
-                            value={pieces}
-                            onChange={setPieces}
-                            min={0}
-                            max={product.packet_to_piece}
-                            disabled={loading}
-                        />
-                    </div>
+                    {product.packet_to_piece > 1 && (
+                        <div className="flex gap-2 items-center">
+                            <label className="text-sm font-medium min-w-24">
+                                عدد {product.piece_alter_name}
+                            </label>
+                            <QuantityInput
+                                value={pieces}
+                                onChange={setPieces}
+                                min={0}
+                                max={product.packet_to_piece}
+                                disabled={loading}
+                            />
+                        </div>
+                    )}
                     <Button
                         className="w-full"
                         onClick={onAddToCart}

@@ -23,7 +23,7 @@ class OrderStatsOverview extends BaseWidget
     {
         $statsService = app(OrdersStatsService::class);
         $result = $statsService->getOrdersWithStats($this->getPageTableQuery());
-        $stats = $statsService->calculateOrderStats($result);
+        $stats = $statsService->calculateOrdersStats($result);
 
         return [
             Stat::make('إجمالي الطلبات', number_format($stats['total_orders']))
@@ -35,6 +35,11 @@ class OrderStatsOverview extends BaseWidget
                 ->description('القيمة الإجمالية للمبيعات')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success'),
+
+            Stat::make('إجمالي الأرباح بدون خصومات', number_format($stats['total_profit_without_discount'], 2) . ' جنيه')
+                ->description('الأرباح الإجمالية بدون خصومات')
+                ->descriptionIcon('heroicon-m-arrow-trending-up')
+                ->color('warning'),
 
             Stat::make('إجمالي الأرباح', number_format($stats['total_profit'], 2) . ' جنيه')
                 ->description('الأرباح الإجمالية')

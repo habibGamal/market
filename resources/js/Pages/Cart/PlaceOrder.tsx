@@ -55,8 +55,8 @@ export default function PlaceOrder({ preview }: Props) {
                                     {item.product.name}
                                 </h3>
                                 <div className="mt-1 text-sm text-secondary-500">
-                                    <div>العبوات: {item.packets_quantity}</div>
-                                    <div>القطع: {item.piece_quantity}</div>
+                                    <div>{item.product.packet_alter_name}: {item.packets_quantity}</div>
+                                    <div>{item.product.piece_alter_name}: {item.piece_quantity}</div>
                                 </div>
                             </div>
                             <div className="text-sm font-medium text-secondary-900">

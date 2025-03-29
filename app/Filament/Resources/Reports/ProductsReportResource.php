@@ -64,12 +64,20 @@ class ProductsReportResource extends Resource
                     ->sortable(),
                 TextColumn::make('order_items_sum_piece_quantity')
                     ->label('كمية المبيعات')
+                    ->formatStateUsing(function ($state, Product $record) {
+                        $packets = $state / $record->packet_to_piece;
+                        return "{$state} قطعة = {$packets} عبوة";
+                    })
                     ->color('success')
                     ->icon('heroicon-s-arrow-trending-up')
                     ->iconPosition(IconPosition::After)
                     ->sortable(),
                 TextColumn::make('return_order_items_sum_piece_quantity')
                     ->label('كمية المرتجعات')
+                    ->formatStateUsing(function ($state, Product $record) {
+                        $packets = $state / $record->packet_to_piece;
+                        return "{$state} قطعة = {$packets} عبوة";
+                    })
                     ->color('danger')
                     ->icon('heroicon-s-arrow-trending-down')
                     ->iconPosition(IconPosition::After)

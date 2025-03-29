@@ -36,18 +36,17 @@ export function ReturnListItem({ item }: ReturnListItemProps) {
                                 {item.packets_quantity > 0 && (
                                     <span>
                                         {item.packets_quantity}{" "}
-                                        باكيت{" "}
+                                        {item.product.packet_alter_name}{" "}
                                     </span>
                                 )}
                                 {item.piece_quantity > 0 && (
                                     <span>
                                         {item.piece_quantity}{" "}
-                                        قطعة
+                                        {item.product.piece_alter_name}
                                     </span>
                                 )}
                             </span>
                         </div>
-
                         <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto">
                             <div className="flex flex-col items-end">
                                 <div className="font-medium text-secondary-900">

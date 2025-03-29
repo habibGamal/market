@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\CityExporter;
 use App\Filament\Resources\CityResource\Pages;
 use App\Models\City;
 use Filament\Forms;
@@ -86,8 +87,14 @@ class CityResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\ExportBulkAction::make()->exporter(CityExporter::class),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(CityExporter::class),
             ]);
     }
 

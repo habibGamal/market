@@ -30,6 +30,16 @@ class PlaceOrderServices
     public function placeOrder(Cart $cart): Order
     {
         return DB::transaction(function () use ($cart) {
+            // Check if customer is active (not blocked)
+            if ($cart->customer->blocked) {
+                throw new \Exception('لا يمكن إتمام الطلب، حسابك موقوف حالياً');
+            }
+
+            // Check if cart exists and has items
+            if (!$cart || $cart->items->isEmpty()) {
+                throw new \Exception('لا يمكن إنشاء طلب فارغ، يرجى إضافة منتجات إلى السلة');
+            }
+
             // Check if selling is stopped in settings
             if (settings(SettingKey::STOP_SELLING, false)) {
                 throw new \Exception('تم إيقاف البيع مؤقتاً، يرجى المحاولة لاحقاً');
@@ -97,15 +107,15 @@ class PlaceOrderServices
      */
     public function orderEvaluation(Order $order, $skipValidation = false): void
     {
-        if($skipValidation === false) {
-            // Check product limits for customer area
-            $this->validateProductLimits($order);
-
+        if ($skipValidation === false) {
             // ensure order total satisfies minimum order total
             $minTotalOrder = (float) settings(SettingKey::MIN_TOTAL_ORDER, 0);
             if ($order->total < $minTotalOrder) {
                 throw new \Exception("الحد الأدنى لإجمالي الطلب هو $minTotalOrder");
             }
+
+            // Check product limits for customer area
+            $this->validateProductLimits($order);
         }
 
         // apply offers

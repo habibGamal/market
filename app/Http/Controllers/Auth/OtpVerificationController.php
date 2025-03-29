@@ -27,14 +27,18 @@ class OtpVerificationController extends Controller
         $phone = auth()->guard('customer')->user()->phone;
 
         $otp = $this->otpService->generateOtp($phone);
+        $sent = $this->otpService->sendOtp($phone);
 
-        // Here you would typically send the OTP via SMS
-        // For development, we'll just return it in the response
-        if (config('app.debug')) {
-            return response()->json(['otp' => $otp]);
+        // For development, we'll return the OTP in the response if REAL_OTP is disabled
+        if (config('app.real_otp', false) === false) {
+            return response()->json(['otp' => $otp, 'sent' => $sent]);
         }
 
-        return response()->noContent();
+        if ($sent) {
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'فشل في إرسال رمز التحقق'], 500);
     }
 
     public function verify(Request $request)

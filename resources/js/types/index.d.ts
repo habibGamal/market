@@ -35,6 +35,11 @@ export interface User {
     phone: string;
     address: string;
     email_verified_at?: string;
+    gov_id?: number;
+    city_id?: number;
+    area_id?: number;
+    village?: string;
+    location?: string;
 }
 
 export interface Category {
@@ -97,6 +102,9 @@ export interface Product {
     prices: ProductPrices;
     is_new?: boolean;
     is_deal?: boolean;
+    has_stock?: boolean;
+    packet_alter_name: string;
+    piece_alter_name: string;
 }
 
 export interface OrderItem {

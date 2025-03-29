@@ -75,7 +75,7 @@ export function CartItem({
                         </h3>
                         <div className="text-sm text-secondary-500 space-y-1">
                             <div>
-                                سعر العبوة: {product.prices.packet.discounted}{" "}
+                                سعر {product.packet_alter_name}: {product.prices.packet.discounted}{" "}
                                 ج.م
                                 {product.prices.packet.original && (
                                     <span className="text-xs line-through mr-1 text-secondary-400">
@@ -83,15 +83,17 @@ export function CartItem({
                                     </span>
                                 )}
                             </div>
-                            <div>
-                                سعر القطعة: {product.prices.piece.discounted}{" "}
-                                ج.م
-                                {product.prices.piece.original && (
-                                    <span className="text-xs line-through mr-1 text-secondary-400">
-                                        {product.prices.piece.original} ج.م
-                                    </span>
-                                )}
-                            </div>
+                            {product.packet_to_piece > 1 && (
+                                <div>
+                                    سعر {product.piece_alter_name}:{" "}
+                                    {product.prices.piece.discounted} ج.م
+                                    {product.prices.piece.original && (
+                                        <span className="text-xs line-through mr-1 text-secondary-400">
+                                            {product.prices.piece.original} ج.م
+                                        </span>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                     <Button
@@ -105,14 +107,13 @@ export function CartItem({
                     </Button>
                 </div>
             </div>
-
             {/* Product Details */}
             <div className="flex-1 min-w-0 space-y-4">
                 {/* Quantity Controls */}
                 <div className="flex flex-wrap gap-4">
                     <div className="flex items-center gap-2">
                         <span className="text-sm text-secondary-600 min-w-16">
-                            باكيت:
+                            {product.packet_alter_name}:
                         </span>
                         <QuantityInput
                             value={packetsQuantity}
@@ -121,19 +122,20 @@ export function CartItem({
                             disabled={loading}
                         />
                     </div>
-
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-secondary-600 min-w-16">
-                            قطع:
-                        </span>
-                        <QuantityInput
-                            value={piecesQuantity}
-                            onChange={handlePiecesChange}
-                            min={0}
-                            max={product.packet_to_piece}
-                            disabled={loading}
-                        />
-                    </div>
+                    {product.packet_to_piece > 1 && (
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm text-secondary-600 min-w-16">
+                                {product.piece_alter_name}:
+                            </span>
+                            <QuantityInput
+                                value={piecesQuantity}
+                                onChange={handlePiecesChange}
+                                min={0}
+                                max={product.packet_to_piece}
+                                disabled={loading}
+                            />
+                        </div>
+                    )}
 
                     {errorMsg && (
                         <div className="text-xs text-destructive">

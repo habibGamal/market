@@ -15,6 +15,25 @@ class Product extends Model
 {
     use HasFactory, LogsActivity, Searchable;
 
+    protected $fillable = [
+        'name',
+        'image',
+        'barcode',
+        'packet_cost',
+        'packet_price',
+        'piece_price',
+        'packet_alter_name',
+        'piece_alter_name',
+        'expiration_duration',
+        'expiration_unit',
+        'before_discount',
+        'packet_to_piece',
+        'min_packets_stock_limit',
+        'is_active',
+        'brand_id',
+        'category_id',
+    ];
+
     protected $casts = [
         'before_discount' => 'array',
         'expiration_unit' => ExpirationUnit::class,
@@ -25,7 +44,8 @@ class Product extends Model
         'expiration',
         'is_new',
         'is_deal',
-        'prices'
+        'prices',
+        'has_stock',
     ];
 
     public function getPacketsQuantityAttribute()
@@ -38,6 +58,11 @@ class Product extends Model
     {
         $this->loadMissing('stockItems');
         return $this->stockItems->sum('piece_quantity') - $this->stockItems->sum('unavailable_quantity') - $this->stockItems->sum('reserved_quantity');
+    }
+
+    public function getHasStockAttribute(): bool
+    {
+        return $this->getAvailablePiecesQuantityAttribute() > 0;
     }
 
     public function getExpirationAttribute()

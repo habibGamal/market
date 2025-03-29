@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Actions\GeneratePasswordAction;
+use App\Filament\Exports\DriverExporter;
 use App\Filament\Resources\DriverResource\Pages;
 use App\Models\Driver;
 use Filament\Forms;
@@ -82,13 +83,7 @@ class DriverResource extends Resource
                             ->revealable(filament()->arePasswordsRevealable())
                             ->required()
                             ->visible(fn(Get $get): bool => filled($get('password')))
-                            ->dehydrated(false),
-                        Forms\Components\Select::make('roles')
-                            ->label('الأدوار')
-                            ->multiple()
-                            ->relationship('roles', 'name')
-                            ->preload()
-                            ->required(),
+                            ->dehydrated(false)
                     ]),
             ]);
     }
@@ -135,8 +130,14 @@ class DriverResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\ExportBulkAction::make()->exporter(DriverExporter::class),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(DriverExporter::class),
             ]);
     }
 

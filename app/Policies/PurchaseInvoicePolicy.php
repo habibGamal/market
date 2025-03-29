@@ -47,7 +47,7 @@ class PurchaseInvoicePolicy
      */
     public function delete(User $user, PurchaseInvoice $purchaseInvoice): bool
     {
-        return $user->can('delete_purchase::invoice') && !$purchaseInvoice->closed;
+        return $user->can('delete_purchase::invoice') && $purchaseInvoice->deletable;
     }
 
     /**

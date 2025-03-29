@@ -29,6 +29,9 @@ export default function Show({ product }: ShowProps) {
         onSuccess: () => setOpen(false),
     });
 
+    // Determine if product is out of stock
+    const isOutOfStock = product.has_stock === false;
+
     return (
         <div className="space-y-12">
             <div className="container mx-auto px-4 py-8">
@@ -36,23 +39,23 @@ export default function Show({ product }: ShowProps) {
                     {/* Product Image */}
                     <div className="relative">
                         {/* Badge */}
-                        {(product.is_new || product.is_deal) && (
+                        {(product.is_new || product.is_deal || isOutOfStock) && (
                             <Badge
                                 className="absolute top-2 right-2 z-10"
-                                variant={product.is_deal ? "destructive" : "default"}
+                                variant={isOutOfStock ? "outline" : product.is_deal ? "destructive" : "default"}
                             >
-                                {product.is_deal ? "عرض خاص" : "جديد"}
+                                {isOutOfStock ? "غير متوفر" : product.is_deal ? "عرض خاص" : "جديد"}
                             </Badge>
                         )}
                         <FallbackImage
                             src={product.image}
                             alt={product.name}
-                            className="w-full rounded-lg aspect-square object-cover"
+                            className={`w-full rounded-lg aspect-square object-cover ${isOutOfStock ? 'grayscale' : ''}`}
                         />
                     </div>
 
                     {/* Product Info */}
-                    <div className="space-y-6">
+                    <div className={`space-y-6 ${isOutOfStock ? 'opacity-60' : ''}`}>
                         <h1 className="text-3xl font-bold text-secondary-900">{product.name}</h1>
 
                         <div className="space-y-2">
@@ -81,7 +84,7 @@ export default function Show({ product }: ShowProps) {
                                     )}
                                     <span className="text-2xl font-bold text-primary-500">
                                         {product.prices.packet.discounted}{" "}
-                                        <span className="text-sm">ج.م/باكيت</span>
+                                        <span className="text-sm">ج.م/{product.packet_alter_name}</span>
                                     </span>
                                 </div>
                             )}
@@ -96,7 +99,7 @@ export default function Show({ product }: ShowProps) {
                                     )}
                                     <span className="text-xl text-secondary-700">
                                         {product.prices.piece.discounted}{" "}
-                                        <span className="text-sm">ج.م/قطعة</span>
+                                        <span className="text-sm">ج.م/{product.piece_alter_name}</span>
                                     </span>
                                 </div>
                             )}
@@ -105,8 +108,13 @@ export default function Show({ product }: ShowProps) {
                         {/* Add to Cart */}
                         <Dialog open={open} onOpenChange={setOpen}>
                             <DialogTrigger asChild>
-                                <Button size="lg" className="w-full">
-                                    أضف للسلة
+                                <Button
+                                    size="lg"
+                                    className="w-full"
+                                    disabled={isOutOfStock}
+                                    variant={isOutOfStock ? "outline" : "default"}
+                                >
+                                    {isOutOfStock ? "غير متوفر" : "أضف للسلة"}
                                 </Button>
                             </DialogTrigger>
                         </Dialog>

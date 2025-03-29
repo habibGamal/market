@@ -127,10 +127,21 @@ return [
      * Default user credentials for local development environment seeding
      * Will be used as the default user credentials for login
      */
-
     'default_user' => [
         'name' => env('DEFAULT_USER_NAME'),
         'email' => env('DEFAULT_USER_EMAIL'),
         'password' => env('DEFAULT_USER_PASSWORD'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Real OTP Mode
+    |--------------------------------------------------------------------------
+    |
+    | This setting determines if real OTP messages are sent via WhatsApp.
+    | When set to false, OTP codes will be generated but not actually sent,
+    | which is useful for development and testing environments.
+    |
+    */
+    'real_otp' => (bool) env('REAL_OTP', false),
 ];

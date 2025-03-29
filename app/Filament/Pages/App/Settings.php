@@ -123,6 +123,126 @@ class Settings extends Page
                                     ]),
                             ]),
 
+                        // Support Settings Tab
+                        Tabs\Tab::make('support')
+                            ->label('إعدادات الدعم')
+                            ->icon('heroicon-o-lifebuoy')
+                            ->schema([
+                                Section::make('معلومات الاتصال')
+                                    ->description('معلومات الاتصال التي ستظهر للعملاء في صفحة الدعم')
+                                    ->schema([
+                                        Grid::make(2)->schema([
+                                            TextInput::make(SettingKey::SUPPORT_PHONE->value)
+                                                ->label(SettingKey::SUPPORT_PHONE->getLabel())
+                                                ->tel()
+                                                ->placeholder('01234567890')
+                                                ->required(),
+
+                                            TextInput::make(SettingKey::SUPPORT_EMAIL->value)
+                                                ->label(SettingKey::SUPPORT_EMAIL->getLabel())
+                                                ->email()
+                                                ->placeholder('support@yourdomain.com')
+                                                ->required(),
+
+                                            TextInput::make(SettingKey::SUPPORT_HOURS->value)
+                                                ->label(SettingKey::SUPPORT_HOURS->getLabel())
+                                                ->placeholder('من الأحد إلى الخميس، 9 صباحاً - 5 مساءً')
+                                                ->required(),
+
+                                            TextInput::make(SettingKey::SUPPORT_CHAT_HOURS->value)
+                                                ->label(SettingKey::SUPPORT_CHAT_HOURS->getLabel())
+                                                ->placeholder('متاحة من 9 صباحاً - 9 مساءً')
+                                                ->required(),
+                                        ]),
+
+                                        TextInput::make(SettingKey::SUPPORT_ADDRESS->value)
+                                            ->label(SettingKey::SUPPORT_ADDRESS->getLabel())
+                                            ->placeholder('المبنى 123، شارع الرئيسي، المدينة')
+                                            ->required()
+                                            ->columnSpanFull(),
+                                    ]),
+
+                                Section::make('سياسات الموقع')
+                                    ->description('سياسات الموقع التي ستظهر للعملاء في صفحة الدعم')
+                                    ->schema([
+                                        RichEditor::make(SettingKey::PRIVACY_POLICY->value)
+                                            ->label(SettingKey::PRIVACY_POLICY->getLabel())
+                                            ->placeholder('أدخل نص سياسة الخصوصية')
+                                            ->columnSpanFull()
+                                            ->toolbarButtons([
+                                                'bold',
+                                                'italic',
+                                                'underline',
+                                                'strike',
+                                                'bulletList',
+                                                'orderedList',
+                                                'heading',
+                                                'h2',
+                                                'h3',
+                                                'alignLeft',
+                                                'alignCenter',
+                                                'alignRight',
+                                            ]),
+
+                                        RichEditor::make(SettingKey::SHIPPING_POLICY->value)
+                                            ->label(SettingKey::SHIPPING_POLICY->getLabel())
+                                            ->placeholder('أدخل نص سياسة الشحن والتوصيل')
+                                            ->columnSpanFull()
+                                            ->toolbarButtons([
+                                                'bold',
+                                                'italic',
+                                                'underline',
+                                                'strike',
+                                                'bulletList',
+                                                'orderedList',
+                                                'heading',
+                                                'h2',
+                                                'h3',
+                                                'alignLeft',
+                                                'alignCenter',
+                                                'alignRight',
+                                            ]),
+
+                                        RichEditor::make(SettingKey::RETURN_POLICY->value)
+                                            ->label(SettingKey::RETURN_POLICY->getLabel())
+                                            ->placeholder('أدخل نص سياسة الإرجاع والاستبدال')
+                                            ->columnSpanFull()
+                                            ->toolbarButtons([
+                                                'bold',
+                                                'italic',
+                                                'underline',
+                                                'strike',
+                                                'bulletList',
+                                                'orderedList',
+                                                'heading',
+                                                'h2',
+                                                'h3',
+                                                'alignLeft',
+                                                'alignCenter',
+                                                'alignRight',
+                                            ]),
+
+                                        RichEditor::make(SettingKey::PAYMENT_POLICY->value)
+                                            ->label(SettingKey::PAYMENT_POLICY->getLabel())
+                                            ->placeholder('أدخل نص سياسة الدفع')
+                                            ->columnSpanFull()
+                                            ->toolbarButtons([
+                                                'bold',
+                                                'italic',
+                                                'underline',
+                                                'strike',
+                                                'bulletList',
+                                                'orderedList',
+                                                'heading',
+                                                'h2',
+                                                'h3',
+                                                'alignLeft',
+                                                'alignCenter',
+                                                'alignRight',
+                                            ]),
+                                    ]),
+                            ]),
+
                         // Invoices Settings Tab (Empty for now)
                         Tabs\Tab::make('invoices')
                             ->label('إعدادات الفواتير')
@@ -143,6 +263,21 @@ class Settings extends Page
                                 Section::make()
                                     ->description('لم يتم إضافة إعدادات للإشعارات بعد')
                                     ->icon('heroicon-o-information-circle'),
+                            ]),
+
+                        // Integration Settings Tab
+                        Tabs\Tab::make('integration')
+                            ->label('إعدادات التكامل')
+                            ->icon('heroicon-o-link')
+                            ->schema([
+                                Grid::make(1)->schema([
+                                    TextInput::make(SettingKey::WHATSAPP_SERVER_ENDPOINT->value)
+                                        ->label(SettingKey::WHATSAPP_SERVER_ENDPOINT->getLabel())
+                                        ->placeholder('أدخل رابط خادم واتساب')
+                                        ->helperText('أدخل رابط خادم واتساب المستخدم في إرسال الرسائل')
+                                        ->url()
+                                        ->required(),
+                                ]),
                             ]),
                     ])
             ])

@@ -20,7 +20,7 @@ class ProductImporter extends Importer
             ImportColumn::make('id')->label('معرف'),
 
             ImportColumn::make('name')->label('الاسم'),
-            ImportColumn::make('barcode')->label('الباركود'),
+            ImportColumn::make('barcode')->label('الباركود')->rules(['unique:products,barcode,{{record.id}}']),
             ImportColumn::make('packet_to_piece')->label('عدد القطع في العبوة'),
             ImportColumn::make('packet_cost')->label('تكلفة العبوة'),
             ImportColumn::make('packet_price')->label('سعر العبوة'),

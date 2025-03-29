@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\CustomerExporter;
 use App\Filament\Resources\CustomerResource\Pages;
 use App\Models\Customer;
 use Filament\Forms;
@@ -87,7 +88,16 @@ class CustomerResource extends Resource
                         Forms\Components\TextInput::make('location')
                             ->label('الموقع')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->suffixAction(
+                                Forms\Components\Actions\Action::make('openMap')
+                                    ->icon('heroicon-o-map')
+                                    ->tooltip('فتح في خرائط جوجل')
+                                    ->url(
+                                        fn (Get $get): string => 'https://www.google.com/maps/search/?api=1&query=' . urlencode($get('location')),
+                                        true
+                                    )
+                            ),
                         Forms\Components\TextInput::make('village')
                             ->label('القرية')
                             ->maxLength(255),
@@ -157,9 +167,15 @@ class CustomerResource extends Resource
             ->bulkActions([
                 BulkActionGroup::make([
                     Tables\Actions\BulkActionGroup::make([
+                        Tables\Actions\ExportBulkAction::make()->exporter(CustomerExporter::class),
                         Tables\Actions\DeleteBulkAction::make(),
                     ]),
                 ]),
+            ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(CustomerExporter::class),
             ]);
     }
 

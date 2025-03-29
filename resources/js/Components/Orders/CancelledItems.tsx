@@ -33,12 +33,12 @@ export function CancelledItems({ items }: CancelledItemsProps) {
                                     <div className="mt-1 text-sm text-secondary-500">
                                         {item.packets_quantity > 0 && (
                                             <span className="block">
-                                                {item.packets_quantity} عبوة
+                                                {item.packets_quantity} {item.product.packet_alter_name}
                                             </span>
                                         )}
                                         {item.piece_quantity > 0 && (
                                             <span className="block">
-                                                {item.piece_quantity} قطعة
+                                                {item.piece_quantity} {item.product.piece_alter_name}
                                             </span>
                                         )}
                                         {item.notes && (
