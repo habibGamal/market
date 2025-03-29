@@ -194,6 +194,14 @@ class PurchaseInvoiceResource extends InvoiceResource
                     ->badge()
                     ->label('الحالة')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('execution_date')
+                    ->label('تاريخ التنفيذ')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('payment_date')
+                    ->label('تاريخ الدفع')
+                    ->date()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('officer.name')
                     ->label('المسؤول')
                     ->searchable()
