@@ -23,7 +23,7 @@ return new class extends Migration
             $table->enum('expiration_unit', ['day', 'week', 'month', 'year']);
             $table->text('before_discount');
             $table->integer('packet_to_piece');
-            $table->integer('min_packets_stock_limit')->default(0);
+            $table->integer('min_packets_stock_limit')->default(1);
             $table->boolean('is_active')->default(true);
             $table->foreignId('brand_id')->constrained();
             $table->foreignId('category_id')->constrained();

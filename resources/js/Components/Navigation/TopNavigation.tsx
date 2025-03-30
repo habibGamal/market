@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Link, usePage, router } from "@inertiajs/react";
 import React from "react";
+import { FallbackImage } from "../ui/fallback-image";
 
 interface NavLink {
     href: string;
@@ -77,31 +78,37 @@ const navLinks: NavLink[] = [
 ];
 
 export function TopNavigation() {
-    const { auth } = usePage().props;
+    const { auth, appIcon } = usePage().props;
     const [isOpen, setIsOpen] = React.useState(false);
 
     const handleLogout = () => {
         setIsOpen(false);
-        router.post('/logout');
+        router.post("/logout");
     };
 
     const handleLinkClick = () => {
         setIsOpen(false);
     };
 
-    const filteredNavLinks = navLinks.filter(link => {
+    const filteredNavLinks = navLinks.filter((link) => {
         if (auth.user) {
             return !link.guestOnly;
         }
         return !link.requiresAuth;
     });
-
+    console.log(appIcon)
     return (
         <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b">
-            <div className="container flex items-center justify-between p-4">
+            <div className="container flex items-center mx-auto justify-between p-4">
                 {/* Logo */}
                 <Link href="/" className="flex items-center">
-                    <svg
+                    <FallbackImage
+                        src={appIcon as string}
+                        alt="Logo"
+                        className="h-[36px] w-[60px] rounded"
+                        fallbackSrc="/images/logo.png"
+                    />
+                    {/* <svg
                         width="60"
                         height="40"
                         viewBox="0 0 120 40"
@@ -137,7 +144,7 @@ export function TopNavigation() {
                             d="M78.96 15H82.5L87.75 22.44V15H90.75V27H87.21L81.96 19.56V27H78.96V15Z"
                             fill="#1A1523"
                         />
-                    </svg>
+                    </svg> */}
                 </Link>
 
                 {/* Search */}

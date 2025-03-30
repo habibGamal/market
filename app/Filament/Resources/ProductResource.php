@@ -71,20 +71,22 @@ class ProductResource extends Resource
                                         'كرتونة' => 'كرتونة',
                                         'لفة' => 'لفة',
                                     ])
+                                    ->default('كرتونة')
+                                    ->required()
                                     ->placeholder('اختر الاسم البديل للعبوة')
                                     ->helperText('الاسم الذي سيظهر بدلاً من "عبوة" في واجهة المستخدم')
-                                    ->searchable()
-                                    ->allowHtml(),
+                                    ->searchable(),
                                 Forms\Components\Select::make('piece_alter_name')
                                     ->label('الاسم البديل للقطعة')
                                     ->options([
                                         'علبة' => 'علبة',
                                         'قطعة' => 'قطعة',
                                     ])
+                                    ->default('قطعة')
+                                    ->required()
                                     ->placeholder('اختر الاسم البديل للقطعة')
                                     ->helperText('الاسم الذي سيظهر بدلاً من "قطعة" في واجهة المستخدم')
-                                    ->searchable()
-                                    ->allowHtml(),
+                                    ->searchable(),
                                 Forms\Components\TextInput::make('expiration_duration')
                                     ->label('مدة الصلاحية')
                                     ->numeric()
@@ -113,6 +115,7 @@ class ProductResource extends Resource
                                     ->label('الحد الأدنى للمخزون (عبوات)')
                                     ->numeric()
                                     ->minValue(0)
+                                    ->default(1)
                                     ->required(),
                                 Forms\Components\TextInput::make('packet_cost')
                                     ->label('تكلفة العبوة')
@@ -124,6 +127,15 @@ class ProductResource extends Resource
                                     ->numeric()
                                     ->required()
                                     ->minValue(0)
+                                    ->reactive()
+                                    ->debounce(500)
+                                    ->afterStateUpdated(
+                                        function (Forms\Set $set, Forms\Get $get, $state) {
+                                            if (is_numeric($state)) {
+                                                $set('piece_price', ($state / $get('packet_to_piece')));
+                                            }
+                                        }
+                                    )
                                     ->rule(
                                         fn(Forms\Get $get) =>
                                         function (string $attribute, $value, \Closure $fail) use ($get) {
@@ -224,6 +236,8 @@ class ProductResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\ExportBulkAction::make()
+                        ->exporter(ProductExporter::class),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

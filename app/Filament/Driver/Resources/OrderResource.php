@@ -91,11 +91,11 @@ class OrderResource extends Resource
                 Tables\Filters\SelectFilter::make('driverTask.status')
                     ->query(
                         fn($query, $data) => !empty($data['values'])
-                            ? $query->whereHas(
-                                'driverTask',
-                                fn($query) => $query->whereIn('status', $data['values'])
-                              )
-                            : $query
+                        ? $query->whereHas(
+                            'driverTask',
+                            fn($query) => $query->whereIn('status', $data['values'])
+                        )
+                        : $query
                     )
                     ->label('الحالة')
                     ->multiple()
@@ -122,6 +122,10 @@ class OrderResource extends Resource
                             ->formatStateUsing(fn(string $state): string => "#{$state}"),
                         TextEntry::make('total')
                             ->label('المجموع')
+                            ->money('EGP')
+                            ->color('green'),
+                        TextEntry::make('net_total')
+                            ->label('الصافي')
                             ->money('EGP')
                             ->color('green'),
                         TextEntry::make('status')

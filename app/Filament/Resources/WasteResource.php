@@ -113,7 +113,7 @@ class WasteResource extends InvoiceResource
                                 $product = Product::with('stockItems')->find($state);
                                 $items = [...$get('items')];
                                 $newItems = $product->stockItems->map(function ($stockItem) {
-                                    $availableQuantity = $stockItem->piece_quantity  - $stockItem->unavailable_quantity;
+                                    $availableQuantity = $stockItem->piece_quantity - $stockItem->unavailable_quantity;
                                     if ($availableQuantity <= 0) {
                                         return null;
                                     }
@@ -160,6 +160,7 @@ class WasteResource extends InvoiceResource
                         Forms\Components\Hidden::make('product_packet_to_piece')->dehydrated(false)
                             ->formatStateUsing(fn($state, $record) => $record ? $record->product->packet_to_piece : $state),
                         Forms\Components\TextInput::make('product_name')
+                            ->label('المنتج')
                             ->formatStateUsing(fn($state, $record) => $record ? $record->product_name : $state)
                             ->disabled(),
                         Forms\Components\TextInput::make('packets_quantity')
@@ -234,9 +235,9 @@ class WasteResource extends InvoiceResource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\DeleteAction::make()->action(function (Waste $record, $action) {
-                    try{
+                    try {
                         $record->delete();
-                    }catch (\Exception $e){
+                    } catch (\Exception $e) {
                         \Filament\Notifications\Notification::make()
                             ->danger()
                             ->title($e->getMessage())

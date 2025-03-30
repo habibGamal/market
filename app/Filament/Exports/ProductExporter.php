@@ -16,18 +16,19 @@ class ProductExporter extends Exporter
         return [
             ExportColumn::make('id')->label('معرف المنتج'),
             ExportColumn::make('name')->label('اسم المنتج'),
-            ExportColumn::make('barcode')->label('الباركود')
-                // ->formatStateUsing(function (string $state) {
-                //     return "'$state";
-                // })
-                ,
+            ExportColumn::make('barcode')->label('الباركود'),
+            ExportColumn::make('image')->label('الصورة'),
+            ExportColumn::make('is_active')->label('نشط'),
+            ExportColumn::make('packet_to_piece')->label('عدد القطع في العبوة'),
+            ExportColumn::make('packet_alter_name')->label('الاسم البديل للعبوة'),
+            ExportColumn::make('piece_alter_name')->label('الاسم البديل للقطعة'),
             ExportColumn::make('packet_cost')->label('تكلفة العبوة'),
             ExportColumn::make('packet_price')->label('سعر العبوة'),
             ExportColumn::make('piece_price')->label('سعر القطعة'),
             ExportColumn::make('before_discount.packet_price')->label('سعر العبوة قبل الخصم'),
             ExportColumn::make('before_discount.piece_price')->label('سعر القطعة قبل الخصم'),
             ExportColumn::make('expiration')->label('مدة الصلاحية'),
-            ExportColumn::make('packet_to_piece')->label('عدد القطع في العبوة'),
+            ExportColumn::make('min_packets_stock_limit')->label('الحد الأدنى للمخزون (عبوات)'),
             ExportColumn::make('brand.name')->label('العلامة التجارية'),
             ExportColumn::make('category.name')->label('الفئة'),
         ];

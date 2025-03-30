@@ -22,6 +22,8 @@ use App\Notifications\Templates\OrderTemplate;
 use App\Services\NotificationService;
 use App\Services\PrintTemplateService;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\BrandController;
 
 // Public Routes
 Route::get('/', [PageBuilderController::class, 'home']);
@@ -39,14 +41,11 @@ Route::get('/products/{product}', function (Product $product) {
         ])
     ]);
 })->name('products.show');
-Route::get('/products', function () {
-    return Inertia::render('Products/Index');
-})->name('products.index');
-Route::get('/categories', function () {
-    return Inertia::render('Categories/Index', [
-        'categories' => Category::where('parent_id','-1')->get()
-    ]);
-})->name('categories.index');
+
+// Categories routes
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
+
 Route::get('/search', [ProductListController::class, 'search'])->name('search');
 
 // Guest Routes (Unauthenticated)

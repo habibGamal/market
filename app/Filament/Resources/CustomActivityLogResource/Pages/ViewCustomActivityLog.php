@@ -4,16 +4,9 @@ namespace App\Filament\Resources\CustomActivityLogResource\Pages;
 
 use App\Filament\Resources\CustomActivityLogResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ViewRecord;
 
-class ListCustomActivityLogs extends ListRecords
+class ViewCustomActivityLog extends ViewRecord
 {
     protected static string $resource = CustomActivityLogResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            // Actions\CreateAction::make(),
-        ];
-    }
 }

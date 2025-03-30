@@ -36,35 +36,49 @@ class ViewOrder extends ViewRecord
                     ];
                 })
                 ->visible(fn($record) => $record->status === OrderStatus::OUT_FOR_DELIVERY)
-                ->form(fn() => [
-                    Repeater::make('items')
-                        ->label('الأصناف المستلمة')
-                        ->schema([
-                            Forms\Components\Hidden::make('item_id'),
-                            Forms\Components\TextInput::make('product_name')
-                                ->label('المنتج')
-                                ->disabled()
-                                ->columnSpanFull(),
-                            Forms\Components\TextInput::make('packets_quantity')
-                                ->label('عدد العبوات المستلمة')
-                                ->numeric()
-                                ->required()
-                                ->minValue(0)
-                                ->maxValue(fn($get,$record) => $record->items->find($get('item_id'))->packets_quantity)
-                                ->columnSpan(1),
-                            Forms\Components\TextInput::make('piece_quantity')
-                                ->label('عدد القطع المستلمة')
-                                ->numeric()
-                                ->required()
-                                ->minValue(0)
-                                ->maxValue(fn($get, $record) =>$record->items->find($get('item_id'))->piece_quantity)
-                                ->columnSpan(1),
-                        ])
-                        ->columns(2)
-                        ->reorderable(false)
-                        ->deletable(false)
-                        ->addable(false)
-                ])
+                ->form(function ($record) {
+                    $hasOffers = $record->offers()->exists();
+                    return [
+                        Repeater::make('items')
+                            ->label('الأصناف المستلمة')
+                            ->schema([
+                                Forms\Components\Hidden::make('item_id'),
+                                Forms\Components\TextInput::make('product_name')
+                                    ->label('المنتج')
+                                    ->disabled()
+                                    ->columnSpanFull(),
+                                Forms\Components\TextInput::make('packets_quantity')
+                                    ->label('عدد العبوات المستلمة')
+                                    ->numeric()
+                                    ->required()
+                                    ->minValue(fn($get, $record) => $hasOffers ? $record->items->find($get('item_id'))->packets_quantity : 0)
+                                    ->maxValue(fn($get, $record) => $record->items->find($get('item_id'))->packets_quantity)
+                                    ->columnSpan(1),
+                                Forms\Components\TextInput::make('piece_quantity')
+                                    ->label('عدد القطع المستلمة')
+                                    ->numeric()
+                                    ->required()
+                                    ->minValue(fn($get, $record) => $hasOffers ? $record->items->find($get('item_id'))->piece_quantity : 0)
+                                    ->maxValue(fn($get, $record) => $record->items->find($get('item_id'))->piece_quantity)
+                                    ->columnSpan(1),
+                            ])
+                            ->columns(2)
+                            ->reorderable(false)
+                            ->deletable(false)
+                            ->addable(false)
+                            ->reactive(),
+                        Forms\Components\Placeholder::make('total')
+                            ->label('إجمالي المستلم')
+                            ->content(function (callable $get) {
+                                $items = collect($get('items') ?? []);
+                                return $items->sum(function ($item) {
+                                    $itemModel = $this->getRecord()->items->find($item['item_id']);
+                                    return ($item['packets_quantity'] * $itemModel->packet_price) + ($item['piece_quantity'] * $itemModel->piece_price);
+                                });
+                            })
+                            ->columnSpanFull(),
+                    ];
+                })
                 ->action(function ($record, array $data, $action) {
                     try {
                         app(DriverServices::class)->deliverOrder($record, $record->items, $data['items']);
@@ -88,7 +102,7 @@ class ViewOrder extends ViewRecord
                 ->modalHeading('تسليم الأصناف للعميل')
                 ->modalSubmitActionLabel('تسليم'),
 
-                printAction(Actions\Action::make('print')),
+            printAction(Actions\Action::make('print')),
         ];
     }
 }

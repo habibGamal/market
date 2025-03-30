@@ -89,6 +89,16 @@ class ReturnOrderItemsBulkAction extends BulkAction
                 })->toArray();
 
                 try {
+                    // Check if order has offers before proceeding
+                    if ($order->offers()->exists()) {
+                        Notification::make()
+                            ->title('لا يمكن إرجاع الأصناف')
+                            ->body('لا يمكن إرجاع الأصناف لطلب يحتوي على عروض')
+                            ->danger()
+                            ->send();
+                        $this->halt();
+                        return;
+                    }
                     app(OrderServices::class)->returnItems($order, $itemsToReturn);
                     notifyCustomerWithReturnOrderStatus($order, ReturnOrderStatus::PENDING->value);
                     Notification::make()

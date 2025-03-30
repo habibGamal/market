@@ -40,6 +40,8 @@ export interface User {
     area_id?: number;
     village?: string;
     location?: string;
+    whatsapp?: string;
+    business_type_id?: number;
 }
 
 export interface Category {
@@ -58,6 +60,7 @@ export interface CartItem {
 export interface Brand {
     id: number;
     name: string;
+    image: string | null;
     description?: string;
 }
 
@@ -102,6 +105,7 @@ export interface Product {
     prices: ProductPrices;
     is_new?: boolean;
     is_deal?: boolean;
+    is_active?: boolean;
     has_stock?: boolean;
     packet_alter_name: string;
     piece_alter_name: string;

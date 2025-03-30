@@ -99,10 +99,12 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                         Forms\Components\Hidden::make('product_id'),
                         Forms\Components\Hidden::make('release_dates'),
                         Forms\Components\TextInput::make('product_name')
+                            ->label('المنتج')
                             ->formatStateUsing(fn($state, $record) => $record ? $record->reference_state['product']['name'] : $state)
                             ->disabled()
                             ->dehydrated(false),
                         Forms\Components\TextInput::make('packets_quantity')
+                            ->label('عدد العبوات')
                             ->numeric()
                             ->required()
                             ->minValue(0)
@@ -110,6 +112,7 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                                 fn($state, $record) => $record ? $record->reference_state['packets_quantity'] : $state
                             ),
                         Forms\Components\TextInput::make('piece_quantity')
+                            ->label('عدد القطع')
                             ->numeric()
                             ->required()
                             ->minValue(0)
@@ -117,11 +120,16 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                                 fn($state, $record) => $record ? $record->reference_state['piece_quantity'] ?? 0 : $state
                             ),
                         Forms\Components\TextInput::make('packet_cost')
+                            ->label('سعر العبوة')
                             ->numeric()
                             ->disabled(),
                         Forms\Components\DatePicker::make('release_dates.0.release_date')
                             ->label('تاريخ الإنتاج')
                             ->required()
+                            ->hintColor('success')
+                            ->extraAlpineAttributes(
+                                fn($get) => ReleaseDatesFormAction::releaseDateWarning(\App\Models\Product::find($get('product_id')))
+                            )
                             ->rules([
                                 function ($get) {
                                     return function ($attribute, $value, $fail) use ($get) {
@@ -141,7 +149,9 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                             ]),
                         Actions::make(
                             [
-                                ReleaseDatesFormAction::make(),
+                                ReleaseDatesFormAction::make()
+
+                                ,
                             ]
                         ),
 

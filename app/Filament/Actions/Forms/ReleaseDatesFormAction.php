@@ -19,6 +19,34 @@ class ReleaseDatesFormAction extends Action
         return 'releaseDatesForm';
     }
 
+    public static function releaseDateWarning($product)
+    {
+        if (!$product)
+            return [];
+
+        $halfLife = $product->halfLife()->format('Y-m-d');
+        return [
+            'x-on:change' => '()=>{
+                    const releaseDate = new Date($event.target.value);
+                    const halfLife =  new Date("' . $halfLife . '");
+                    if (releaseDate > halfLife) {
+                        $event.target.classList.add("!text-yellow-500");
+                    }else {
+                        $event.target.classList.remove("!text-yellow-500");
+                    }
+                }',
+            'x-init' => '()=>{
+                    const releaseDate = new Date($el.value);
+                    const halfLife =  new Date("' . $halfLife . '");
+                    if (releaseDate > halfLife) {
+                        $el.classList.add("!text-yellow-500");
+                    }else {
+                        $el.classList.remove("!text-yellow-500");
+                    }
+                }'
+        ];
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -48,6 +76,10 @@ class ReleaseDatesFormAction extends Action
                             DatePicker::make('release_date')
                                 ->label('الوقت')
                                 ->required()
+                                ->hintColor('success')
+                                ->extraAlpineAttributes(
+                                    fn($get, $record) => self::releaseDateWarning(\App\Models\Product::find($record->product_id))
+                                )
                                 ->rules([
                                     function($get, $record) {
                                         return function($attribute, $value, $fail) use ($get, $record) {

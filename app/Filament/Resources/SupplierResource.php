@@ -33,7 +33,7 @@ class SupplierResource extends Resource
                     ->tel()
                     ->required()
                     ->unique(ignoreRecord: true)
-                    ->maxLength(11),
+                    ->length(11),
                 Forms\Components\TextInput::make('company_name')
                     ->label('اسم الشركة')
                     ->required()

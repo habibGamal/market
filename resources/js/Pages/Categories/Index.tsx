@@ -18,7 +18,7 @@ export default function Index({ categories }: Props) {
                 {categories.map((category) => (
                     <Link
                         key={category.id}
-                        href={`/product-list?id=${category.id}&model=category`}
+                        href={`/categories/${category.id}`}
                     >
                         <Card className="group hover:shadow-lg transition-all duration-300 border-0">
                             <CardContent className="p-2 md:p-4">

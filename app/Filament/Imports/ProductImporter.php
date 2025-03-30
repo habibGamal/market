@@ -9,6 +9,9 @@ use Carbon\CarbonInterface;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class ProductImporter extends Importer
 {
@@ -17,40 +20,91 @@ class ProductImporter extends Importer
     public static function getColumns(): array
     {
         return [
-            ImportColumn::make('id')->label('معرف'),
-
-            ImportColumn::make('name')->label('الاسم'),
-            ImportColumn::make('barcode')->label('الباركود')->rules(['unique:products,barcode,{{record.id}}']),
+            ImportColumn::make('id')->label('معرف المنتج'),
+            ImportColumn::make('name')->label('اسم المنتج'),
+            ImportColumn::make('barcode')->label('الباركود')
+                ->rules(fn($record) => [
+                    "unique:products,barcode,{$record?->id}"
+                ]),
+            ImportColumn::make('image')->label('الصورة'),
+            ImportColumn::make('is_active')->label('نشط')
+                ->boolean(),
             ImportColumn::make('packet_to_piece')->label('عدد القطع في العبوة'),
+            ImportColumn::make('packet_alter_name')->label('الاسم البديل للعبوة'),
+            ImportColumn::make('piece_alter_name')->label('الاسم البديل للقطعة'),
             ImportColumn::make('packet_cost')->label('تكلفة العبوة'),
             ImportColumn::make('packet_price')->label('سعر العبوة'),
             ImportColumn::make('piece_price')->label('سعر القطعة'),
-            ImportColumn::make('before_discount.packet_price')->label('سعر العبوة قبل الخصم')
-                ->fillRecordUsing(function (Product $product, string $state) {
-                    $product->before_discount = array_merge($product->before_discount ?? [], ['packet_price' => $state]);
-                }),
-            ImportColumn::make('before_discount.piece_price')->label('سعر القطعة قبل الخصم')
-                ->fillRecordUsing(function (Product $product, string $state) {
-                    $product->before_discount = array_merge($product->before_discount ?? [], ['piece_price' => $state]);
-                }),
-
+            ImportColumn::make('before_discount_packet_price')->label('سعر العبوة قبل الخصم')
+                ->guess(['سعر العبوة قبل الخصم'])
+                ->requiredMappingForNewRecordsOnly(),
+            ImportColumn::make('before_discount_piece_price')->label('سعر القطعة قبل الخصم')
+                ->guess(['سعر القطعة قبل الخصم'])
+                ->requiredMappingForNewRecordsOnly(),
             ImportColumn::make('expiration')->label('مدة الصلاحية'),
-
+            ImportColumn::make('min_packets_stock_limit')->label('الحد الأدنى للمخزون (عبوات)'),
             ImportColumn::make('brand')->label('العلامة التجارية')
-                ->relationship(),
+                ->relationship(resolveUsing: 'name'),
             ImportColumn::make('category')->label('الفئة')
-                ->relationship()
-            ,
+                ->relationship(resolveUsing: 'name'),
         ];
+    }
+
+    public function afterFill(): void
+    {
+        $this->record->before_discount = $this->data['before_discount'] ?? $this->record->before_discount;
+
+        if (!empty($this->data['image']) && str_starts_with($this->data['image'], 'https')) {
+            try {
+                $filename = Str::slug($this->data['barcode'] ?? time()) . '-' . time() . '.jpg';
+                $savePath = 'products/' . $filename;
+
+                $response = Http::timeout(10)
+                    ->withHeaders([
+                        'User-Agent' => 'PostmanRuntime/7.43.0',
+                        'Accept' => '*/*',
+                        'Accept-Encoding' => 'gzip, deflate, br',
+                        'Accept-Language' => 'en-US,en;q=0.9,ar-EG;q=0.8,ar;q=0.7'
+                    ])
+                    ->get($this->data['image']);
+
+                if ($response->successful()) {
+                    Storage::disk('public')->put($savePath, $response->body());
+                    $this->record->image = $savePath;
+                }
+            } catch (\Exception $e) {
+                report($e);
+            }
+        }
     }
 
     public function resolveRecord(): ?Product
     {
-        if (array_key_exists('id', $this->data)) {
+        // Handle before_discount fields first
+        if (isset($this->data['before_discount_packet_price']) || isset($this->data['before_discount_piece_price'])) {
+            // Extract before_discount fields
+            $beforeDiscountFields = array_filter($this->data, function ($key) {
+                return strpos($key, 'before_discount_') === 0;
+            }, ARRAY_FILTER_USE_KEY);
+
+            // Initialize before_discount array
+            $this->data['before_discount'] = [];
+
+            // Process each before_discount field
+            foreach ($beforeDiscountFields as $key => $value) {
+                $fieldName = str_replace('before_discount_', '', $key);
+                $this->data['before_discount'][$fieldName] = $value;
+
+                // Remove the flattened field from the data array
+                unset($this->data[$key]);
+            }
+        }
+
+        // Look up existing record or create new one
+        if (array_key_exists('id', $this->data) && $this->data['id']) {
             $product = Product::where('id', $this->data['id'])->first();
 
             if ($product) {
-                $product->fill($this->data);
                 return $product;
             }
         }

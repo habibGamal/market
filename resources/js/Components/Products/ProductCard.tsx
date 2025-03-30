@@ -19,22 +19,22 @@ export function ProductCard({ product }: ProductCardProps) {
     });
 
     // Determine if product is out of stock
-    const isOutOfStock = product.has_stock === false;
+    const isDisabled = product.has_stock === false || !product.is_active;
 
     return (
-        <div className={`relative group flex flex-col justify-between h-full max-w-[250px] ${isOutOfStock ? 'opacity-60' : ''}`}>
+        <div className={`relative group flex flex-col justify-between h-full max-w-[250px] ${isDisabled ? 'opacity-60' : ''}`}>
             {/* Badge */}
-            {(product.is_new || product.is_deal || isOutOfStock) && (
+            {(product.is_new || product.is_deal || isDisabled) && (
                 <Badge
                     className="absolute top-2 right-2 z-10"
-                    variant={isOutOfStock ? "outline" : product.is_deal ? "destructive" : "default"}
+                    variant={isDisabled ? "outline" : product.is_deal ? "destructive" : "default"}
                 >
-                    {isOutOfStock ? "غير متوفر" : product.is_deal ? "عرض خاص" : "جديد"}
+                    {isDisabled ? "غير متوفر" : product.is_deal ? "عرض خاص" : "جديد"}
                 </Badge>
             )}
             {/* Product Image */}
             <Link href={route('products.show', product.id)} preserveState preserveScroll className="block">
-                <div className={`relative aspect-square overflow-hidden rounded-lg mb-3 ${isOutOfStock ? 'grayscale' : ''}`}>
+                <div className={`relative aspect-square overflow-hidden rounded-lg mb-3 ${isDisabled ? 'grayscale' : ''}`}>
                     <FallbackImage
                         src={product.image}
                         alt={product.name}
@@ -81,10 +81,10 @@ export function ProductCard({ product }: ProductCardProps) {
                     <DialogTrigger asChild>
                         <Button
                             className="w-full mt-2"
-                            disabled={isOutOfStock}
-                            variant={isOutOfStock ? "outline" : "default"}
+                            disabled={isDisabled}
+                            variant={isDisabled ? "outline" : "default"}
                         >
-                            {isOutOfStock ? "غير متوفر" : "أضف للسلة"}
+                            {isDisabled ? "غير متوفر" : "أضف للسلة"}
                         </Button>
                     </DialogTrigger>
                 </Dialog>

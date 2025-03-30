@@ -38,6 +38,9 @@ class Settings extends Page
             if ($this->getSettingType($setting->key) === 'boolean') {
                 $this->data[$setting->key] = (bool) $setting->value;
             }
+            if ($this->getSettingType($setting->key) === 'image' && $setting->value) {
+                $this->data[$setting->key] = [$setting->value];
+            }
         }
     }
 

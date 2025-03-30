@@ -1,6 +1,5 @@
 <?php
 
-use App\Filament\Resources\CustomActivityLogResource;
 
 return [
     'resources' => [
@@ -14,7 +13,7 @@ return [
         'default_sort_direction' => 'desc',
         'navigation_count_badge' => false,
         // 'resource'               => \Rmsramos\Activitylog\Resources\ActivitylogResource::class,
-        'resource'               => CustomActivityLogResource::class,
+        'resource'               => App\Filament\Resources\CustomActivityLogResource::class,
     ],
     'datetime_format' => 'd/m/Y H:i:s',
 ];

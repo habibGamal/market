@@ -67,12 +67,16 @@ class IssueNoteResource extends InvoiceResource implements HasShieldPermissions
                     ->schema([
                         Forms\Components\Hidden::make('product_id'),
                         Forms\Components\TextInput::make('product_name')
+                            ->label('المنتج')
                             ->formatStateUsing(fn($state, $record) => $record ? $record->product_name : $state),
                         Forms\Components\TextInput::make('packets_quantity')
+                            ->label('عدد العبوات')
                             ->numeric(),
                         Forms\Components\TextInput::make('piece_quantity')
+                            ->label('عدد القطع')
                             ->numeric(),
-                        Forms\Components\TextInput::make('release_date'),
+                        Forms\Components\TextInput::make('release_date')
+                            ->label('تاريخ الانتاج'),
                     ])
                     ->disabled()
                     ->mutateRelationshipDataBeforeCreateUsing(fn(array $data) => static::mutateItemsBeforeSaving($data))

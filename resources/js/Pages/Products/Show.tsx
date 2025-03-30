@@ -25,12 +25,13 @@ interface ShowProps {
 
 export default function Show({ product }: ShowProps) {
     const [open, setOpen] = useState(false);
-    const { packets, setPackets, pieces, setPieces, loading, addToCart } = useCart({
-        onSuccess: () => setOpen(false),
-    });
+    const { packets, setPackets, pieces, setPieces, loading, addToCart } =
+        useCart({
+            onSuccess: () => setOpen(false),
+        });
 
     // Determine if product is out of stock
-    const isOutOfStock = product.has_stock === false;
+    const isDisabled = product.has_stock === false || !product.is_active;
 
     return (
         <div className="space-y-12">
@@ -39,37 +40,63 @@ export default function Show({ product }: ShowProps) {
                     {/* Product Image */}
                     <div className="relative">
                         {/* Badge */}
-                        {(product.is_new || product.is_deal || isOutOfStock) && (
+                        {(product.is_new || product.is_deal || isDisabled) && (
                             <Badge
                                 className="absolute top-2 right-2 z-10"
-                                variant={isOutOfStock ? "outline" : product.is_deal ? "destructive" : "default"}
+                                variant={
+                                    isDisabled
+                                        ? "outline"
+                                        : product.is_deal
+                                        ? "destructive"
+                                        : "default"
+                                }
                             >
-                                {isOutOfStock ? "غير متوفر" : product.is_deal ? "عرض خاص" : "جديد"}
+                                {isDisabled
+                                    ? "غير متوفر"
+                                    : product.is_deal
+                                    ? "عرض خاص"
+                                    : "جديد"}
                             </Badge>
                         )}
                         <FallbackImage
                             src={product.image}
                             alt={product.name}
-                            className={`w-full rounded-lg aspect-square object-cover ${isOutOfStock ? 'grayscale' : ''}`}
+                            className={`w-full rounded-lg aspect-square object-cover ${
+                                isDisabled ? "grayscale" : ""
+                            }`}
                         />
                     </div>
 
                     {/* Product Info */}
-                    <div className={`space-y-6 ${isOutOfStock ? 'opacity-60' : ''}`}>
-                        <h1 className="text-3xl font-bold text-secondary-900">{product.name}</h1>
+                    <div
+                        className={`space-y-6 ${
+                            isDisabled ? "opacity-60" : ""
+                        }`}
+                    >
+                        <h1 className="text-3xl font-bold text-secondary-900">
+                            {product.name}
+                        </h1>
 
                         <div className="space-y-2">
                             <div className="text-sm text-secondary-600">
-                                <span className="font-medium">الباركود:</span> {product.barcode}
+                                <span className="font-medium">الباركود:</span>{" "}
+                                {product.barcode}
                             </div>
                             <div className="text-sm text-secondary-600">
-                                <span className="font-medium">الفئة:</span> {product.category.name}
+                                <span className="font-medium">الفئة:</span>{" "}
+                                {product.category.name}
                             </div>
                             <div className="text-sm text-secondary-600">
-                                <span className="font-medium">العلامة التجارية:</span> {product.brand.name}
+                                <span className="font-medium">
+                                    العلامة التجارية:
+                                </span>{" "}
+                                {product.brand.name}
                             </div>
                             <div className="text-sm text-secondary-600">
-                                <span className="font-medium">عدد القطع في العبوة:</span> {product.packet_to_piece}
+                                <span className="font-medium">
+                                    عدد القطع في العبوة:
+                                </span>{" "}
+                                {product.packet_to_piece}
                             </div>
                         </div>
 
@@ -84,7 +111,9 @@ export default function Show({ product }: ShowProps) {
                                     )}
                                     <span className="text-2xl font-bold text-primary-500">
                                         {product.prices.packet.discounted}{" "}
-                                        <span className="text-sm">ج.م/{product.packet_alter_name}</span>
+                                        <span className="text-sm">
+                                            ج.م/{product.packet_alter_name}
+                                        </span>
                                     </span>
                                 </div>
                             )}
@@ -99,7 +128,9 @@ export default function Show({ product }: ShowProps) {
                                     )}
                                     <span className="text-xl text-secondary-700">
                                         {product.prices.piece.discounted}{" "}
-                                        <span className="text-sm">ج.م/{product.piece_alter_name}</span>
+                                        <span className="text-sm">
+                                            ج.م/{product.piece_alter_name}
+                                        </span>
                                     </span>
                                 </div>
                             )}
@@ -111,10 +142,10 @@ export default function Show({ product }: ShowProps) {
                                 <Button
                                     size="lg"
                                     className="w-full"
-                                    disabled={isOutOfStock}
-                                    variant={isOutOfStock ? "outline" : "default"}
+                                    disabled={isDisabled}
+                                    variant={isDisabled ? "outline" : "default"}
                                 >
-                                    {isOutOfStock ? "غير متوفر" : "أضف للسلة"}
+                                    {isDisabled ? "غير متوفر" : "أضف للسلة"}
                                 </Button>
                             </DialogTrigger>
                         </Dialog>

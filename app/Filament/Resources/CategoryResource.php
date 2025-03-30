@@ -45,6 +45,7 @@ class CategoryResource extends Resource
                     ->relationship('parent', 'name', 'parent_id')
                     ->disabledOptions(fn($record) => [$record?->id])
                     ->parentNullValue(-1)
+                    ->default(-1)
                     ->enableBranchNode()
                     ->searchable(),
                 FileUpload::make('image')

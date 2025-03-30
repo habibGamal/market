@@ -24,7 +24,7 @@ export function useNotificationAction() {
             if (onRead) onRead(id);
 
             // Track click
-            await axios.post(`/notifications/${id}/track-click`);
+            axios.post(`/notifications/${id}/track-click`);
 
             // Navigate based on notification type and data
             if (data?.url) {

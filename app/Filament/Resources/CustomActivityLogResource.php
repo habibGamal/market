@@ -3,14 +3,17 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CustomActivityLogResource\Pages\ListCustomActivityLogs;
+use App\Filament\Resources\CustomActivityLogResource\Pages\ViewCustomActivityLog;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Tables\Columns\Column;
 use Illuminate\Database\Eloquent\Model;
+use Rmsramos\Activitylog\Actions\Concerns\ActionContent;
 use \Rmsramos\Activitylog\Resources\ActivitylogResource;
 use \Rmsramos\Activitylog\Resources\ActivitylogResource\Pages\ViewActivitylog;
 class CustomActivityLogResource extends ActivitylogResource
 {
+    use ActionContent;
     protected static ?string $slug = 'activitylogs';
 
     protected static ?string $navigationGroup = 'إدارة النظام';
@@ -96,6 +99,40 @@ class CustomActivityLogResource extends ActivitylogResource
                                 ->label('السمات');
                         }
 
+
+                        if ($properties->isNotEmpty()) {
+                            $propertiesSchema = [];
+                            foreach ($properties as $key => $value) {
+                                if (is_array($value)) {
+                                    // Handle first level nested array
+                                    $nestedSchema = [];
+                                    foreach ($value as $nestedKey => $nestedValue) {
+                                        if (is_array($nestedValue)) {
+                                            // Handle second level nested array
+                                            $nestedSchema[] = Forms\Components\KeyValue::make("properties.{$key}.{$nestedKey}")
+                                                ->label($nestedKey)
+                                                ->formatStateUsing(fn () => $nestedValue);
+                                        }
+                                    }
+
+                                    if (!empty($nestedSchema)) {
+                                        $propertiesSchema[] = Forms\Components\Section::make($key)
+                                            ->schema($nestedSchema)
+                                            ->collapsible();
+                                    } else {
+                                        $propertiesSchema[] = Forms\Components\KeyValue::make("properties.{$key}")
+                                            ->label($key)
+                                            ->formatStateUsing(fn () => $value);
+                                    }
+                                } else {
+                                    $properties[$key] = $value;
+                                }
+                            }
+
+                            $schema[] = Forms\Components\Section::make('الخصائص')
+                                ->schema($propertiesSchema)
+                                ->columnSpan('full');
+                        }
                         return $schema;
                     }),
             ])->columns(1);
@@ -105,7 +142,7 @@ class CustomActivityLogResource extends ActivitylogResource
     {
         return [
             'index' => ListCustomActivityLogs::route('/'),
-            'view'  => ViewActivitylog::route('/{record}'),
+            'view'  => ViewCustomActivityLog::route('/{record}'),
         ];
     }
 

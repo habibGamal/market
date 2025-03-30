@@ -196,6 +196,7 @@ class StockCountingResource extends InvoiceResource
                         Forms\Components\Hidden::make('product_packet_to_piece')->dehydrated(false)
                             ->formatStateUsing(fn($state, $record) => $record ? $record->product->packet_to_piece : $state),
                         Forms\Components\TextInput::make('product_name')
+                            ->label('المنتج')
                             ->formatStateUsing(fn($state, $record) => $record ? $record->product_name : $state)
                             ->disabled(),
                         Forms\Components\TextInput::make('old_packets_quantity')

@@ -155,6 +155,7 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
                     ->schema([
                         Forms\Components\Hidden::make('product_id'),
                         Forms\Components\TextInput::make('product_name')
+                            ->label('المنتج')
                             ->formatStateUsing(fn($state, $record) => $record ? $record->product_name : $state)
                             ->disabled(),
                         Forms\Components\TextInput::make('packets_quantity')

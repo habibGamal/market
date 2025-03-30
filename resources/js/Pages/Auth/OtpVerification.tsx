@@ -52,10 +52,10 @@ export default function OtpVerification({ phone }: Props) {
 
     const handleSendOtp = async () => {
         try {
-            const response = await axios.post("/otp/send");
-            if (process.env.NODE_ENV === "development" && response.data.otp) {
-                console.log("Development OTP:", response.data.otp);
-            }
+            const response = axios.post("/otp/send");
+            // if (process.env.NODE_ENV === "development" && response.data.otp) {
+            //     console.log("Development OTP:", response.data.otp);
+            // }
             startCountdown();
         } catch (error) {
             console.error("Failed to send OTP:", error);

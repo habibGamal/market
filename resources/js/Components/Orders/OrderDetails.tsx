@@ -37,7 +37,13 @@ export function OrderDetails({ createdAt, itemsCount, status }: OrderDetailsProp
                                 تاريخ الطلب
                             </div>
                             <div className="text-sm text-secondary-500">
-                                {createdAt}
+                                {new Date(createdAt).toLocaleDateString('ar-EG', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
                             </div>
                         </div>
                     </div>

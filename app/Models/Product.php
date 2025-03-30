@@ -96,13 +96,17 @@ class Product extends Model
 
     public function getPricesAttribute(): array
     {
+        $packetOriginal = $this->before_discount['packet_price'] ?? null;
+        $pieceOriginal = $this->before_discount['piece_price'] ?? null;
+
+        // Only include original prices if they represent actual discounts
         return [
             'packet' => [
-                'original' => $this->before_discount['packet_price'] ?? null,
+                'original' => ($packetOriginal !== null && $this->packet_price < $packetOriginal) ? $packetOriginal : null,
                 'discounted' => $this->packet_price,
             ],
             'piece' => [
-                'original' => $this->before_discount['piece_price'] ?? null,
+                'original' => ($pieceOriginal !== null && $this->piece_price < $pieceOriginal) ? $pieceOriginal : null,
                 'discounted' => $this->piece_price,
             ],
         ];
@@ -251,5 +255,21 @@ class Product extends Model
         };
 
         return $expirationDate->isPast();
+    }
+
+    public function halfLife(): ?\Carbon\Carbon
+    {
+        if (!isset($this->expiration_duration) || !isset($this->expiration_unit)) {
+            return null;
+        }
+
+        $halfExpireDate = match($this->expiration_unit) {
+            ExpirationUnit::DAY => now()->subDays($this->expiration_duration / 2),
+            ExpirationUnit::WEEK => now()->subWeeks($this->expiration_duration / 2),
+            ExpirationUnit::MONTH => now()->subMonths($this->expiration_duration / 2),
+            ExpirationUnit::YEAR => now()->subYears($this->expiration_duration / 2),
+        };
+
+        return $halfExpireDate;
     }
 }
