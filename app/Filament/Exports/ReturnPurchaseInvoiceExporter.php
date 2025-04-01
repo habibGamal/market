@@ -7,7 +7,6 @@ use App\Models\ReturnPurchaseInvoice;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
-use Illuminate\Database\Eloquent\Builder;
 
 class ReturnPurchaseInvoiceExporter extends Exporter
 {
@@ -34,11 +33,5 @@ class ReturnPurchaseInvoiceExporter extends Exporter
     public static function getCompletedNotificationBody(Export $export): string
     {
         return 'تم تصدير فواتير مرتجع المشتريات بنجاح';
-    }
-
-    protected function getTableQuery(): Builder
-    {
-        return static::$model::query()
-            ->with(['supplier:id,name', 'officer:id,name']);
     }
 }

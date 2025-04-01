@@ -3,10 +3,12 @@
 namespace App\Filament\Resources\Reports\ProductsReportResource\RelationManagers;
 
 use App\Enums\ReturnOrderStatus;
+use App\Filament\Exports\ReturnOrderItemsExporter;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\ExportAction;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 
@@ -77,6 +79,11 @@ class ReturnOrderItemsRelationManager extends RelationManager
                     ->preload()
                     ->multiple()
             ])
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(ReturnOrderItemsExporter::class),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->url(fn($record) => \App\Filament\Resources\OrderResource::getUrl('view', [
@@ -84,7 +91,6 @@ class ReturnOrderItemsRelationManager extends RelationManager
                     ]))
                     ->openUrlInNewTab(),
             ])
-            ->bulkActions([])
             ->emptyStateIcon('heroicon-o-arrow-uturn-left')
             ->emptyStateHeading('لا توجد مرتجعات')
             ->emptyStateDescription('هذا المنتج ليس له مرتجعات حتى الآن');

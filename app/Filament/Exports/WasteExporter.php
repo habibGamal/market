@@ -6,7 +6,6 @@ use App\Models\Waste;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
-use Illuminate\Database\Eloquent\Builder;
 
 class WasteExporter extends Exporter
 {
@@ -31,11 +30,5 @@ class WasteExporter extends Exporter
     public static function getCompletedNotificationBody(Export $export): string
     {
         return 'تم تصدير سجلات الهدر بنجاح';
-    }
-
-    protected function getTableQuery(): Builder
-    {
-        return static::$model::query()
-            ->with(['officer:id,name']);
     }
 }

@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\Reports\DriversReportResource\RelationManagers;
 
+use App\Filament\Exports\DriversReportReturnedProductsExporter;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,6 +33,11 @@ class ReturnedProductsRelationManager extends RelationManager
                 TextColumn::make('pivot.piece_quantity')
                     ->label('عدد القطع')
                     ->sortable()
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(DriversReportReturnedProductsExporter::class),
             ]);
     }
 }

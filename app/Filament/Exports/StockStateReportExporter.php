@@ -23,17 +23,41 @@ class StockStateReportExporter extends Exporter
             ExportColumn::make('category.name')
                 ->label('الفئة'),
             ExportColumn::make('available_stock')
-                ->label('كمية المتاح'),
+                ->label('كمية المتاح')
+                ->state(function (Product $record): string {
+                    $pieces = $record->available_stock;
+                    $packets = $pieces / $record->packet_to_piece;
+                    return "{$pieces} قطعة = {$packets} عبوة";
+                }),
             ExportColumn::make('available_stock_cost')
-                ->label('تكلفة المتاح'),
+                ->label('تكلفة المتاح')
+                ->state(function (Product $record): string {
+                    return number_format($record->available_stock_cost, 2) . ' EGP';
+                }),
             ExportColumn::make('returned_stock')
-                ->label('كمية المرتجع من المشتريات'),
+                ->label('كمية المرتجع من المشتريات')
+                ->state(function (Product $record): string {
+                    $pieces = $record->returned_stock;
+                    $packets = $pieces / $record->packet_to_piece;
+                    return "{$pieces} قطعة = {$packets} عبوة";
+                }),
             ExportColumn::make('returned_stock_cost')
-                ->label('تكلفة المرتجع من المشتريات'),
+                ->label('تكلفة المرتجع من المشتريات')
+                ->state(function (Product $record): string {
+                    return number_format($record->returned_stock_cost, 2) . ' EGP';
+                }),
             ExportColumn::make('waste_stock')
-                ->label('كمية الهالك'),
+                ->label('كمية الهالك')
+                ->state(function (Product $record): string {
+                    $pieces = $record->waste_stock;
+                    $packets = $pieces / $record->packet_to_piece;
+                    return "{$pieces} قطعة = {$packets} عبوة";
+                }),
             ExportColumn::make('waste_stock_cost')
-                ->label('تكلفة الهالك'),
+                ->label('تكلفة الهالك')
+                ->state(function (Product $record): string {
+                    return number_format($record->waste_stock_cost, 2) . ' EGP';
+                }),
         ];
     }
 
@@ -46,10 +70,5 @@ class StockStateReportExporter extends Exporter
         }
 
         return $body;
-    }
-
-    protected function getTableQuery(): Builder
-    {
-        return app(StockStateReportService::class)->getProductsWithStockInfo();
     }
 }

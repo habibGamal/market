@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Reports;
 
+use App\Filament\Exports\ExpensesReportExporter;
 use App\Filament\Resources\Reports\ExpensesReportResource\Pages;
 use App\Filament\Widgets\ExpensesChart;
 use App\Filament\Widgets\ExpensesStatsOverview;
@@ -10,6 +11,9 @@ use App\Services\Reports\ExpenseReportService;
 use App\Traits\ReportsFilter;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -65,6 +69,16 @@ class ExpensesReportResource extends Resource
                     ->baseQuery(function (Builder $query, array $data): Builder {
                         return app(ExpenseReportService::class)->getFilteredQuery($query, $data);
                     })
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(ExpensesReportExporter::class),
+            ])
+            ->bulkActions([
+                ExportBulkAction::make()
+                    ->label('تصدير المحدد')
+                    ->exporter(ExpensesReportExporter::class),
             ]);
     }
 

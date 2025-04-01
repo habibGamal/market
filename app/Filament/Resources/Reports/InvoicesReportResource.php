@@ -38,7 +38,7 @@ class InvoicesReportResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->paginated(false);
+        return $table->paginated(false)->view('filament.resources.empty');
     }
 
     public static function getRelations(): array

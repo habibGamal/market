@@ -16,6 +16,7 @@ class ProductExpirationReportService
             ->select([
                 'stock_items.*',
                 'products.name as product_name',
+                'products.packet_to_piece as packet_to_piece',
                 'products.expiration_duration',
                 'products.expiration_unit',
                 'brands.name as brand_name',

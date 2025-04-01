@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\Reports\ProductsReportResource\RelationManagers;
 
 use App\Enums\InvoiceStatus;
+use App\Filament\Exports\WasteItemsExporter;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Table;
 use Livewire\Attributes\Url;
 
@@ -70,6 +72,11 @@ class WasteItemsRelationManager extends RelationManager
                     ->sortable(),
             ])
             ->filters([
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(WasteItemsExporter::class),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()

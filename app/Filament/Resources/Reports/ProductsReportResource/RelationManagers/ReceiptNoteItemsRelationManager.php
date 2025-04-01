@@ -4,10 +4,12 @@ namespace App\Filament\Resources\Reports\ProductsReportResource\RelationManagers
 
 use App\Enums\InvoiceStatus;
 use App\Enums\ReceiptNoteType;
+use App\Filament\Exports\ReceiptNoteItemsExporter;
 use App\Filament\Resources\ReceiptNoteResource;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Table;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
@@ -70,6 +72,11 @@ class ReceiptNoteItemsRelationManager extends RelationManager
             ])
             ->filters([
             ])
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(ReceiptNoteItemsExporter::class),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->url(fn($record) => ReceiptNoteResource::getUrl('view', [
@@ -77,7 +84,6 @@ class ReceiptNoteItemsRelationManager extends RelationManager
                     ]))
                     ->openUrlInNewTab(),
             ])
-            ->bulkActions([])
             ->emptyStateIcon('heroicon-o-document-text')
             ->emptyStateHeading('لا توجد عناصر إذن استلام')
             ->emptyStateDescription('هذا المنتج ليس له عناصر إذن استلام حتى الآن');

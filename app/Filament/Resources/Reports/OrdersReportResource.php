@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\Reports;
 
 use App\Filament\Exports\OrdersReportExporter;
+use App\Filament\Resources\OrderResource;
 use App\Filament\Resources\Reports\OrdersReportResource\Pages;
 use App\Models\Order;
-use App\Services\Reports\OrderReportService;
 use App\Traits\ReportsFilter;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -76,8 +76,6 @@ class OrdersReportResource extends Resource
                     ->label('تاريخ الإنشاء')
                     ->dateTime()
                     ->sortable(),
-
-
             ])
             ->filters([
                 Filter::make('report_filter')
@@ -122,10 +120,24 @@ class OrdersReportResource extends Resource
                 Section::make('معلومات الطلب')
                     ->schema([
                         TextEntry::make('id')
-                            ->label('رقم الطلب'),
+                            ->label('رقم الطلب')
+                            ->url(fn(Order $record): string => OrderResource::getUrl('view', ['record' => $record])),
                         TextEntry::make('total')
                             ->label('المجموع')
-                            ->money('EGP'),
+                            ->money('EGP')
+                            ->tooltip('إجمالي قيمة الطلب قبل المرتجعات والخصومات'),
+                        TextEntry::make('net_total')
+                            ->label('صافي المجموع')
+                            ->money('EGP')
+                            ->tooltip('إجمالي قيمة الطلب بعد خصم المرتجعات والخصومات'),
+                        TextEntry::make('profit')
+                            ->label('الربح')
+                            ->money('EGP')
+                            ->tooltip('إجمالي الربح قبل خصم المرتجعات والخصومات'),
+                        TextEntry::make('net_profit')
+                            ->label('صافي الربح')
+                            ->money('EGP')
+                            ->tooltip('صافي الربح بعد خصم المرتجعات والخصومات'),
                         TextEntry::make('status')
                             ->label('حالة الطلب')
                             ->badge(),

@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\Reports\ProductsReportResource\RelationManagers;
 
 use App\Enums\InvoiceStatus;
+use App\Filament\Exports\ReturnPurchaseItemsExporter;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Table;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
@@ -70,6 +72,11 @@ class ReturnPurchaseItemsRelationManager extends RelationManager
             ])
             ->filters([
             ])
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(ReturnPurchaseItemsExporter::class),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->url(fn($record) => \App\Filament\Resources\ReturnPurchaseInvoiceResource::getUrl('view', [
@@ -77,7 +84,6 @@ class ReturnPurchaseItemsRelationManager extends RelationManager
                     ]))
                     ->openUrlInNewTab(),
             ])
-            ->bulkActions([])
             ->emptyStateIcon('heroicon-o-arrow-path')
             ->emptyStateHeading('لا توجد مرتجعات مشتريات')
             ->emptyStateDescription('هذا المنتج ليس له مرتجعات مشتريات حتى الآن');

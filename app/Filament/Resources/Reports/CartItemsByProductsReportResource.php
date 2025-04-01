@@ -6,7 +6,6 @@ use App\Filament\Exports\CartItemsByProductsReportExporter;
 use App\Filament\Resources\Reports\CartItemsByProductsReportResource\Pages;
 use App\Filament\Resources\Reports\CartItemsByProductsReportResource\RelationManagers\CartItemsRelationManager;
 use App\Models\Product;
-use App\Services\Reports\CartItemsByProductsReportService;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;

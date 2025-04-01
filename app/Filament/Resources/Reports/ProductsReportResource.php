@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Reports;
 
+use App\Filament\Exports\ProductsReportExporter;
 use App\Filament\Resources\Reports\ProductsReportResource\Pages;
 use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers\OrderItemsRelationManager;
 use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers\ReturnOrderItemsRelationManager;
@@ -25,6 +26,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 
 class ProductsReportResource extends Resource
@@ -112,7 +114,15 @@ class ProductsReportResource extends Resource
                         return app(ProductReportService::class)->getFilteredQuery($query, $data);
                     })
             ])
-            ->filtersFormColumns(3);
+            ->filtersFormColumns(3)
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(ProductsReportExporter::class),
+            ])
+            ->actions([
+                // ...existing code...
+            ]);
     }
 
     public static function infolist(Infolist $infolist): Infolist

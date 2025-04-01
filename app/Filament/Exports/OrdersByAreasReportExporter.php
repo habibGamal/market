@@ -41,10 +41,4 @@ class OrdersByAreasReportExporter extends Exporter
 
         return $body;
     }
-
-    protected function getTableQuery(): Builder
-    {
-        // Get the filtered query from the service, passing empty data to get all records
-        return app(OrdersByAreasReportService::class)->getFilteredQuery(parent::getTableQuery(), []);
-    }
 }

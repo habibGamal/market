@@ -9,6 +9,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\ExportBulkAction;
+use App\Filament\Exports\ProductExpirationExporter;
 
 class ProductExpirationReportResource extends Resource
 {
@@ -45,7 +47,10 @@ class ProductExpirationReportResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('piece_quantity')
                     ->label('الكمية')
-                    ->numeric()
+                    ->formatStateUsing(function ($state, StockItem $record) {
+                        $packets = $state / $record->packet_to_piece;
+                        return "{$state} قطعة = {$packets} عبوة";
+                    })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('release_date')
                     ->label('تاريخ الإنتاج')
@@ -81,6 +86,16 @@ class ProductExpirationReportResource extends Resource
                     ->label('الفئة')
                     ->searchable()
                     ->preload(),
+            ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(ProductExpirationExporter::class)
+            ])
+            ->bulkActions([
+                ExportBulkAction::make()
+                    ->label('تصدير')
+                    ->exporter(ProductExpirationExporter::class)
             ]);
     }
 

@@ -7,7 +7,6 @@ use App\Services\Reports\OrdersByCustomersReportService;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
-use Illuminate\Database\Eloquent\Builder;
 
 class OrdersByCustomersReportExporter extends Exporter
 {
@@ -42,11 +41,5 @@ class OrdersByCustomersReportExporter extends Exporter
         }
 
         return $body;
-    }
-
-    protected function getTableQuery(): Builder
-    {
-        // Get the filtered query from the service, passing empty data to get all records
-        return app(OrdersByCustomersReportService::class)->getFilteredQuery(parent::getTableQuery(), []);
     }
 }

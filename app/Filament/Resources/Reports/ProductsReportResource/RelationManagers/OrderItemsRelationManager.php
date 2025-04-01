@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Reports\ProductsReportResource\RelationManagers;
 
+use App\Filament\Exports\OrderItemsExporter;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\ExportAction;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 
@@ -80,6 +82,11 @@ class OrderItemsRelationManager extends RelationManager
                     ->multiple()
                     ->options(\App\Enums\OrderStatus::toSelectArray()),
             ])
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(OrderItemsExporter::class),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->url(fn($record) => \App\Filament\Resources\OrderResource::getUrl('view', [
@@ -87,7 +94,6 @@ class OrderItemsRelationManager extends RelationManager
                     ]))
                     ->openUrlInNewTab(),
             ])
-            ->bulkActions([])
             ->emptyStateIcon('heroicon-o-shopping-cart')
             ->emptyStateHeading('لا توجد مبيعات')
             ->emptyStateDescription('هذا المنتج ليس له مبيعات حتى الآن');

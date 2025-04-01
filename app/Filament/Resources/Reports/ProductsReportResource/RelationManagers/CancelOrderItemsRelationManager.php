@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Reports\ProductsReportResource\RelationManagers;
 
+use App\Filament\Exports\CancelOrderItemsExporter;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\ExportAction;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 
@@ -67,6 +69,11 @@ class CancelOrderItemsRelationManager extends RelationManager
                     ->multiple()
                     ->preload(),
             ])
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(CancelOrderItemsExporter::class),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->url(fn($record) => \App\Filament\Resources\OrderResource::getUrl('view', [
@@ -74,7 +81,6 @@ class CancelOrderItemsRelationManager extends RelationManager
                     ]))
                     ->openUrlInNewTab(),
             ])
-            ->bulkActions([])
             ->emptyStateIcon('heroicon-o-x-circle')
             ->emptyStateHeading('لا توجد أصناف ملغاة')
             ->emptyStateDescription('هذا المنتج ليس له أصناف ملغاة حتى الآن');

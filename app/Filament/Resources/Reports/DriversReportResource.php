@@ -8,6 +8,7 @@ use App\Services\Reports\DriverReportService;
 use App\Traits\ReportsFilter;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -63,6 +64,11 @@ class DriversReportResource extends Resource
                     ->baseQuery(function (Builder $query, array $data): Builder {
                         return app(DriverReportService::class)->getFilteredQuery($query, $data);
                     })
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(\App\Filament\Exports\DriversReportExporter::class),
             ])
             ->actions([
                 ViewAction::make(),

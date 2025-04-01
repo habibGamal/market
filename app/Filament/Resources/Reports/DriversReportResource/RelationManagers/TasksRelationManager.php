@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\Reports\DriversReportResource\RelationManagers;
 
 use App\Enums\DriverStatus;
+use App\Filament\Exports\DriversReportTasksExporter;
 use App\Filament\Resources\OrderResource;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -55,7 +57,9 @@ class TasksRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                //
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(DriversReportTasksExporter::class),
             ])
             ->actions([
                 Tables\Actions\Action::make('view')

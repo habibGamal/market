@@ -17,21 +17,32 @@ class CartItemsByProductsReportExporter extends Exporter
     {
         return [
             ExportColumn::make('name')
-                ->label('المنتج'),
-            ExportColumn::make('brand.name')
-                ->label('العلامة التجارية'),
+                ->label('اسم المنتج'),
+            ExportColumn::make('barcode')
+                ->label('الباركود'),
             ExportColumn::make('category.name')
                 ->label('الفئة'),
-            ExportColumn::make('sold_quantity')
-                ->label('الكمية المباعة'),
-            ExportColumn::make('total_sales')
-                ->label('إجمالي المبيعات'),
-            ExportColumn::make('total_profit')
-                ->label('إجمالي الأرباح'),
-            ExportColumn::make('returned_quantity')
-                ->label('الكمية المرتجعة'),
-            ExportColumn::make('total_returns')
-                ->label('إجمالي المرتجعات'),
+            ExportColumn::make('packet_price')
+                ->label('سعر العبوة')
+                ->formatStateUsing(fn ($state) => number_format($state, 2) . ' جنيه'),
+            ExportColumn::make('piece_price')
+                ->label('سعر القطعة')
+                ->formatStateUsing(fn ($state) => number_format($state, 2) . ' جنيه'),
+            ExportColumn::make('cart_items_count')
+                ->label('عدد مرات الإضافة للسلة')
+                ->state(function (Product $record): int {
+                    return $record->cartItems()->count();
+                }),
+            ExportColumn::make('cart_items_sum_packets_quantity')
+                ->label('مجموع العبوات في السلات')
+                ->state(function (Product $record): int {
+                    return $record->cartItems()->sum('packets_quantity');
+                }),
+            ExportColumn::make('cart_items_sum_piece_quantity')
+                ->label('مجموع القطع في السلات')
+                ->state(function (Product $record): int {
+                    return $record->cartItems()->sum('piece_quantity');
+                }),
         ];
     }
 
@@ -44,11 +55,5 @@ class CartItemsByProductsReportExporter extends Exporter
         }
 
         return $body;
-    }
-
-    protected function getTableQuery(): Builder
-    {
-        // Get the filtered query from the service, passing empty data to get all records
-        return app(CartItemsByProductsReportService::class)->getFilteredQuery(parent::getTableQuery(), []);
     }
 }
