@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\AssetEntryExporter;
 use App\Filament\Resources\AssetEntryResource\Pages;
 use App\Models\AssetEntry;
 use Filament\Forms;
@@ -89,6 +90,11 @@ class AssetEntryResource extends Resource implements HasShieldPermissions
                     ->columnSpan(2),
             ])
             ->filtersFormColumns(2)
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(AssetEntryExporter::class),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 // Tables\Actions\EditAction::make(),
@@ -96,6 +102,7 @@ class AssetEntryResource extends Resource implements HasShieldPermissions
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\ExportBulkAction::make()->exporter(AssetEntryExporter::class),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

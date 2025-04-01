@@ -77,14 +77,21 @@ class OrderResource extends Resource
                             ->badge()
                             ->sortable()
                             ->grow(false),
-                        Tables\Columns\TextColumn::make('total')
-                            ->label('المجموع')
-                            ->money('egp')
-                            ->sortable()
-                            ->size('lg')
-                            ->weight('bold')
-                            ->color('success')
-                            ->formatSateUsingLabelPrefix(),
+                        Stack::make([
+                            Tables\Columns\TextColumn::make('total')
+                                ->label('المجموع')
+                                ->money('egp')
+                                ->sortable()
+                                ->size('lg')
+                                ->weight('bold')
+                                ->color('success')
+                                ->formatSateUsingLabelPrefix(),
+                            Tables\Columns\TextColumn::make('netTotal')
+                                ->label('الصافي')
+                                ->money('egp')
+                                ->weight('bold')
+                                ->formatSateUsingLabelPrefix()
+                        ]),
                     ]),
             ])
             ->filters([

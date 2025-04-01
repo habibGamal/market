@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Reports;
 
+use App\Filament\Exports\CartItemsByCustomersReportExporter;
 use App\Filament\Resources\Reports\CartItemsByCustomersReportResource\Pages;
 use App\Models\Customer;
 use Filament\Forms;
@@ -82,6 +83,17 @@ class CartItemsByCustomersReportResource extends Resource
                     ->multiple()
                     ->searchable()
                     ->preload(),
+            ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(CartItemsByCustomersReportExporter::class),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\ExportBulkAction::make()
+                        ->exporter(CartItemsByCustomersReportExporter::class),
+                ]),
             ]);
     }
 

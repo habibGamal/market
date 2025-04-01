@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Enums\SettingKey;
+use App\Services\CartService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -37,7 +38,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $user,
             ],
-            'cartCount' => $user ? $user->cart->items()->count() : 0,
+            'cartCount' => $user ? app(CartService::class)->getOrCreateCart($user->id)->items()->count() : 0,
             'notificationsCount' => $user ? $user->unreadNotifications()->count() : 0,
             'appIcon' => settings(SettingKey::APP_LOGO),
         ];

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\StockCountingExporter;
 use App\Filament\Interfaces\InvoiceResource;
 use App\Filament\Resources\StockCountingResource\Pages;
 use App\Models\Product;
@@ -292,6 +293,11 @@ class StockCountingResource extends InvoiceResource
                     ->sortable(),
             ])
             ->filters(static::filters())
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(StockCountingExporter::class),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
@@ -306,7 +312,12 @@ class StockCountingResource extends InvoiceResource
                     }
                 }),
             ])
-            ->bulkActions([]);
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\ExportBulkAction::make()
+                        ->exporter(StockCountingExporter::class),
+                ]),
+            ]);
     }
 
     public static function infolist(Infolist $infolist): Infolist

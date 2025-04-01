@@ -24,12 +24,16 @@ class ReleaseDatesFormAction extends Action
         if (!$product)
             return [];
 
-        $halfLife = $product->halfLife()->format('Y-m-d');
+        $expirationDurationInDays = $product->expirationDurationInDays();
         return [
             'x-on:change' => '()=>{
                     const releaseDate = new Date($event.target.value);
-                    const halfLife =  new Date("' . $halfLife . '");
-                    if (releaseDate > halfLife) {
+                    const expirationDurationInDays = "' . $expirationDurationInDays . '";
+                    let halfLife = new Date(releaseDate);
+                    const duration = parseInt(expirationDurationInDays);
+                    halfLife.setDate(halfLife.getDate() + Math.floor(duration / 2));
+                    const nowDate = new Date();
+                    if (nowDate > halfLife) {
                         $event.target.classList.add("!text-yellow-500");
                     }else {
                         $event.target.classList.remove("!text-yellow-500");
@@ -37,8 +41,12 @@ class ReleaseDatesFormAction extends Action
                 }',
             'x-init' => '()=>{
                     const releaseDate = new Date($el.value);
-                    const halfLife =  new Date("' . $halfLife . '");
-                    if (releaseDate > halfLife) {
+                    const expirationDurationInDays = "' . $expirationDurationInDays . '";
+                    let halfLife = new Date(releaseDate);
+                    const duration = parseInt(expirationDurationInDays);
+                    halfLife.setDate(halfLife.getDate() + Math.floor(duration / 2));
+                    const nowDate = new Date();
+                    if (nowDate > halfLife) {
                         $el.classList.add("!text-yellow-500");
                     }else {
                         $el.classList.remove("!text-yellow-500");
@@ -81,10 +89,11 @@ class ReleaseDatesFormAction extends Action
                                     fn($get, $record) => self::releaseDateWarning(\App\Models\Product::find($record->product_id))
                                 )
                                 ->rules([
-                                    function($get, $record) {
-                                        return function($attribute, $value, $fail) use ($get, $record) {
+                                    function ($get, $record) {
+                                        return function ($attribute, $value, $fail) use ($get, $record) {
                                             $product = \App\Models\Product::find($record->product_id);
-                                            if (!$product) return;
+                                            if (!$product)
+                                                return;
 
                                             if ($product->isExpired(\Carbon\Carbon::parse($value))) {
                                                 $fail('منتج منتهي الصلاحية');

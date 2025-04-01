@@ -14,14 +14,14 @@ export default function Index({ categories }: Props) {
         <>
             <Head title="الفئات" />
             <PageTitle>الفئات</PageTitle>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
                 {categories.map((category) => (
                     <Link
                         key={category.id}
                         href={`/categories/${category.id}`}
                     >
-                        <Card className="group hover:shadow-lg transition-all duration-300 border-0">
-                            <CardContent className="p-2 md:p-4">
+                        <Card className="group hover:shadow-lg transition-all duration-300 border-0 !bg-transparent shadow-none">
+                            <CardContent className="p-0 ">
                                 <div className="text-center">
                                     <div className="relative aspect-square overflow-hidden rounded-lg mb-2">
                                         <FallbackImage
@@ -30,7 +30,7 @@ export default function Index({ categories }: Props) {
                                             className="transition-transform group-hover:scale-110"
                                         />
                                     </div>
-                                    <span className="text-sm font-medium text-secondary-900">
+                                    <span className="text-sm block pb-2 font-medium text-secondary-900">
                                         {category.name}
                                     </span>
                                 </div>

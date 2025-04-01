@@ -190,7 +190,6 @@ class OrderResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\ExportBulkAction::make()
-                    ->job('')
                     ->exporter(OrderExporter::class),
                     Tables\Actions\BulkAction::make('assignToDriver')
                         ->label('تعيين سائق')

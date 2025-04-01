@@ -2,15 +2,18 @@
 
 namespace App\Filament\Resources\Reports;
 
+use App\Filament\Exports\CartItemsByProductsReportExporter;
 use App\Filament\Resources\Reports\CartItemsByProductsReportResource\Pages;
 use App\Filament\Resources\Reports\CartItemsByProductsReportResource\RelationManagers\CartItemsRelationManager;
 use App\Models\Product;
+use App\Services\Reports\CartItemsByProductsReportService;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Table;
 
 class CartItemsByProductsReportResource extends Resource
@@ -78,6 +81,11 @@ class CartItemsByProductsReportResource extends Resource
                     ->multiple()
                     ->searchable()
                     ->preload(),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(CartItemsByProductsReportExporter::class),
             ]);
     }
 

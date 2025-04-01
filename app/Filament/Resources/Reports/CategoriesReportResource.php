@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Reports;
 
+use App\Filament\Exports\CategoriesReportExporter;
 use App\Filament\Resources\Reports\CategoriesReportResource\Pages;
 use App\Filament\Widgets\CategoriesStatsOverview;
 use App\Models\Category;
@@ -10,6 +11,7 @@ use App\Traits\ReportsFilter;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconPosition;
+use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
@@ -69,6 +71,17 @@ class CategoriesReportResource extends Resource
                     ->baseQuery(function (Builder $query, array $data): Builder {
                         return app(CategoryReportService::class)->getFilteredQuery($query, $data);
                     })
+            ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(CategoriesReportExporter::class),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\ExportBulkAction::make()
+                        ->exporter(CategoriesReportExporter::class),
+                ]),
             ]);
     }
 

@@ -130,4 +130,37 @@ class DriverServices
             $driver->account()->increment('balance', $order->netTotal);
         });
     }
+
+    public function returnAllOrderItems(Order $order): void
+    {
+        DB::transaction(function () use ($order) {
+            // Get all the items from the order
+            $itemsToReturn = $order->items->map(function ($orderItem) {
+                return [
+                    'order_item' => $orderItem,
+                    'product_id' => $orderItem->product_id,
+                    'packets_quantity' => $orderItem->packets_quantity,
+                    'packet_price' => $orderItem->packet_price,
+                    'packet_cost' => $orderItem->packet_cost,
+                    'piece_quantity' => $orderItem->piece_quantity,
+                    'piece_price' => $orderItem->piece_price,
+                    'return_reason' => 'إرجاع كامل الطلب',
+                    'notes' => 'تم إرجاع جميع الأصناف من قبل السائق',
+                    'status' => ReturnOrderStatus::RECEIVED_FROM_CUSTOMER,
+                    'driver_id' => auth()->id()
+                ];
+            })->toArray();
+
+            // Process the return items
+            $returnItems = $this->orderServices->returnItems($order, $itemsToReturn);
+            $this->markReturnItemsAsReceivedFromCustomer($returnItems);
+
+            // make discount value = 0 so that netTotal don't be negative
+            // Update order status
+            $order->update(['discount' => 0, 'status' => OrderStatus::DELIVERED]);
+
+            // Update driver task status
+            $order->driverTask()->update(['status' => DriverStatus::DONE]);
+        });
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\ProductsShortageReportExporter;
 use App\Filament\Resources\ProductsShortageReportResource\Pages;
 use App\Models\Product;
 use Filament\Resources\Resource;
@@ -68,6 +69,17 @@ class ProductsShortageReportResource extends Resource
             ->defaultSort('available_pieces', 'asc')
             ->emptyStateHeading('لا يوجد منتجات تحت الحد الأدنى')
             ->actions([])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(ProductsShortageReportExporter::class),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\ExportBulkAction::make()
+                        ->exporter(ProductsShortageReportExporter::class),
+                ]),
+            ])
             ->filters([
                 SelectFilter::make('brand')
                     ->relationship('brand', 'name')

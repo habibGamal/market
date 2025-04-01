@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Reports;
 
+use App\Filament\Exports\OrdersByAreasReportExporter;
 use App\Filament\Resources\Reports\OrdersByAreasReportResource\Pages;
 use App\Filament\Widgets\OrdersByAreasStatsOverview;
 use App\Models\Area;
@@ -9,6 +10,7 @@ use App\Services\Reports\OrdersByAreasReportService;
 use App\Traits\ReportsFilter;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -68,6 +70,11 @@ class OrdersByAreasReportResource extends Resource
                     ->baseQuery(function (Builder $query, array $data): Builder {
                         return app(OrdersByAreasReportService::class)->getFilteredQuery($query, $data);
                     }),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(OrdersByAreasReportExporter::class),
             ])
             ->actions([
                 ViewAction::make(),

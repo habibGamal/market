@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\ReturnOrderItemExporter;
 use App\Filament\Resources\ReturnOrderItemResource\Pages;
 use App\Models\Driver;
 use App\Models\ReturnOrderItem;
@@ -147,32 +148,41 @@ class ReturnOrderItemResource extends Resource
                     ->label('السائق')
                     ->relationship('driver', 'name'),
             ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(ReturnOrderItemExporter::class),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkAction::make('assignToDriver')
-                    ->label('تعيين سائق')
-                    ->icon('heroicon-o-truck')
-                    ->requiresConfirmation()
-                    ->modalHeading('تعيين سائق للمرتجعات المحددة')
-                    ->modalSubmitActionLabel('تعيين')
-                    ->form([
-                        \Filament\Forms\Components\Select::make('driver_id')
-                            ->label('السائق')
-                            ->options(Driver::driversOnly()->select(['id', 'name'])->get()->pluck('name', 'id'))
-                            ->required()
-                    ])
-                    ->action(function ($records, array $data) {
-                        app(DriverServices::class)->assignReturnOrdersToDriver($records, $data['driver_id']);
-                        notifyCustomerWithReturnOrderStatus($records->first()->order, ReturnOrderStatus::DRIVER_PICKUP->value);
-                    })
-                    ->deselectRecordsAfterCompletion(),
-                Tables\Actions\DeleteBulkAction::make()
-                    ->label('حذف')
-                    ->modalHeading('حذف المرتجعات المحددة')
-                    ->modalSubmitActionLabel('حذف')
-                    ->successNotificationTitle('تم حذف المرتجعات بنجاح'),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\ExportBulkAction::make()
+                        ->exporter(ReturnOrderItemExporter::class),
+                    Tables\Actions\BulkAction::make('assignToDriver')
+                        ->label('تعيين سائق')
+                        ->icon('heroicon-o-truck')
+                        ->requiresConfirmation()
+                        ->modalHeading('تعيين سائق للمرتجعات المحددة')
+                        ->modalSubmitActionLabel('تعيين')
+                        ->form([
+                            \Filament\Forms\Components\Select::make('driver_id')
+                                ->label('السائق')
+                                ->options(Driver::driversOnly()->select(['id', 'name'])->get()->pluck('name', 'id'))
+                                ->required()
+                        ])
+                        ->action(function ($records, array $data) {
+                            app(DriverServices::class)->assignReturnOrdersToDriver($records, $data['driver_id']);
+                            notifyCustomerWithReturnOrderStatus($records->first()->order, ReturnOrderStatus::DRIVER_PICKUP->value);
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('حذف')
+                        ->modalHeading('حذف المرتجعات المحددة')
+                        ->modalSubmitActionLabel('حذف')
+                        ->successNotificationTitle('تم حذف المرتجعات بنجاح'),
+                ]),
             ])
             ->checkIfRecordIsSelectableUsing(
                 fn($record): bool => $record->status !== ReturnOrderStatus::RECEIVED_FROM_CUSTOMER,

@@ -102,6 +102,34 @@ class ViewOrder extends ViewRecord
                 ->modalHeading('تسليم الأصناف للعميل')
                 ->modalSubmitActionLabel('تسليم'),
 
+            Action::make('return_all_items')
+                ->label('إرجاع جميع الأصناف')
+                ->color('danger')
+                ->icon('heroicon-o-arrow-uturn-left')
+                ->visible(fn($record) => $record->status === OrderStatus::OUT_FOR_DELIVERY)
+                ->action(function ($record, $action) {
+                    try {
+                        app(DriverServices::class)->returnAllOrderItems($record);
+                        notifyCustomerWithOrderStatus($record->fresh());
+                        Notification::make()
+                            ->title('تم إرجاع جميع الأصناف بنجاح')
+                            ->success()
+                            ->send();
+                    } catch (\Exception $e) {
+                        $action->failureNotification(
+                            Notification::make()
+                                ->title('حدث خطأ أثناء إرجاع الأصناف')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send()
+                        )->halt()->failure();
+                    }
+                })
+                ->requiresConfirmation()
+                ->modalHeading('إرجاع جميع الأصناف')
+                ->modalDescription('هل أنت متأكد من إرجاع جميع أصناف الطلب؟ لا يمكن التراجع عن هذا الإجراء.')
+                ->modalSubmitActionLabel('إرجاع'),
+
             printAction(Actions\Action::make('print')),
         ];
     }

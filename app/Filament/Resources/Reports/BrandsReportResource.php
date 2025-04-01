@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Reports;
 
+use App\Filament\Exports\BrandsReportExporter;
 use App\Filament\Resources\Reports\BrandsReportResource\Pages;
 use App\Filament\Widgets\BrandsStatsOverview;
 use App\Models\Brand;
@@ -10,6 +11,7 @@ use App\Traits\ReportsFilter;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconPosition;
+use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
@@ -69,6 +71,17 @@ class BrandsReportResource extends Resource
                     ->baseQuery(function (Builder $query, array $data): Builder {
                         return app(BrandReportService::class)->getFilteredQuery($query, $data);
                     })
+            ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(BrandsReportExporter::class),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\ExportBulkAction::make()
+                        ->exporter(BrandsReportExporter::class),
+                ]),
             ]);
     }
 

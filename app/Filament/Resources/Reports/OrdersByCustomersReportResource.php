@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Reports;
 
+use App\Filament\Exports\OrdersByCustomersReportExporter;
 use App\Filament\Resources\Reports\OrdersByCustomersReportResource\Pages;
 use App\Filament\Widgets\OrdersByCustomersStatsOverview;
 use App\Models\Customer;
@@ -9,6 +10,7 @@ use App\Services\Reports\OrdersByCustomersReportService;
 use App\Traits\ReportsFilter;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -79,6 +81,11 @@ class OrdersByCustomersReportResource extends Resource
                     ->label('المنطقة')
                     ->searchable()
                     ->preload(),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(OrdersByCustomersReportExporter::class),
             ])
             ->actions([
                 ViewAction::make(),

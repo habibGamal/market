@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Reports;
 
+use App\Filament\Exports\StockStateReportExporter;
 use App\Filament\Resources\Reports\StockStateReportResource\Pages;
 use App\Models\Product;
 use App\Services\Reports\StockStateReportService;
@@ -9,6 +10,7 @@ use App\Filament\Widgets\StockStateStatsOverview;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconPosition;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -104,6 +106,11 @@ class StockStateReportResource extends Resource
                     ->label('الفئة')
                     ->searchable()
                     ->preload(),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(StockStateReportExporter::class),
             ]);
     }
 

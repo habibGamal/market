@@ -257,19 +257,17 @@ class Product extends Model
         return $expirationDate->isPast();
     }
 
-    public function halfLife(): ?\Carbon\Carbon
+    public function expirationDurationInDays(): ?int
     {
         if (!isset($this->expiration_duration) || !isset($this->expiration_unit)) {
             return null;
         }
 
-        $halfExpireDate = match($this->expiration_unit) {
-            ExpirationUnit::DAY => now()->subDays($this->expiration_duration / 2),
-            ExpirationUnit::WEEK => now()->subWeeks($this->expiration_duration / 2),
-            ExpirationUnit::MONTH => now()->subMonths($this->expiration_duration / 2),
-            ExpirationUnit::YEAR => now()->subYears($this->expiration_duration / 2),
+        return match($this->expiration_unit) {
+            ExpirationUnit::DAY => $this->expiration_duration,
+            ExpirationUnit::WEEK => $this->expiration_duration * 7,
+            ExpirationUnit::MONTH => $this->expiration_duration * 30,
+            ExpirationUnit::YEAR => $this->expiration_duration * 365,
         };
-
-        return $halfExpireDate;
     }
 }
