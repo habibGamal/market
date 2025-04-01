@@ -18,7 +18,7 @@ class ListReturnOrderItems extends ListRecords
             'all' => Tab::make()
                 ->label('الكل'),
             'pending' => Tab::make()
-                ->label('في انتظار التعيين للسائق')
+                ->label('في انتظار التعيين للمندوب تسليم')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', ReturnOrderStatus::PENDING)),
         ];
     }

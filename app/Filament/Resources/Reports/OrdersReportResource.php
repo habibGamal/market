@@ -56,7 +56,7 @@ class OrdersReportResource extends Resource
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('driver.name')
-                    ->label('السائق')
+                    ->label('مندوب التسليم')
                     ->sortable(),
                 TextColumn::make('profit')
                     ->label('الربح')
@@ -167,9 +167,9 @@ class OrdersReportResource extends Resource
                 Section::make('معلومات التوصيل')
                     ->schema([
                         TextEntry::make('driver.name')
-                            ->label('اسم السائق'),
+                            ->label('اسم مندوب التسليم'),
                         TextEntry::make('driver.phone')
-                            ->label('رقم هاتف السائق'),
+                            ->label('رقم هاتف مندوب التسليم'),
                         TextEntry::make('delivery_date')
                             ->label('تاريخ التوصيل')
                             ->dateTime(),

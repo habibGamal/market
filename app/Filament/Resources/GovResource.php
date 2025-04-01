@@ -15,13 +15,15 @@ class GovResource extends Resource
 {
     protected static ?string $model = Gov::class;
 
-    protected static ?string $navigationGroup = 'إدارة النظام';
+    protected static ?string $navigationGroup = 'إدارة المبيعات';
 
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
 
     protected static ?string $modelLabel = 'محافظة';
 
     protected static ?string $pluralModelLabel = 'المحافظات';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

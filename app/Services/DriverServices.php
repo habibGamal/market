@@ -145,7 +145,7 @@ class DriverServices
                     'piece_quantity' => $orderItem->piece_quantity,
                     'piece_price' => $orderItem->piece_price,
                     'return_reason' => 'إرجاع كامل الطلب',
-                    'notes' => 'تم إرجاع جميع الأصناف من قبل السائق',
+                    'notes' => 'تم إرجاع جميع الأصناف من قبل مندوب التسليم',
                     'status' => ReturnOrderStatus::RECEIVED_FROM_CUSTOMER,
                     'driver_id' => auth()->id()
                 ];

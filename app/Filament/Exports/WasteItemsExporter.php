@@ -15,7 +15,7 @@ class WasteItemsExporter extends Exporter
     {
         return [
             ExportColumn::make('waste.id')
-                ->label('رقم إذن الهدر'),
+                ->label('رقم إذن التوالف'),
             ExportColumn::make('product.name')
                 ->label('المنتج'),
             ExportColumn::make('packets_quantity')
@@ -39,7 +39,7 @@ class WasteItemsExporter extends Exporter
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'تم اكتمال تصدير هدر المنتج وتم تصدير ' . number_format($export->successful_rows) . ' ' . str('صف')->plural($export->successful_rows) . '.';
+        $body = 'تم اكتمال تصدير توالف المنتج وتم تصدير ' . number_format($export->successful_rows) . ' ' . str('صف')->plural($export->successful_rows) . '.';
 
         if ($failedRowsCount = $export->getFailedRowsCount()) {
             $body .= ' ' . number_format($failedRowsCount) . ' ' . str('صف')->plural($failedRowsCount) . ' فشل في التصدير.';

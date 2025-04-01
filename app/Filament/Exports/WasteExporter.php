@@ -29,6 +29,6 @@ class WasteExporter extends Exporter
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        return 'تم تصدير سجلات الهدر بنجاح';
+        return 'تم تصدير سجلات التوالف بنجاح';
     }
 }

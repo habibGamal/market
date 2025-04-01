@@ -36,7 +36,7 @@ class AccountantReceiptNoteResource extends Resource
                         ->label('نوع المستند')
                         ->types([
                             MorphToSelect\Type::make(Driver::class)
-                                ->label('سائق')
+                                ->label('مندوب تسليم')
                                 ->modifyOptionsQueryUsing(function ($query) {
                                     $query->driversOnly();
                                 })
@@ -95,7 +95,7 @@ class AccountantReceiptNoteResource extends Resource
                 Tables\Columns\TextColumn::make('from_model_type')
                     ->label('نوع المستند')
                     ->formatStateUsing(fn(string $state) => match ($state) {
-                        Driver::class => 'سائق',
+                        Driver::class => 'مندوب تسليم',
                         IssueNote::class => 'اذن صرف',
                         default => $state
                     })
@@ -151,7 +151,7 @@ class AccountantReceiptNoteResource extends Resource
                     // TextEntry::make('fromModel')
                     //     ->label('المستند')
                     //     ->formatStateUsing(fn($state) => match ($state::class) {
-                    //         Driver::class => 'سائق: ' . $state->name,
+                    //         Driver::class => 'مندوب تسليم: ' . $state->name,
                     //         IssueNote::class => 'اذن صرف #' . $state->id,
                     //         default => $state::class . ' #' . $state->id
                     //     })

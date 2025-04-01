@@ -38,7 +38,7 @@ class ReturnOrderItemExporter extends Exporter
                 ->label('الحالة')
                 ->state(fn(ReturnOrderItem $record): string => $record->status->getLabel()),
             ExportColumn::make('driver.name')
-                ->label('السائق'),
+                ->label('مندوب التسليم'),
             ExportColumn::make('order.customer.name')
                 ->label('اسم العميل'),
             ExportColumn::make('order.customer.phone')

@@ -21,14 +21,17 @@ class DriverResource extends Resource
 {
     protected static ?string $model = Driver::class;
 
-    protected static ?string $navigationGroup = 'إدارة الطلبيات';
+    protected static ?string $navigationGroup = 'إدارة النظام';
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?string $label = 'السائق';
-    protected static ?string $pluralLabel = 'السائقين';
+    protected static ?string $label = 'مندوب التسليم';
+
+    protected static ?string $pluralLabel = 'مندوبين التسليم';
+
+    protected static ?int $navigationSort = 6;
 
     public static function getGloballySearchableAttributes(): array
     {
@@ -54,7 +57,7 @@ class DriverResource extends Resource
                 Forms\Components\Section::make()
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                            ->label('اسم السائق')
+                            ->label('اسم مندوب التسليم')
                             ->required()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('email')
@@ -96,7 +99,7 @@ class DriverResource extends Resource
             })
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('اسم السائق')
+                    ->label('اسم مندوب التسليم')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')

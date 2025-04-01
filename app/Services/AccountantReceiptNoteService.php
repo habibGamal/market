@@ -26,7 +26,7 @@ class AccountantReceiptNoteService
 
         if ($driver->account->balance < $note->paid) {
 
-            throw new Exception('المبلغ المطلوب تحصيله أكبر من رصيد السائق');
+            throw new Exception('المبلغ المطلوب تحصيله أكبر من رصيد مندوب التسليم');
         }
 
         DB::transaction(function () use ($driver, $note) {

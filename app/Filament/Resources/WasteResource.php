@@ -32,9 +32,9 @@ class WasteResource extends InvoiceResource
 
     protected static ?string $navigationIcon = 'heroicon-o-trash';
 
-    protected static ?string $modelLabel = 'هدر';
+    protected static ?string $modelLabel = 'توالف';
 
-    protected static ?string $pluralModelLabel = 'الهدر';
+    protected static ?string $pluralModelLabel = 'التوالف';
 
     public static function csvTitles(): array
     {
@@ -145,7 +145,7 @@ class WasteResource extends InvoiceResource
                             ->columnSpan(6),
                     ]),
                 TableRepeater::make('items')
-                    ->label('عناصر الهدر')
+                    ->label('عناصر التوالف')
                     ->relationship('items', fn($query) => $query->with('product:id,name,packet_to_piece'))
                     ->headers([
                         Header::make('product_name')->label('المنتج')->width('150px'),

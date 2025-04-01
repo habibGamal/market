@@ -25,7 +25,7 @@ class Waste extends Model
         return \Spatie\Activitylog\LogOptions::defaults()
             ->logAll()
             ->useLogName('waste')
-            ->setDescriptionForEvent(fn(string $eventName) => "تم " . __("general.events.$eventName") . " هدر");
+            ->setDescriptionForEvent(fn(string $eventName) => "تم " . __("general.events.$eventName") . " توالف");
     }
 
     public function tapActivity(Activity $activity, string $eventName)
@@ -64,7 +64,7 @@ class Waste extends Model
     {
         $this->loadMissing('items.product');
         return printTemplate()
-            ->title('إذن هدر')
+            ->title('إذن توالف')
             ->info('رقم الإذن', $this->id)
             ->info('تاريخ الإذن', $this->created_at->format('Y-m-d h:i:s A'))
             ->info('تاريخ اخر تحديث', $this->updated_at->format('Y-m-d h:i:s A'))

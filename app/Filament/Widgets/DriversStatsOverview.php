@@ -44,19 +44,19 @@ class DriversStatsOverview extends BaseWidget
             ->first()->total;
 
         return [
-            Stat::make('رصيد السائقين', number_format($driversBalanceTotal, 2) . ' جنيه')
-                ->description('إجمالي رصيد السائقين')
+            Stat::make('رصيد مندوبين التسليم', number_format($driversBalanceTotal, 2) . ' جنيه')
+                ->description('إجمالي رصيد مندوبين التسليم')
                 ->icon('heroicon-o-banknotes'),
 
             Stat::make('الطلبات قيد التسليم', $pendingOrdersCount)
-                ->description('إجمالي عدد الطلبات مع السائقين التي لم يتم تسليمها')
+                ->description('إجمالي عدد الطلبات مع مندوبين التسليم التي لم يتم تسليمها')
                 ->icon('heroicon-o-truck'),
 
             Stat::make('قيمة الطلبات قيد التسليم', number_format($pendingOrdersTotal, 2) . ' جنيه')
                 ->description('إجمالي قيمة الطلبات التي لم يتم تسليمها')
                 ->icon('heroicon-o-currency-dollar'),
 
-            Stat::make('قيمة المرتجعات مع السائقين', number_format($driverReturnedProducts, 2) . ' جنيه')
+            Stat::make('قيمة المرتجعات مع مندوبين التسليم', number_format($driverReturnedProducts, 2) . ' جنيه')
                 ->description('إجمالي قيمة المرتجعات التي لم تسلم للمخازن (بسعر التكلفة)')
                 ->icon('heroicon-o-arrow-path'),
         ];

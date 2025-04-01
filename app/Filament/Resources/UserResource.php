@@ -31,6 +31,7 @@ class UserResource extends Resource
 
     protected static ?string $label = 'المستخدم';
     protected static ?string $pluralLabel = 'المستخدمين';
+    protected static ?int $navigationSort = 7;
 
     public static function getGloballySearchableAttributes(): array
     {
@@ -84,7 +85,7 @@ class UserResource extends Resource
                             ->visible(fn(Get $get): bool => filled($get('password')))
                             ->dehydrated(false),
                         Forms\Components\Select::make('roles')
-                            ->label('الأدوار')
+                            ->label('الصلاحيات')
                             ->multiple()
                             ->relationship('roles', 'name')
                             ->preload()

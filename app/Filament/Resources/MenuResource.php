@@ -18,13 +18,15 @@ class MenuResource extends Resource
 {
     protected static ?string $model = BusinessType::class;
 
-    protected static ?string $navigationGroup = 'إدارة المنتجات';
+    protected static ?string $navigationGroup = 'إدارة النظام';
 
     protected static ?string $navigationIcon = 'heroicon-o-bars-3';
 
     protected static ?string $modelLabel = 'قائمة';
 
     protected static ?string $pluralModelLabel = 'القوائم';
+
+    protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
     {

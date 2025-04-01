@@ -35,7 +35,7 @@ class OrdersRelationManager extends RelationManager
                     ->badge()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('driver.name')
-                    ->label('السائق')
+                    ->label('مندوب التسليم')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
@@ -47,7 +47,7 @@ class OrdersRelationManager extends RelationManager
                     ->label('الحالة')
                     ->options(OrderStatus::class),
                 Tables\Filters\SelectFilter::make('driver')
-                    ->label('السائق')
+                    ->label('مندوب التسليم')
                     ->relationship('driver', 'name')
             ])
             ->actions([

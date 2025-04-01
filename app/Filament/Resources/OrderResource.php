@@ -28,7 +28,7 @@ class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static ?string $navigationGroup = 'إدارة الطلبيات';
+    protected static ?string $navigationGroup = 'إدارة المبيعات';
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static ?string $modelLabel = 'طلب';
     protected static ?string $pluralModelLabel = 'الطلبات';
@@ -94,9 +94,9 @@ class OrderResource extends Resource
                 Section::make('معلومات التوصيل')
                     ->schema([
                         TextEntry::make('driver.name')
-                            ->label('اسم السائق'),
+                            ->label('اسم مندوب التسليم'),
                         TextEntry::make('driver.phone')
-                            ->label('رقم هاتف السائق'),
+                            ->label('رقم هاتف مندوب التسليم'),
                         TextEntry::make('delivery_date')
                             ->label('تاريخ التوصيل')
                             ->dateTime(),
@@ -122,7 +122,7 @@ class OrderResource extends Resource
                     ->label('المنطقة')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('driver.name')
-                    ->label('السائق')
+                    ->label('مندوب التسليم')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total')
                     ->label('المجموع')
@@ -192,11 +192,11 @@ class OrderResource extends Resource
                     Tables\Actions\ExportBulkAction::make()
                     ->exporter(OrderExporter::class),
                     Tables\Actions\BulkAction::make('assignToDriver')
-                        ->label('تعيين سائق')
+                        ->label('تعيين مندوب تسليم')
                         ->icon('heroicon-o-truck')
                         ->form([
                             Forms\Components\Select::make('driver_id')
-                                ->label('السائق')
+                                ->label('مندوب التسليم')
                                 ->options(Driver::driversOnly()->select(['id', 'name'])->get()->pluck('name', 'id'))
                                 ->required()
                         ])
@@ -209,7 +209,7 @@ class OrderResource extends Resource
                                 $action->failureNotification(
                                     Notification::make()
                                         ->title(
-                                            'لا يمكن تعيين سائق للطلبات المحددة'
+                                            'لا يمكن تعيين مندوب تسليم للطلبات المحددة'
                                         )
                                         ->danger()
                                         ->send()
@@ -219,7 +219,7 @@ class OrderResource extends Resource
                         })
                         ->deselectRecordsAfterCompletion()
                         ->requiresConfirmation()
-                        ->modalHeading('تعيين سائق للطلبات المحددة')
+                        ->modalHeading('تعيين مندوب تسليم للطلبات المحددة')
                         ->modalSubmitActionLabel('تعيين'),
 
                     Tables\Actions\BulkAction::make('createIssueNote')

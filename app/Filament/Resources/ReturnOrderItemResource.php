@@ -22,7 +22,7 @@ class ReturnOrderItemResource extends Resource
 {
     protected static ?string $model = ReturnOrderItem::class;
 
-    protected static ?string $navigationGroup = 'إدارة الطلبيات';
+    protected static ?string $navigationGroup = 'إدارة المبيعات';
     protected static ?string $navigationIcon = 'heroicon-o-arrow-uturn-left';
     protected static ?string $modelLabel = 'مرتجع';
     protected static ?string $pluralModelLabel = 'المرتجعات';
@@ -58,7 +58,7 @@ class ReturnOrderItemResource extends Resource
                             ->label('الحالة')
                             ->badge(),
                         TextEntry::make('driver.name')
-                            ->label('السائق'),
+                            ->label('مندوب التسليم'),
                         TextEntry::make('created_at')
                             ->label('تاريخ الإنشاء')
                             ->dateTime(),
@@ -129,7 +129,7 @@ class ReturnOrderItemResource extends Resource
                     ->label('المنطقة')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('driver.name')
-                    ->label('السائق')
+                    ->label('مندوب التسليم')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->label('الحالة')
@@ -145,7 +145,7 @@ class ReturnOrderItemResource extends Resource
                     ->label('الحالة')
                     ->options(ReturnOrderStatus::class),
                 Tables\Filters\SelectFilter::make('driver')
-                    ->label('السائق')
+                    ->label('مندوب التسليم')
                     ->relationship('driver', 'name'),
             ])
             ->headerActions([
@@ -161,14 +161,14 @@ class ReturnOrderItemResource extends Resource
                     Tables\Actions\ExportBulkAction::make()
                         ->exporter(ReturnOrderItemExporter::class),
                     Tables\Actions\BulkAction::make('assignToDriver')
-                        ->label('تعيين سائق')
+                        ->label('تعيين مندوب تسليم')
                         ->icon('heroicon-o-truck')
                         ->requiresConfirmation()
-                        ->modalHeading('تعيين سائق للمرتجعات المحددة')
+                        ->modalHeading('تعيين مندوب تسليم للمرتجعات المحددة')
                         ->modalSubmitActionLabel('تعيين')
                         ->form([
                             \Filament\Forms\Components\Select::make('driver_id')
-                                ->label('السائق')
+                                ->label('مندوب التسليم')
                                 ->options(Driver::driversOnly()->select(['id', 'name'])->get()->pluck('name', 'id'))
                                 ->required()
                         ])

@@ -20,7 +20,7 @@ class AccountantReceiptNoteExporter extends Exporter
             ExportColumn::make('from_model_type')
                 ->label('نوع المستند')
                 ->formatStateUsing(fn(string $state): string => match ($state) {
-                    'App\\Models\\Driver' => 'سائق',
+                    'App\\Models\\Driver' => 'مندوب تسليم',
                     'App\\Models\\IssueNote' => 'اذن صرف',
                     default => $state
                 }),

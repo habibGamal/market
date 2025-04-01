@@ -14,7 +14,7 @@ class ItemsRelationManager extends RelationManager
 {
     protected static string $relationship = 'items';
 
-    protected static ?string $title = 'محتوى الهدر';
+    protected static ?string $title = 'محتوى التوالف';
 
     public function form(Form $form): Form
     {

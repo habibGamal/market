@@ -15,13 +15,15 @@ class CityResource extends Resource
 {
     protected static ?string $model = City::class;
 
-    protected static ?string $navigationGroup = 'إدارة النظام';
+    protected static ?string $navigationGroup = 'إدارة المبيعات';
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
     protected static ?string $modelLabel = 'مدينة';
 
     protected static ?string $pluralModelLabel = 'المدن';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {

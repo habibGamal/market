@@ -25,6 +25,8 @@ class OfferResource extends Resource
     protected static ?string $modelLabel = 'عرض';
     protected static ?string $pluralModelLabel = 'العروض';
 
+    protected static ?string $navigationGroup = 'إدارة المبيعات';
+
     public static function form(Form $form): Form
     {
         return $form->schema([

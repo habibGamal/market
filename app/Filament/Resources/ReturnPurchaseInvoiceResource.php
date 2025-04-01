@@ -31,7 +31,7 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
 {
     protected static ?string $model = ReturnPurchaseInvoice::class;
 
-    protected static ?string $navigationGroup = 'إدارة الفواتير';
+    protected static ?string $navigationGroup = 'إدارة المشتريات';
 
     protected static ?string $navigationIcon = 'heroicon-o-arrow-uturn-left';
 

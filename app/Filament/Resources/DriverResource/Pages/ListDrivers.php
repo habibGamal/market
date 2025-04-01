@@ -14,7 +14,7 @@ class ListDrivers extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-                ->label('إضافة سائق'),
+                ->label('إضافة مندوب تسليم'),
         ];
     }
 }

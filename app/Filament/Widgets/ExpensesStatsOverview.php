@@ -59,8 +59,8 @@ class ExpensesStatsOverview extends BaseWidget
                 ->description('إجمالي قيمة أذونات الصرف للمشتريات')
                 ->color('warning'),
 
-            Stat::make('إجمالي أذونات القبض من السائقين', number_format($driverReceiptNotes, 2) . ' جنيه')
-                ->description('إجمالي قيمة أذونات القبض من السائقين')
+            Stat::make('إجمالي أذونات القبض من مندوبين التسليم', number_format($driverReceiptNotes, 2) . ' جنيه')
+                ->description('إجمالي قيمة أذونات القبض من مندوبين التسليم')
                 ->color('success'),
 
             Stat::make('إجمالي أذونات القبض من مرتجعات المشتريات', number_format($purchaseReturnReceiptNotes, 2) . ' جنيه')

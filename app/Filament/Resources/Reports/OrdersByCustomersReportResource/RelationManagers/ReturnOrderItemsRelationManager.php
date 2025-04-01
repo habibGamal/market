@@ -49,7 +49,7 @@ class ReturnOrderItemsRelationManager extends RelationManager
                     ->label('سبب الإرجاع')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('driver.name')
-                    ->label('السائق')
+                    ->label('مندوب التسليم')
                     ->sortable(),
             ])
             ->filters([
@@ -57,7 +57,7 @@ class ReturnOrderItemsRelationManager extends RelationManager
                     ->label('الحالة')
                     ->options(ReturnOrderStatus::class),
                 Tables\Filters\SelectFilter::make('driver')
-                    ->label('السائق')
+                    ->label('مندوب التسليم')
                     ->relationship('driver', 'name')
             ])
             ->actions([

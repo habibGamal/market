@@ -34,7 +34,7 @@ enum ReturnOrderStatus: string implements HasColor, HasIcon, HasLabel
     {
         return match ($this) {
             self::PENDING => 'قيد الانتظار',
-            self::DRIVER_PICKUP => 'السائق في الطريق للاستلام',
+            self::DRIVER_PICKUP => 'مندوب التسليم في الطريق للاستلام',
             self::RECEIVED_FROM_CUSTOMER => 'تم الاستلام من العميل',
         };
     }

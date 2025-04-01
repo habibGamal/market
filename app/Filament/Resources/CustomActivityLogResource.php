@@ -18,6 +18,12 @@ class CustomActivityLogResource extends ActivitylogResource
 
     protected static ?string $navigationGroup = 'إدارة النظام';
 
+
+    public static function getNavigationSort(): ?int
+    {
+        return 8;
+    }
+
     public static function getCauserNameColumnCompoment(): Column
     {
         return parent::getCauserNameColumnCompoment()->sortable();

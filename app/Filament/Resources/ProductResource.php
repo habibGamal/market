@@ -63,9 +63,9 @@ class ProductResource extends Resource
                                 Forms\Components\Toggle::make('can_sell_pieces')
                                     ->label('إمكانية بيع القطع')
                                     ->default(false)
-                                    ->helperText('السماح ببيع هذا المنتج بالقطعة وليس فقط بالعبوة'),
+                                    ->helperText('السماح ببيع هذا المنتج ب(علبة/قطعة) وليس فقط ب(كرتونة / لفة)'),
                                 Forms\Components\TextInput::make('packet_to_piece')
-                                    ->label('عدد القطع في العبوة')
+                                    ->label('عدد القطع في (كرتونة / لفة)')
                                     ->numeric()
                                     ->minValue(1)
                                     ->required(),
@@ -122,12 +122,12 @@ class ProductResource extends Resource
                                     ->default(1)
                                     ->required(),
                                 Forms\Components\TextInput::make('packet_cost')
-                                    ->label('تكلفة العبوة')
+                                    ->label('سعر شراء (كرتونة / لفة)')
                                     ->numeric()
                                     ->minValue(0)
                                     ->required(),
                                 Forms\Components\TextInput::make('packet_price')
-                                    ->label('سعر العبوة')
+                                    ->label('سعر البيع (كرتونة / لفة)')
                                     ->numeric()
                                     ->required()
                                     ->minValue(0)
@@ -145,12 +145,12 @@ class ProductResource extends Resource
                                         function (string $attribute, $value, \Closure $fail) use ($get) {
                                             $packetCost = $get('packet_cost');
                                             if ($value < $packetCost) {
-                                                $fail('يجب أن يكون سعر العبوة أكبر من أو يساوي تكلفة العبوة');
+                                                $fail('يجب أن يكون سعر البيع (كرتونة / لفة) أكبر من أو يساوي سعر شراء (كرتونة / لفة)');
                                             }
                                         }
                                     ),
                                 Forms\Components\TextInput::make('piece_price')
-                                    ->label('سعر القطعة')
+                                    ->label('سعر البيع (علبة/قطعة)')
                                     ->numeric()
                                     ->required()
                                     ->rule(
@@ -158,16 +158,16 @@ class ProductResource extends Resource
                                         function (string $attribute, $value, \Closure $fail) use ($get) {
                                             $cost = $get('packet_cost') / $get('packet_to_piece');
                                             if ($value < $cost) {
-                                                $fail('يجب أن يكون سعر القطعة أكبر من أو يساوي تكلفة القطعة');
+                                                $fail('يجب أن يكون سعر البيع (علبة/قطعة) أكبر من أو يساوي سعر شراء (علبة/قطعة)');
                                             }
                                         }
                                     ),
                                 Forms\Components\TextInput::make('before_discount.packet_price')
-                                    ->label('سعر العبوة قبل الخصم')
+                                    ->label('سعر البيع (كرتونة / لفة) قبل الخصم')
                                     ->numeric()
                                     ->required(),
                                 Forms\Components\TextInput::make('before_discount.piece_price')
-                                    ->label('سعر القطعة قبل الخصم')
+                                    ->label('سعر البيع (علبة/قطعة) قبل الخصم')
                                     ->numeric()
                                     ->required(),
                             ]),
@@ -199,16 +199,16 @@ class ProductResource extends Resource
                     ->label('نشط')
                     ->sortable(),
                 Tables\Columns\ToggleColumn::make('can_sell_pieces')
-                    ->label('بيع بالقطعة')
+                    ->label('بيع ب(علبة/قطعة)')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('packet_cost')
-                    ->label('تكلفة العبوة')
+                    ->label('سعر شراء (كرتونة / لفة)')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('packet_price')
-                    ->label('سعر العبوة')
+                    ->label('سعر البيع (كرتونة / لفة)')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('piece_price')
-                    ->label('سعر القطعة')
+                    ->label('سعر البيع (علبة/قطعة)')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('expiration')
                     ->label('مدة الصلاحية')

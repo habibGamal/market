@@ -97,12 +97,4 @@ class ExpensePolicy
     {
         return $user->can('{{ Replicate }}');
     }
-
-    /**
-     * Determine whether the user can reorder.
-     */
-    public function reorder(User $user): bool
-    {
-        return $user->can('{{ Reorder }}');
-    }
 }

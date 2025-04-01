@@ -41,13 +41,13 @@ class ViewDriversReport extends ViewRecord
     {
         return $infolist
             ->schema([
-                Section::make('معلومات السائق')
+                Section::make('معلومات مندوب التسليم')
                     ->columns(4)
                     ->schema([
                         TextEntry::make('id')
-                            ->label('رقم السائق'),
+                            ->label('رقم مندوب التسليم'),
                         TextEntry::make('name')
-                            ->label('اسم السائق'),
+                            ->label('اسم مندوب التسليم'),
                         TextEntry::make('email')
                             ->label('البريد الإلكتروني'),
                         TextEntry::make('account.balance')

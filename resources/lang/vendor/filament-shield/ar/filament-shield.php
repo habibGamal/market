@@ -9,7 +9,7 @@ return [
 
     'column.name' => 'العنوان',
     'column.guard_name' => 'اسم الحارس',
-    'column.roles' => 'الأدوار',
+    'column.roles' => 'الصلاحيات',
     'column.permissions' => 'الصلاحيات',
     'column.updated_at' => 'تاريخ التحديث',
 
@@ -32,10 +32,10 @@ return [
     */
 
     'nav.group' => 'إدارة الوصول',
-    'nav.role.label' => 'الأدوار',
+    'nav.role.label' => 'الصلاحيات',
     'nav.role.icon' => 'heroicon-o-shield-check',
     'resource.label.role' => 'دور',
-    'resource.label.roles' => 'الأدوار',
+    'resource.label.roles' => 'الصلاحيات',
 
     /*
     |--------------------------------------------------------------------------

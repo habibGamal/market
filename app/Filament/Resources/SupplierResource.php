@@ -15,7 +15,7 @@ use Filament\Tables\Table;
 class SupplierResource extends Resource
 {
     protected static ?string $model = Supplier::class;
-    protected static ?string $navigationGroup = 'إدارة الفواتير';
+    protected static ?string $navigationGroup = 'إدارة المشتريات';
     protected static ?string $navigationIcon = 'heroicon-o-truck';
     protected static ?string $navigationLabel = 'الموردين';
     protected static ?string $modelLabel = 'مورد';

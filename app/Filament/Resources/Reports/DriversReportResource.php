@@ -25,9 +25,9 @@ class DriversReportResource extends Resource
 
     protected static ?string $navigationGroup = 'التقارير';
 
-    protected static ?string $modelLabel = 'تقرير السائق';
+    protected static ?string $modelLabel = 'تقرير مندوب التسليم';
 
-    protected static ?string $pluralModelLabel = 'تقارير السائقين';
+    protected static ?string $pluralModelLabel = 'تقارير مندوبين التسليم';
 
     public static function form(Form $form): Form
     {
@@ -39,7 +39,7 @@ class DriversReportResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('اسم السائق')
+                    ->label('اسم مندوب التسليم')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('pending_orders_count')

@@ -10,7 +10,7 @@ export function ReturnStatusBadge({ status }: ReturnStatusBadgeProps) {
             case "pending":
                 return "قيد الانتظار";
             case "driver_pickup":
-                return "السائق في الطريق للاستلام";
+                return "مندوب التسليم في الطريق للاستلام";
             case "received_from_customer":
                 return "تم الاستلام";
             default:

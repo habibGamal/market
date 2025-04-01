@@ -72,11 +72,22 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->navigationGroups([
+                'إدارة المنتجات',
+                'إدارة المشتريات',
+                'إدارة المخزن',
+                'إدارة الحسابات',
+                'إدارة المبيعات',
+                'إدارة النظام',
+                'إدارة الوصول',
+                'التقارير',
+            ])
             ->plugins([
                 FilamentShieldPlugin::make(),
                 ActivitylogPlugin::make()
                     ->label('سجل')
                     ->pluralLabel('السجلات')
+                    ->navigationGroup('إدارة النظام')
                     ->resource(CustomActivityLogResource::class),
             ])->renderHook(
                 \Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER,
@@ -84,3 +95,4 @@ class AdminPanelProvider extends PanelProvider
             );
     }
 }
+

@@ -18,7 +18,7 @@ class OrderExporter extends Exporter
             ExportColumn::make('customer.phone')->label('رقم الهاتف'),
             ExportColumn::make('customer.area.name')->label('المنطقة'),
             ExportColumn::make('customer.address')->label('العنوان'),
-            ExportColumn::make('driver.name')->label('السائق'),
+            ExportColumn::make('driver.name')->label('مندوب التسليم'),
             ExportColumn::make('total')->label('المجموع'),
             ExportColumn::make('netTotal')->label('الصافي'),
             ExportColumn::make('status')

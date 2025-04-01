@@ -40,7 +40,7 @@ class ReturnOrderStatusTemplate extends BaseTemplate
 
         return match ($status) {
             ReturnOrderStatus::PENDING->value => "طلب الإرجاع رقم #{$orderCode} قيد المراجعة",
-            ReturnOrderStatus::DRIVER_PICKUP->value => "سيقوم السائق باستلام طلب الإرجاع رقم #{$orderCode} قريباً",
+            ReturnOrderStatus::DRIVER_PICKUP->value => "سيقوم مندوب التسليم باستلام طلب الإرجاع رقم #{$orderCode} قريباً",
             ReturnOrderStatus::RECEIVED_FROM_CUSTOMER->value => "تم استلام طلب الإرجاع رقم #{$orderCode} بنجاح",
             default => "تم تحديث حالة طلب الإرجاع رقم #{$orderCode}",
         };

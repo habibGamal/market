@@ -23,11 +23,11 @@ class NotificationManagerResource extends Resource
 {
     protected static ?string $model = NotificationManager::class;
     protected static ?string $navigationIcon = 'heroicon-o-bell';
-    protected static ?string $navigationGroup = 'الإشعارات';
+    protected static ?string $navigationGroup = 'إدارة النظام';
     protected static ?string $navigationLabel = 'إدارة الإشعارات';
     protected static ?string $pluralModelLabel = 'الإشعارات';
     protected static ?string $modelLabel = 'إشعار';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 9;
 
     public static function form(Form $form): Form
     {

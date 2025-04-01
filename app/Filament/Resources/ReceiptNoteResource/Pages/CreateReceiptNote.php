@@ -56,10 +56,10 @@ class CreateReceiptNote extends CreateRecord
                 }),
 
             Actions\Action::make('from_driver')
-                ->label('استلام مرتجع من سائق')
+                ->label('استلام مرتجع من مندوب تسليم')
                 ->form([
                     Select::make('driver_id')
-                        ->label('السائق')
+                        ->label('مندوب التسليم')
                         ->searchable()
                         ->options(function () {
                             return Driver::query()
@@ -84,7 +84,7 @@ class CreateReceiptNote extends CreateRecord
                         $action->failureNotification(
                             Notification::make()
                                 ->title(
-                                    'السائق لديه اذن استلام معلق'
+                                    'مندوب التسليم لديه اذن استلام معلق'
                                 )
                                 ->danger()
                                 ->send()

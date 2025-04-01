@@ -26,7 +26,7 @@ class PurchaseInvoiceResource extends InvoiceResource
 {
     protected static ?string $model = PurchaseInvoice::class;
 
-    protected static ?string $navigationGroup = 'إدارة الفواتير';
+    protected static ?string $navigationGroup = 'إدارة المشتريات';
 
     protected static ?string $navigationIcon = 'heroicon-o-document';
 

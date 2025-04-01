@@ -15,7 +15,7 @@ class TasksRelationManager extends RelationManager
 {
     protected static string $relationship = 'tasks';
 
-    protected static ?string $title = 'الطلبيات المخصصة للسائق';
+    protected static ?string $title = 'الطلبيات المخصصة للمندوب تسليم';
 
     public function table(Table $table): Table
     {

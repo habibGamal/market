@@ -13,8 +13,8 @@ class DriverExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')->label('معرف السائق'),
-            ExportColumn::make('name')->label('اسم السائق'),
+            ExportColumn::make('id')->label('معرف مندوب التسليم'),
+            ExportColumn::make('name')->label('اسم مندوب التسليم'),
             ExportColumn::make('email')->label('البريد الإلكتروني'),
             ExportColumn::make('account.balance')->label('الرصيد'),
             ExportColumn::make('tasks_count')->label('عدد المهام')->counts('tasks'),
@@ -25,7 +25,7 @@ class DriverExporter extends Exporter
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'تم اكتمال تصدير السائقين وتم تصدير ' . number_format($export->successful_rows) . ' ' . str('صف')->plural($export->successful_rows) . '.';
+        $body = 'تم اكتمال تصدير مندوبين التسليم وتم تصدير ' . number_format($export->successful_rows) . ' ' . str('صف')->plural($export->successful_rows) . '.';
 
         if ($failedRowsCount = $export->getFailedRowsCount()) {
             $body .= ' ' . number_format($failedRowsCount) . ' ' . str('صف')->plural($failedRowsCount) . ' فشل في التصدير.';

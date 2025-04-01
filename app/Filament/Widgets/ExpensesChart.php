@@ -51,7 +51,7 @@ class ExpensesChart extends ChartWidget
                     'borderColor' => '#ffc107',
                 ],
                 [
-                    'label' => 'أذونات القبض من السائقين',
+                    'label' => 'أذونات القبض من مندوبين التسليم',
                     'data' => $data['driver_receipt_notes'],
                     'backgroundColor' => 'rgba(25, 135, 84, 0.5)',
                     'borderColor' => '#198754',

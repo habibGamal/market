@@ -15,7 +15,7 @@ class DriversReportExporter extends Exporter
     {
         return [
             ExportColumn::make('name')
-                ->label('اسم السائق'),
+                ->label('اسم مندوب التسليم'),
             ExportColumn::make('pending_orders_count')
                 ->label('عدد الطلبات قيد التسليم'),
             ExportColumn::make('out_for_delivery_total')
@@ -32,7 +32,7 @@ class DriversReportExporter extends Exporter
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'تم اكتمال تصدير تقرير السائقين وتم تصدير ' . number_format($export->successful_rows) . ' ' . str('صف')->plural($export->successful_rows) . '.';
+        $body = 'تم اكتمال تصدير تقرير مندوبين التسليم وتم تصدير ' . number_format($export->successful_rows) . ' ' . str('صف')->plural($export->successful_rows) . '.';
 
         if ($failedRowsCount = $export->getFailedRowsCount()) {
             $body .= ' ' . number_format($failedRowsCount) . ' ' . str('صف')->plural($failedRowsCount) . ' فشل في التصدير.';

@@ -38,7 +38,7 @@ class ReturnItemsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('return_reason')
                     ->label('سبب الإرجاع'),
                 Tables\Columns\TextColumn::make('driver.name')
-                    ->label('السائق'),
+                    ->label('مندوب التسليم'),
             ])
             ->headerActions([])
             ->actions([])

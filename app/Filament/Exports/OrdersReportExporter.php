@@ -21,7 +21,7 @@ class OrdersReportExporter extends Exporter
             ExportColumn::make('customer.area.name')
                 ->label('المنطقة'),
             ExportColumn::make('driver.name')
-                ->label('السائق'),
+                ->label('مندوب التسليم'),
             ExportColumn::make('profit')
                 ->label('الربح'),
             ExportColumn::make('net_profit')

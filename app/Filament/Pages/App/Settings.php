@@ -23,7 +23,7 @@ class Settings extends Page
     use HasPageShield;
 
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
-    protected static ?string $navigationGroup = 'النظام';
+    protected static ?string $navigationGroup = 'إدارة النظام';
     protected static ?string $title = 'إعدادات النظام';
     protected static ?string $slug = 'settings';
     protected static string $view = 'filament.pages.settings';

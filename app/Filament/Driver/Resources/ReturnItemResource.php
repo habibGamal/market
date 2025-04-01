@@ -138,7 +138,7 @@ class ReturnItemResource extends Resource
                                 $action->failureNotification(
                                     Notification::make()
                                         ->title('خطأ')
-                                        ->body('لا يمكن استلام المرتجعات التي ليست في حالة استلام السائق.')
+                                        ->body('لا يمكن استلام المرتجعات التي ليست في حالة استلام مندوب التسليم.')
                                         ->danger()
                                         ->send()
                                 )->halt()->failure();

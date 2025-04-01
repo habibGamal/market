@@ -17,7 +17,7 @@ class ListOrders extends ListRecords
             'all' => Tab::make()
                 ->label('الكل'),
             'assignable_to_drivers' => Tab::make()
-                ->label('يمكن تعيينها للسائقين')
+                ->label('يمكن تعيينها للمندوب تسليمين')
                 ->modifyQueryUsing(fn(Builder $query) => $query->assignableToDrivers()),
             'needs_issue_note' => Tab::make()
                 ->label('تحتاج الي اذن صرف')
