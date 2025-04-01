@@ -30,6 +30,7 @@ class Product extends Model
         'packet_to_piece',
         'min_packets_stock_limit',
         'is_active',
+        'can_sell_pieces',
         'brand_id',
         'category_id',
     ];

@@ -60,6 +60,10 @@ class ProductResource extends Resource
                                 Forms\Components\Toggle::make('is_active')
                                     ->label('نشط')
                                     ->default(true),
+                                Forms\Components\Toggle::make('can_sell_pieces')
+                                    ->label('إمكانية بيع القطع')
+                                    ->default(false)
+                                    ->helperText('السماح ببيع هذا المنتج بالقطعة وليس فقط بالعبوة'),
                                 Forms\Components\TextInput::make('packet_to_piece')
                                     ->label('عدد القطع في العبوة')
                                     ->numeric()
@@ -193,6 +197,9 @@ class ProductResource extends Resource
                     ->searchable(),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->label('نشط')
+                    ->sortable(),
+                Tables\Columns\ToggleColumn::make('can_sell_pieces')
+                    ->label('بيع بالقطعة')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('packet_cost')
                     ->label('تكلفة العبوة')

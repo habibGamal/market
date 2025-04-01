@@ -19,6 +19,7 @@ class ProductExporter extends Exporter
             ExportColumn::make('barcode')->label('الباركود'),
             ExportColumn::make('image')->label('الصورة'),
             ExportColumn::make('is_active')->label('نشط'),
+            ExportColumn::make('can_sell_pieces')->label('بيع بالقطعة'),
             ExportColumn::make('packet_to_piece')->label('عدد القطع في العبوة'),
             ExportColumn::make('packet_alter_name')->label('الاسم البديل للعبوة'),
             ExportColumn::make('piece_alter_name')->label('الاسم البديل للقطعة'),

@@ -15,7 +15,7 @@ class ProductPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_product');
+        return $user->can('view_any_stock::item');
     }
 
     /**
@@ -23,7 +23,7 @@ class ProductPolicy
      */
     public function view(User $user, Product $product): bool
     {
-        return $user->can('view_product');
+        return $user->can('view_stock::item');
     }
 
     /**
@@ -31,7 +31,7 @@ class ProductPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_product');
+        return $user->can('create_stock::item');
     }
 
     /**
@@ -39,7 +39,7 @@ class ProductPolicy
      */
     public function update(User $user, Product $product): bool
     {
-        return $user->can('update_product');
+        return $user->can('update_stock::item');
     }
 
     /**
@@ -47,7 +47,7 @@ class ProductPolicy
      */
     public function delete(User $user, Product $product): bool
     {
-        return $user->can('delete_product');
+        return $user->can('delete_stock::item');
     }
 
     /**
@@ -55,7 +55,7 @@ class ProductPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_product');
+        return $user->can('delete_any_stock::item');
     }
 
     /**
@@ -63,7 +63,7 @@ class ProductPolicy
      */
     public function forceDelete(User $user, Product $product): bool
     {
-        return $user->can('force_delete_product');
+        return $user->can('force_delete_stock::item');
     }
 
     /**
@@ -71,7 +71,7 @@ class ProductPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_product');
+        return $user->can('force_delete_any_stock::item');
     }
 
     /**

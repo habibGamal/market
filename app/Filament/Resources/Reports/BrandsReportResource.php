@@ -8,6 +8,7 @@ use App\Filament\Widgets\BrandsStatsOverview;
 use App\Models\Brand;
 use App\Services\Reports\BrandReportService;
 use App\Traits\ReportsFilter;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconPosition;
@@ -17,7 +18,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class BrandsReportResource extends Resource
+class BrandsReportResource extends Resource  implements HasShieldPermissions
 {
     use ReportsFilter;
 
@@ -34,6 +35,11 @@ class BrandsReportResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([]);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_report_brand', Brand::class);
     }
 
     public static function table(Table $table): Table
@@ -63,7 +69,8 @@ class BrandsReportResource extends Resource
                 TextColumn::make('order_items_sum_profit')
                     ->label('الارباح')
                     ->money('EGP')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn ()=> auth()->user()->can('view_profits_brand', Brand::class)),
             ])
             ->filters([
                 Filter::make('report_filter')
@@ -99,4 +106,12 @@ class BrandsReportResource extends Resource
             BrandsStatsOverview::class,
         ];
     }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+        ];
+    }
+
+
 }

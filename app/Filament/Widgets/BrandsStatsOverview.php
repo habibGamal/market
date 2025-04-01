@@ -97,7 +97,9 @@ class BrandsStatsOverview extends BaseWidget
         }
 
         $trendData = $this->getBrandTrend($data->brand_id ?? null);
-
+        if(!auth()->user()->can('view_profits_brand', $data->brand_id)){
+            $data->total_profit = null;
+        }
         return Stat::make($title, $data->brand_name)
             ->description(
                 view('filament.pages.reports.badges', [

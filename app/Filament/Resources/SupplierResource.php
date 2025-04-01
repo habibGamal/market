@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Exports\SupplierExporter;
+use App\Filament\Imports\SupplierImporter;
 use App\Filament\Resources\SupplierResource\Pages;
 use App\Models\Supplier;
 use Filament\Forms;
@@ -82,6 +83,9 @@ class SupplierResource extends Resource
                 ]),
             ])
             ->headerActions([
+                Tables\Actions\ImportAction::make()
+                    ->label('استيراد')
+                    ->importer(SupplierImporter::class),
                 Tables\Actions\ExportAction::make()
                     ->label('تصدير')
                     ->exporter(SupplierExporter::class),

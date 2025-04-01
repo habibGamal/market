@@ -77,5 +77,7 @@ return [
         'restore_any' => 'استرجاع الكل',
         'replicate' => 'استنساخ',
         'show_costs' => 'عرض التكاليف',
+        'view_report' => 'عرض التقارير',
+        'view_profits' => 'عرض الأرباح',
     ],
 ];

@@ -29,6 +29,8 @@ class ProductImporter extends Importer
             ImportColumn::make('image')->label('الصورة'),
             ImportColumn::make('is_active')->label('نشط')
                 ->boolean(),
+            ImportColumn::make('can_sell_pieces')->label('بيع بالقطعة')
+                ->boolean(),
             ImportColumn::make('packet_to_piece')->label('عدد القطع في العبوة'),
             ImportColumn::make('packet_alter_name')->label('الاسم البديل للعبوة'),
             ImportColumn::make('piece_alter_name')->label('الاسم البديل للقطعة'),

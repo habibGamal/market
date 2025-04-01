@@ -15,7 +15,7 @@ class PurchaseInvoicePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_purchase::invoice');
+        return $user->can('view_any_reports::invoices::report');
     }
 
     /**
@@ -23,7 +23,7 @@ class PurchaseInvoicePolicy
      */
     public function view(User $user, PurchaseInvoice $purchaseInvoice): bool
     {
-        return $user->can('view_purchase::invoice');
+        return $user->can('view_reports::invoices::report');
     }
 
     /**
@@ -31,7 +31,7 @@ class PurchaseInvoicePolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_purchase::invoice');
+        return $user->can('create_reports::invoices::report');
     }
 
     /**
@@ -39,7 +39,7 @@ class PurchaseInvoicePolicy
      */
     public function update(User $user, PurchaseInvoice $purchaseInvoice): bool
     {
-        return $user->can('update_purchase::invoice') && !$purchaseInvoice->closed;
+        return $user->can('update_reports::invoices::report');
     }
 
     /**
@@ -47,7 +47,7 @@ class PurchaseInvoicePolicy
      */
     public function delete(User $user, PurchaseInvoice $purchaseInvoice): bool
     {
-        return $user->can('delete_purchase::invoice') && $purchaseInvoice->deletable;
+        return $user->can('delete_reports::invoices::report');
     }
 
     /**
@@ -55,7 +55,7 @@ class PurchaseInvoicePolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_purchase::invoice');
+        return $user->can('delete_any_reports::invoices::report');
     }
 
     /**
@@ -63,7 +63,7 @@ class PurchaseInvoicePolicy
      */
     public function forceDelete(User $user, PurchaseInvoice $purchaseInvoice): bool
     {
-        return $user->can('force_delete_purchase::invoice');
+        return $user->can('force_delete_reports::invoices::report');
     }
 
     /**
@@ -71,7 +71,7 @@ class PurchaseInvoicePolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_purchase::invoice');
+        return $user->can('force_delete_any_reports::invoices::report');
     }
 
     /**

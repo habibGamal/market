@@ -189,6 +189,7 @@ class PlaceOrderServices
     private function validateProductLimits(Order $order): void
     {
         foreach ($order->items as $item) {
+            // check limits for each product
             $limit = ProductLimit::where('product_id', $item->product_id)
                 ->where('area_id', $order->customer->area_id)
                 ->first();
@@ -210,6 +211,11 @@ class PlaceOrderServices
 
             if ($item->piece_quantity < $limit->min_pieces) {
                 throw new \Exception("لم يتم الوصول للحد الأدنى لعدد القطع للمنتج {$item->product->name}. الحد الأدنى هو {$limit->min_pieces}");
+            }
+
+            // Check if product allows selling pieces
+            if (!$item->product->can_sell_pieces && $item->piece_quantity > 0) {
+                throw new \Exception("لا يمكن بيع قطع فردية من المنتج {$item->product->name}. يمكن شراء عبوات فقط.");
             }
         }
     }

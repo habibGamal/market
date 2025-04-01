@@ -103,6 +103,7 @@ export interface Product {
     updated_at: string;
     image: string | null;
     prices: ProductPrices;
+    can_sell_pieces: boolean;
     is_new?: boolean;
     is_deal?: boolean;
     is_active?: boolean;

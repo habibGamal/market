@@ -41,7 +41,7 @@ class CustomerResource extends Resource
                             ->tel()
                             ->required()
                             ->unique(ignoreRecord: true)
-                            ->maxLength(255),
+                            ->length(11),
                         Forms\Components\TextInput::make('whatsapp')
                             ->label('رقم الواتساب')
                             ->tel()

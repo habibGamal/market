@@ -51,6 +51,8 @@ export function CartItem({
         debouncedUpdateQuantity(packets, newValue);
     };
 
+    const enablePieces = product.packet_to_piece > 1 && product.can_sell_pieces;
+
     return (
         <div className="flex flex-col  gap-4 p-4 border-b last:border-0 relative">
             {loading && (
@@ -122,7 +124,7 @@ export function CartItem({
                             disabled={loading}
                         />
                     </div>
-                    {product.packet_to_piece > 1 && (
+                    {enablePieces && (
                         <div className="flex items-center gap-2">
                             <span className="text-sm text-secondary-600 min-w-16">
                                 {product.piece_alter_name}:

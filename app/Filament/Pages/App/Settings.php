@@ -4,6 +4,7 @@ namespace App\Filament\Pages\App;
 
 use App\Enums\SettingKey;
 use App\Models\Setting;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\RichEditor;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Cache;
 
 class Settings extends Page
 {
+    use HasPageShield;
+
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
     protected static ?string $navigationGroup = 'النظام';
     protected static ?string $title = 'إعدادات النظام';

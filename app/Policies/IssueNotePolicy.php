@@ -39,7 +39,7 @@ class IssueNotePolicy
      */
     public function update(User $user, IssueNote $issueNote): bool
     {
-        return $user->can('update_issue::note') && !$issueNote->closed;
+        return $user->can('update_issue::note');
     }
 
     /**
@@ -47,15 +47,7 @@ class IssueNotePolicy
      */
     public function delete(User $user, IssueNote $issueNote): bool
     {
-        return $user->can('delete_issue::note') && !$issueNote->closed;
-    }
-
-    /**
-     * Determine whether the user can show costs.
-     */
-    public function showCosts(User $user, ReceiptNote $receiptNote): bool
-    {
-        return $user->can('show_costs_receipt::note');
+        return $user->can('delete_issue::note');
     }
 
     /**

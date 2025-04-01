@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Jobs\ExportCsv;
 use App\Jobs\ImportCsv;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
+use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use Filament\Tables\Columns\Column;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Vite;
@@ -14,6 +15,7 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
 use Filament\Actions\Exports\Jobs\ExportCsv as BaseExportCsv;
 use Filament\Actions\Imports\Jobs\ImportCsv as BaseImportCsv;
+use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -47,6 +49,15 @@ class AppServiceProvider extends ServiceProvider
                 return new HtmlString('<span class="font-medium">' . $column->getLabel() . '</span>: ' . $state);
             });
         });
+
+        // FilamentShield::configurePermissionIdentifierUsing(
+        //     fn($resource) => Str::of($resource)
+        //     ->afterLast('Resources\\')
+        //     ->before('Resource')
+        //     ->replace('\\', '')
+        //     ->snake()
+        //     ->replace('_', '::')
+        // );
 
     }
 }

@@ -24,6 +24,7 @@ class ExpensesReportResource extends Resource
 {
     use ReportsFilter;
 
+
     protected static ?string $model = ExpenseType::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-receipt-percent';
