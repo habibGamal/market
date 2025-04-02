@@ -53,8 +53,8 @@ class CustomerResource extends Resource
                         Forms\Components\TextInput::make('password')
                             ->label('كلمة المرور')
                             ->password()
-                            ->dehydrated(fn ($state) => filled($state))
-                            ->required(fn (string $context): bool => $context === 'create'),
+                            ->dehydrated(fn($state) => filled($state))
+                            ->required(fn(string $context): bool => $context === 'create'),
                     ])->columns(2),
 
                 Section::make('العنوان')
@@ -68,23 +68,29 @@ class CustomerResource extends Resource
                             ->live(),
                         Forms\Components\Select::make('city_id')
                             ->label('المدينة')
-                            ->relationship('city', 'name', fn (Builder $query, Get $get) =>
+                            ->relationship(
+                                'city',
+                                'name',
+                                fn(Builder $query, Get $get) =>
                                 $query->where('gov_id', $get('gov_id'))
                             )
                             ->required()
                             ->searchable()
                             ->preload()
                             ->live()
-                            ->disabled(fn (Get $get) => !$get('gov_id')),
+                            ->disabled(fn(Get $get) => !$get('gov_id')),
                         Forms\Components\Select::make('area_id')
                             ->label('المنطقة')
-                            ->relationship('area', 'name', fn (Builder $query, Get $get) =>
+                            ->relationship(
+                                'area',
+                                'name',
+                                fn(Builder $query, Get $get) =>
                                 $query->where('city_id', $get('city_id'))
                             )
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->disabled(fn (Get $get) => !$get('city_id')),
+                            ->disabled(fn(Get $get) => !$get('city_id')),
                         Forms\Components\TextInput::make('location')
                             ->label('الموقع')
                             ->required()
@@ -94,7 +100,7 @@ class CustomerResource extends Resource
                                     ->icon('heroicon-o-map')
                                     ->tooltip('فتح في خرائط جوجل')
                                     ->url(
-                                        fn (Get $get): string => 'https://www.google.com/maps/search/?api=1&query=' . urlencode($get('location')),
+                                        fn(Get $get): string => 'https://www.google.com/maps/search/?api=1&query=' . urlencode($get('location')),
                                         true
                                     )
                             ),
@@ -124,6 +130,17 @@ class CustomerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = auth()->user();
+
+                // If user has areas assigned, filter customers by those areas
+                if ($user->areas()->count() > 0) {
+                    $areaIds = $user->areas->pluck('id')->toArray();
+                    $query->whereIn('area_id', $areaIds);
+                }
+
+                return $query;
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('الاسم')

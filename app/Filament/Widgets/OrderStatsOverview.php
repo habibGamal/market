@@ -25,6 +25,8 @@ class OrderStatsOverview extends BaseWidget
         $result = $statsService->getOrdersWithStats($this->getPageTableQuery());
         $stats = $statsService->calculateOrdersStats($result);
 
+        $canViewProfits = auth()->user()->can('view_profits_order', \App\Models\Order::class);
+
         return [
             Stat::make('إجمالي الطلبات', number_format($stats['total_orders']))
                 ->description('إجمالي عدد الطلبات')
@@ -36,15 +38,17 @@ class OrderStatsOverview extends BaseWidget
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success'),
 
-            Stat::make('إجمالي الأرباح بدون خصومات', number_format($stats['total_profit_without_discount'], 2) . ' جنيه')
-                ->description('الأرباح الإجمالية بدون خصومات')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->color('warning'),
+            $canViewProfits ?
+                Stat::make('إجمالي الأرباح بدون خصومات', number_format($stats['total_profit_without_discount'], 2) . ' جنيه')
+                    ->description('الأرباح الإجمالية بدون خصومات')
+                    ->descriptionIcon('heroicon-m-arrow-trending-up')
+                    ->color('warning') : null,
 
-            Stat::make('إجمالي الأرباح', number_format($stats['total_profit'], 2) . ' جنيه')
-                ->description('الأرباح الإجمالية')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->color('success'),
+            $canViewProfits ?
+                Stat::make('إجمالي الأرباح', number_format($stats['total_profit'], 2) . ' جنيه')
+                    ->description('الأرباح الإجمالية')
+                    ->descriptionIcon('heroicon-m-arrow-trending-up')
+                    ->color('success') : null,
 
             Stat::make('متوسط قيمة الطلب', number_format($stats['average_order_value'], 2) . ' جنيه')
                 ->description('متوسط قيمة الطلب الواحد')

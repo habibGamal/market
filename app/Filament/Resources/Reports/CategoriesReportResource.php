@@ -8,6 +8,7 @@ use App\Filament\Widgets\CategoriesStatsOverview;
 use App\Models\Category;
 use App\Services\Reports\CategoryReportService;
 use App\Traits\ReportsFilter;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconPosition;
@@ -17,7 +18,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class CategoriesReportResource extends Resource
+class CategoriesReportResource extends Resource implements HasShieldPermissions
 {
     use ReportsFilter;
 
@@ -30,6 +31,11 @@ class CategoriesReportResource extends Resource
     protected static ?string $modelLabel = 'تقرير الفئة';
 
     protected static ?string $pluralModelLabel = 'تقارير الفئات';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_report_category', Category::class);
+    }
 
     public static function form(Form $form): Form
     {
@@ -63,7 +69,8 @@ class CategoriesReportResource extends Resource
                 TextColumn::make('order_items_sum_profit')
                     ->label('الارباح')
                     ->money('EGP')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn ()=> auth()->user()->can('view_profits_category', Category::class)),
             ])
             ->filters([
                 Filter::make('report_filter')
@@ -97,6 +104,12 @@ class CategoriesReportResource extends Resource
     {
         return [
             CategoriesStatsOverview::class,
+        ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
         ];
     }
 }

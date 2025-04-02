@@ -90,6 +90,11 @@ class UserResource extends Resource
                             ->relationship('roles', 'name')
                             ->preload()
                             ->required(),
+                        Forms\Components\Select::make('areas')
+                            ->label('المناطق')
+                            ->multiple()
+                            ->relationship('areas', 'name')
+                            ->preload(),
                     ]),
             ]);
     }

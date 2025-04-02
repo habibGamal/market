@@ -9,6 +9,7 @@ use App\Filament\Widgets\ExpensesStatsOverview;
 use App\Models\ExpenseType;
 use App\Services\Reports\ExpenseReportService;
 use App\Traits\ReportsFilter;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkAction;
@@ -20,10 +21,9 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class ExpensesReportResource extends Resource
+class ExpensesReportResource extends Resource implements HasShieldPermissions
 {
     use ReportsFilter;
-
 
     protected static ?string $model = ExpenseType::class;
 
@@ -34,6 +34,11 @@ class ExpensesReportResource extends Resource
     protected static ?string $modelLabel = 'تقرير المصروفات';
 
     protected static ?string $pluralModelLabel = 'تقارير المصروفات';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_expenses_report_expense::type', ExpenseType::class);
+    }
 
     public static function form(Form $form): Form
     {
@@ -63,7 +68,7 @@ class ExpensesReportResource extends Resource
                     ->label('المصروفات غير المعتمدة')
                     ->money('EGP')
                     ->sortable(),
-            ])
+                            ])
             ->filters([
                 Filter::make('report_filter')
                     ->form(static::filtersForm())
@@ -95,6 +100,12 @@ class ExpensesReportResource extends Resource
         return [
             ExpensesStatsOverview::class,
             ExpensesChart::class,
+        ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
         ];
     }
 }

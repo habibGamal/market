@@ -15,7 +15,7 @@ class ExpenseTypePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_reports::expenses::report');
+        return $user->can('{{ ViewAny }}');
     }
 
     /**
@@ -23,7 +23,7 @@ class ExpenseTypePolicy
      */
     public function view(User $user, ExpenseType $expenseType): bool
     {
-        return $user->can('view_reports::expenses::report');
+        return $user->can('{{ View }}');
     }
 
     /**
@@ -31,7 +31,7 @@ class ExpenseTypePolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_reports::expenses::report');
+        return $user->can('{{ Create }}');
     }
 
     /**
@@ -39,7 +39,7 @@ class ExpenseTypePolicy
      */
     public function update(User $user, ExpenseType $expenseType): bool
     {
-        return $user->can('update_reports::expenses::report');
+        return $user->can('{{ Update }}');
     }
 
     /**
@@ -47,7 +47,7 @@ class ExpenseTypePolicy
      */
     public function delete(User $user, ExpenseType $expenseType): bool
     {
-        return $user->can('delete_reports::expenses::report');
+        return $user->can('{{ Delete }}');
     }
 
     /**
@@ -55,7 +55,7 @@ class ExpenseTypePolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_reports::expenses::report');
+        return $user->can('{{ DeleteAny }}');
     }
 
     /**
@@ -63,7 +63,7 @@ class ExpenseTypePolicy
      */
     public function forceDelete(User $user, ExpenseType $expenseType): bool
     {
-        return $user->can('force_delete_reports::expenses::report');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class ExpenseTypePolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_reports::expenses::report');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**

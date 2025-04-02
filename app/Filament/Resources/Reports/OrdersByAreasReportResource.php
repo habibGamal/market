@@ -8,6 +8,7 @@ use App\Filament\Widgets\OrdersByAreasStatsOverview;
 use App\Models\Area;
 use App\Services\Reports\OrdersByAreasReportService;
 use App\Traits\ReportsFilter;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\ExportAction;
@@ -17,7 +18,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class OrdersByAreasReportResource extends Resource
+class OrdersByAreasReportResource extends Resource implements HasShieldPermissions
 {
     use ReportsFilter;
 
@@ -31,9 +32,9 @@ class OrdersByAreasReportResource extends Resource
 
     protected static ?string $pluralModelLabel = 'تقارير الطلبات حسب المناطق';
 
-    public static function form(Form $form): Form
+    public static function canViewAny(): bool
     {
-        return $form->schema([]);
+        return auth()->user()->can('view_report_area', Area::class);
     }
 
     public static function table(Table $table): Table
@@ -54,7 +55,8 @@ class OrdersByAreasReportResource extends Resource
                 TextColumn::make('total_profit')
                     ->label('الأرباح')
                     ->money('EGP')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn ()=> auth()->user()->can('view_profits_area', Area::class)),
                 TextColumn::make('total_returns')
                     ->label('قيمة المرتجعات')
                     ->money('EGP')
@@ -98,6 +100,12 @@ class OrdersByAreasReportResource extends Resource
     {
         return [
             OrdersByAreasStatsOverview::class
+        ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
         ];
     }
 }

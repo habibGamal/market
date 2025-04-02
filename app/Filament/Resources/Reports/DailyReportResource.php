@@ -6,12 +6,13 @@ use App\Filament\Resources\Reports\DailyReportResource\Pages;
 use App\Filament\Resources\Reports\DailyReportResource\Widgets;
 use App\Models\ExpenseType;
 use App\Services\Reports\DailyReportService;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class DailyReportResource extends Resource
+class DailyReportResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = ExpenseType::class;
 
@@ -22,6 +23,11 @@ class DailyReportResource extends Resource
     protected static ?string $modelLabel = 'التقرير اليومي';
 
     protected static ?string $pluralModelLabel = 'التقرير اليومي';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_daily_report_expense::type', ExpenseType::class);
+    }
 
     public static function form(Form $form): Form
     {
@@ -41,6 +47,12 @@ class DailyReportResource extends Resource
     }
 
     public static function getWidgets(): array
+    {
+        return [
+        ];
+    }
+
+    public static function getPermissionPrefixes(): array
     {
         return [
         ];

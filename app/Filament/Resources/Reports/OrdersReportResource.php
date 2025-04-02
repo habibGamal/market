@@ -7,6 +7,7 @@ use App\Filament\Resources\OrderResource;
 use App\Filament\Resources\Reports\OrdersReportResource\Pages;
 use App\Models\Order;
 use App\Traits\ReportsFilter;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\ExportAction;
@@ -20,7 +21,7 @@ use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 
-class OrdersReportResource extends Resource
+class OrdersReportResource extends Resource implements HasShieldPermissions
 {
     use ReportsFilter;
 
@@ -37,6 +38,16 @@ class OrdersReportResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([]);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_report_order', Order::class);
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_report_order', Order::class);
     }
 
     public static function table(Table $table): Table
@@ -61,11 +72,13 @@ class OrdersReportResource extends Resource
                 TextColumn::make('profit')
                     ->label('الربح')
                     ->money('EGP')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn ()=> auth()->user()->can('view_profits_order', Order::class)),
                 TextColumn::make('net_profit')
                     ->label('صافي الربح')
                     ->money('EGP')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn ()=> auth()->user()->can('view_profits_order', Order::class)),
                 TextColumn::make('total')
                     ->label('المجموع')
                     ->money('EGP'),
@@ -191,6 +204,12 @@ class OrdersReportResource extends Resource
     }
 
     public static function getWidgets(): array
+    {
+        return [
+        ];
+    }
+
+    public static function getPermissionPrefixes(): array
     {
         return [
         ];

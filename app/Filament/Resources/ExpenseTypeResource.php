@@ -77,6 +77,8 @@ class ExpenseTypeResource extends Resource implements HasShieldPermissions
             'update',
             'delete',
             'delete_any',
+            'view_daily_report',
+            'view_expenses_report',
         ];
     }
 }
