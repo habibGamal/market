@@ -8,6 +8,7 @@ use App\Filament\Widgets\OrdersByCustomersStatsOverview;
 use App\Models\Customer;
 use App\Services\Reports\OrdersByCustomersReportService;
 use App\Traits\ReportsFilter;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\ExportAction;
@@ -18,7 +19,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class OrdersByCustomersReportResource extends Resource
+class OrdersByCustomersReportResource extends Resource implements HasShieldPermissions
 {
     use ReportsFilter;
 
@@ -31,6 +32,16 @@ class OrdersByCustomersReportResource extends Resource
     protected static ?string $modelLabel = 'تقرير العميل';
 
     protected static ?string $pluralModelLabel = 'تقارير الطلبات حسب العملاء';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_report_orders_customer', Customer::class);
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_report_orders_customer', Customer::class);
+    }
 
     public static function form(Form $form): Form
     {
@@ -59,7 +70,8 @@ class OrdersByCustomersReportResource extends Resource
                 TextColumn::make('total_profit')
                     ->label('صافي الأرباح')
                     ->money('EGP')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn() => auth()->user()->can('view_profits_customer', Customer::class)),
                 TextColumn::make('total_returns')
                     ->label('قيمة المرتجعات')
                     ->money('EGP')
@@ -110,5 +122,10 @@ class OrdersByCustomersReportResource extends Resource
         return [
             OrdersByCustomersStatsOverview::class
         ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [];
     }
 }

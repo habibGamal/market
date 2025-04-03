@@ -15,7 +15,7 @@ class OrderPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_reports::orders::report');
+        return $user->can('view_any_order');
     }
 
     /**
@@ -23,7 +23,7 @@ class OrderPolicy
      */
     public function view(User $user, Order $order): bool
     {
-        return $user->can('view_reports::orders::report');
+        return $user->can('view_order');
     }
 
     /**
@@ -31,7 +31,7 @@ class OrderPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_reports::orders::report');
+        return $user->can('create_order');
     }
 
     /**
@@ -39,7 +39,7 @@ class OrderPolicy
      */
     public function update(User $user, Order $order): bool
     {
-        return $user->can('update_reports::orders::report');
+        return $user->can('update_order');
     }
 
     /**
@@ -47,7 +47,7 @@ class OrderPolicy
      */
     public function delete(User $user, Order $order): bool
     {
-        return $user->can('delete_reports::orders::report');
+        return $user->can('delete_order');
     }
 
     /**
@@ -55,7 +55,7 @@ class OrderPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_reports::orders::report');
+        return $user->can('delete_any_order');
     }
 
     /**
@@ -63,7 +63,7 @@ class OrderPolicy
      */
     public function forceDelete(User $user, Order $order): bool
     {
-        return $user->can('force_delete_reports::orders::report');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class OrderPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_reports::orders::report');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**

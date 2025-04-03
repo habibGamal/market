@@ -6,6 +6,7 @@ use App\Filament\Resources\Reports\DriversReportResource\Pages;
 use App\Models\Driver;
 use App\Services\Reports\DriverReportService;
 use App\Traits\ReportsFilter;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\ExportAction;
@@ -15,7 +16,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class DriversReportResource extends Resource
+class DriversReportResource extends Resource implements HasShieldPermissions
 {
     use ReportsFilter;
 
@@ -28,6 +29,16 @@ class DriversReportResource extends Resource
     protected static ?string $modelLabel = 'تقرير مندوب التسليم';
 
     protected static ?string $pluralModelLabel = 'تقارير مندوبين التسليم';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_report_driver', Driver::class);
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_report_driver', Driver::class);
+    }
 
     public static function form(Form $form): Form
     {
@@ -81,5 +92,10 @@ class DriversReportResource extends Resource
             'index' => Pages\ListDriversReports::route('/'),
             'view' => Pages\ViewDriversReport::route('/{record}'),
         ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [];
     }
 }

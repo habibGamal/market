@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Reports;
 use App\Filament\Exports\CartItemsByCustomersReportExporter;
 use App\Filament\Resources\Reports\CartItemsByCustomersReportResource\Pages;
 use App\Models\Customer;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\Section;
@@ -14,7 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class CartItemsByCustomersReportResource extends Resource
+class CartItemsByCustomersReportResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Customer::class;
 
@@ -25,6 +26,16 @@ class CartItemsByCustomersReportResource extends Resource
     protected static ?string $modelLabel = 'تقرير سلة المشتريات حسب العملاء';
 
     protected static ?string $pluralModelLabel = 'تقارير سلة المشتريات حسب العملاء';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_report_cart_items_customer', Customer::class);
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_report_cart_items_customer', Customer::class);
+    }
 
     public static function form(Form $form): Form
     {
@@ -63,7 +74,7 @@ class CartItemsByCustomersReportResource extends Resource
                     ->label('مجموع السلة')
                     ->money('EGP')
                     ->sortable(),
-            ])
+                            ])
             ->filters([
                 Tables\Filters\SelectFilter::make('gov_id')
                     ->label('المحافظة')
@@ -127,5 +138,10 @@ class CartItemsByCustomersReportResource extends Resource
             'index' => Pages\ListCartItemsByCustomersReports::route('/'),
             'view' => Pages\ViewCartItemsByCustomersReport::route('/{record}'),
         ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [];
     }
 }

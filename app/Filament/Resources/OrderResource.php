@@ -50,11 +50,13 @@ class OrderResource extends Resource implements HasShieldPermissions
                             ->tooltip('إجمالي الطلب بعد خصم المرتجعات والخصومات'),
                         TextEntry::make('profit')
                             ->label('الربح')
-                            ->money('EGP'),
+                            ->money('EGP')
+                            ->visible(fn () => auth()->user()->can('view_profits_order')),
                         TextEntry::make('netProfit')
                             ->label('صافي الربح')
                             ->money('EGP')
-                            ->tooltip('صافي الربح بعد خصم المرتجعات والخصومات'),
+                            ->tooltip('صافي الربح بعد خصم المرتجعات والخصومات')
+                            ->visible(fn () => auth()->user()->can('view_profits_order')),
                         TextEntry::make('status')
                             ->label('حالة الطلب')
                             ->badge(),
