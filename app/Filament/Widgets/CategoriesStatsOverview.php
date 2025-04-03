@@ -97,7 +97,7 @@ class CategoriesStatsOverview extends BaseWidget
         }
 
         $trendData = $this->getCategoryTrend($data->category_id ?? null);
-        if(!auth()->user()->can('view_profits_brand', $data->brand_id)){
+        if(!auth()->user()->can('view_profits_brand')){
             $data->total_profit = null;
         }
         return Stat::make($title, $data->category_name)

@@ -6,6 +6,7 @@ use App\Filament\Exports\CartItemsByProductsReportExporter;
 use App\Filament\Resources\Reports\CartItemsByProductsReportResource\Pages;
 use App\Filament\Resources\Reports\CartItemsByProductsReportResource\RelationManagers\CartItemsRelationManager;
 use App\Models\Product;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
@@ -14,8 +15,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
-class CartItemsByProductsReportResource extends Resource
+class CartItemsByProductsReportResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Product::class;
 
@@ -26,6 +28,16 @@ class CartItemsByProductsReportResource extends Resource
     protected static ?string $modelLabel = 'تقرير سلة المشتريات حسب المنتجات';
 
     protected static ?string $pluralModelLabel = 'تقارير سلة المشتريات حسب المنتجات';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_cart_report_product');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('view_cart_report_product');
+    }
 
     public static function form(Form $form): Form
     {
@@ -120,10 +132,15 @@ class CartItemsByProductsReportResource extends Resource
         ];
     }
 
-    public function getRelationManagers(): array
+    public static function getRelations(): array
     {
         return [
             CartItemsRelationManager::class,
         ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [];
     }
 }

@@ -22,21 +22,26 @@ class OrderItemsExporter extends Exporter
                 ->label('عدد العبوات'),
             ExportColumn::make('packet_price')
                 ->label('سعر العبوة')
-                ->formatStateUsing(fn ($state) => number_format($state, 2) . ' EGP'),
+                ->formatStateUsing(fn($state) => number_format($state, 2) . ' EGP'),
             ExportColumn::make('piece_quantity')
                 ->label('عدد القطع'),
             ExportColumn::make('piece_price')
                 ->label('سعر القطعة')
-                ->formatStateUsing(fn ($state) => number_format($state, 2) . ' EGP'),
+                ->formatStateUsing(fn($state) => number_format($state, 2) . ' EGP'),
             ExportColumn::make('total')
                 ->label('الإجمالي')
-                ->formatStateUsing(fn ($state) => number_format($state, 2) . ' EGP'),
+                ->formatStateUsing(fn($state) => number_format($state, 2) . ' EGP'),
             ExportColumn::make('profit')
                 ->label('الربح')
-                ->formatStateUsing(fn ($state) => number_format($state, 2) . ' EGP'),
+                ->formatStateUsing(function ($state) {
+                    if (!auth()->user()->can('view_profits_product')) {
+                        return '***';
+                    }
+                    return number_format($state, 2) . ' EGP';
+                }),
             ExportColumn::make('order.status')
                 ->label('حالة الطلب')
-                ->state(fn (OrderItem $record): string => $record->order->status->getLabel()),
+                ->state(fn(OrderItem $record): string => $record->order->status->getLabel()),
             ExportColumn::make('order.customer.name')
                 ->label('اسم العميل'),
             ExportColumn::make('order.created_at')

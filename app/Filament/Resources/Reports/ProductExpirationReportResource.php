@@ -5,14 +5,16 @@ namespace App\Filament\Resources\Reports;
 use App\Filament\Resources\Reports\ProductExpirationReportResource\Pages;
 use App\Models\StockItem;
 use App\Services\Reports\ProductExpirationReportService;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Exports\ProductExpirationExporter;
+use Illuminate\Database\Eloquent\Model;
 
-class ProductExpirationReportResource extends Resource
+class ProductExpirationReportResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = StockItem::class;
 
@@ -27,6 +29,16 @@ class ProductExpirationReportResource extends Resource
     protected static ?string $pluralModelLabel = 'تقارير المنتجات قريبة الانتهاء';
 
     protected static ?int $navigationSort = 5;
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_product_expire_report_product');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('view_product_expire_report_product');
+    }
 
     public static function table(Table $table): Table
     {
@@ -104,5 +116,10 @@ class ProductExpirationReportResource extends Resource
         return [
             'index' => Pages\ListProductExpirationReport::route('/'),
         ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [];
     }
 }

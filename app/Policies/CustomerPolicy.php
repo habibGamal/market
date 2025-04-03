@@ -15,7 +15,7 @@ class CustomerPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_reports::orders::by::customers::report');
+        return $user->can('{{ ViewAny }}');
     }
 
     /**
@@ -23,7 +23,7 @@ class CustomerPolicy
      */
     public function view(User $user, Customer $customer): bool
     {
-        return $user->can('view_reports::orders::by::customers::report');
+        return $user->can('{{ View }}');
     }
 
     /**
@@ -31,7 +31,7 @@ class CustomerPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_reports::orders::by::customers::report');
+        return $user->can('{{ Create }}');
     }
 
     /**
@@ -39,7 +39,7 @@ class CustomerPolicy
      */
     public function update(User $user, Customer $customer): bool
     {
-        return $user->can('update_reports::orders::by::customers::report');
+        return $user->can('{{ Update }}');
     }
 
     /**
@@ -47,7 +47,7 @@ class CustomerPolicy
      */
     public function delete(User $user, Customer $customer): bool
     {
-        return $user->can('delete_reports::orders::by::customers::report');
+        return $user->can('{{ Delete }}');
     }
 
     /**
@@ -55,7 +55,7 @@ class CustomerPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_reports::orders::by::customers::report');
+        return $user->can('{{ DeleteAny }}');
     }
 
     /**
@@ -63,7 +63,7 @@ class CustomerPolicy
      */
     public function forceDelete(User $user, Customer $customer): bool
     {
-        return $user->can('force_delete_reports::orders::by::customers::report');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class CustomerPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_reports::orders::by::customers::report');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**

@@ -137,7 +137,9 @@ class ProductsStatsOverview extends BaseWidget
         }
 
         $trendData = $this->getProductTrend($data->product_id ?? null);
-
+        if(!auth()->user()->can('view_profits_product')){
+            $data->total_profit = null;
+        }
         return Stat::make($title, $data->product_name)
             ->description(
                 view('filament.pages.reports.badges', [

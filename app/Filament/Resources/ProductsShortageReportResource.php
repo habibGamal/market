@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Exports\ProductsShortageReportExporter;
 use App\Filament\Resources\ProductsShortageReportResource\Pages;
 use App\Models\Product;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -12,8 +13,9 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
-class ProductsShortageReportResource extends Resource
+class ProductsShortageReportResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Product::class;
     protected static ?string $navigationIcon = 'heroicon-o-exclamation-triangle';
@@ -24,6 +26,16 @@ class ProductsShortageReportResource extends Resource
     protected static ?string $pluralModelLabel = 'تقارير المنتجات تحت الحد الأدنى';
 
     protected static ?string $slug = 'products-shortage-reports';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_shortage_report_product');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('view_shortage_report_product');
+    }
 
     public static function table(Table $table): Table
     {
@@ -101,5 +113,10 @@ class ProductsShortageReportResource extends Resource
         return [
             'index' => Pages\ListProductsShortageReport::route('/'),
         ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [];
     }
 }

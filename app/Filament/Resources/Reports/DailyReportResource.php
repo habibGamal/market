@@ -36,7 +36,7 @@ class DailyReportResource extends Resource implements HasShieldPermissions
 
     public static function table(Table $table): Table
     {
-        return $table->paginated(false)->view('filament.resources.empty');
+        return $table->paginated(false);
     }
 
     public static function getPages(): array

@@ -10,6 +10,7 @@ use App\Filament\Widgets\WasteInvoiceStats;
 use App\Models\PurchaseInvoice;
 use App\Services\Reports\InvoiceReportService;
 use App\Traits\ReportsFilter;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
@@ -17,7 +18,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class InvoicesReportResource extends Resource
+class InvoicesReportResource extends Resource implements HasShieldPermissions
 {
     use ReportsFilter;
 
@@ -31,6 +32,11 @@ class InvoicesReportResource extends Resource
 
     protected static ?string $pluralModelLabel = 'تقارير الفواتير';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_reports_purchase::invoice');
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([]);
@@ -38,7 +44,7 @@ class InvoicesReportResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->paginated(false)->view('filament.resources.empty');
+        return $table->paginated(false);
     }
 
     public static function getRelations(): array
@@ -60,6 +66,12 @@ class InvoicesReportResource extends Resource
             ReturnPurchaseInvoiceStats::class,
             WasteInvoiceStats::class,
             InvoiceStatsChart::class,
+        ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
         ];
     }
 }

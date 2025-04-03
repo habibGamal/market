@@ -7,6 +7,7 @@ use App\Filament\Resources\Reports\StockStateReportResource\Pages;
 use App\Models\Product;
 use App\Services\Reports\StockStateReportService;
 use App\Filament\Widgets\StockStateStatsOverview;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconPosition;
@@ -15,8 +16,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
-class StockStateReportResource extends Resource
+class StockStateReportResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Product::class;
 
@@ -27,6 +29,16 @@ class StockStateReportResource extends Resource
     protected static ?string $modelLabel = 'تقرير حالة المخزون';
 
     protected static ?string $pluralModelLabel = 'تقارير حالة المخزون';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_stock_state_report_product');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('view_stock_state_report_product');
+    }
 
     public static function form(Form $form): Form
     {
@@ -131,5 +143,10 @@ class StockStateReportResource extends Resource
         return [
             'index' => Pages\ListStockStateReports::route('/'),
         ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [];
     }
 }

@@ -15,7 +15,7 @@ class ExpensePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_reports::revenue::report');
+        return $user->can('view_any_expense');
     }
 
     /**
@@ -23,7 +23,7 @@ class ExpensePolicy
      */
     public function view(User $user, Expense $expense): bool
     {
-        return $user->can('view_reports::revenue::report');
+        return $user->can('view_expense');
     }
 
     /**
@@ -31,7 +31,7 @@ class ExpensePolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_reports::revenue::report');
+        return $user->can('create_expense');
     }
 
     /**
@@ -39,7 +39,7 @@ class ExpensePolicy
      */
     public function update(User $user, Expense $expense): bool
     {
-        return $user->can('update_reports::revenue::report');
+        return $user->can('update_expense');
     }
 
     /**
@@ -47,7 +47,7 @@ class ExpensePolicy
      */
     public function delete(User $user, Expense $expense): bool
     {
-        return $user->can('delete_reports::revenue::report');
+        return $user->can('delete_expense');
     }
 
     /**
@@ -55,7 +55,7 @@ class ExpensePolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_reports::revenue::report');
+        return $user->can('delete_any_expense');
     }
 
     /**
@@ -63,7 +63,7 @@ class ExpensePolicy
      */
     public function forceDelete(User $user, Expense $expense): bool
     {
-        return $user->can('force_delete_reports::revenue::report');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class ExpensePolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_reports::revenue::report');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**

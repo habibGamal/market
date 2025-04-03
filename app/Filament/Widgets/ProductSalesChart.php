@@ -27,24 +27,28 @@ class ProductSalesChart extends ChartWidget
         $start = $this->start ?? now()->startOfMonth()->format('Y-m-d');
         $end = $this->end ?? now()->format('Y-m-d H:i:s');
         $data = app(ProductReportService::class)->getProductSalesChartData($this->record, $start, $end);
-
-        return [
-            'datasets' => [
-                [
-                    'label' => 'كمية المبيعات',
-                    'data' => $data['quantities'],
-                ],
-                [
-                    'label' => 'قيمة المبيعات',
-                    'data' => $data['values'],
-                    'borderColor' => '#00441b',
-                ],
-                [
-                    'label' => 'ارباح المبيعات',
-                    'data' => $data['profits'],
-                    'borderColor' => '#74c476',
-                ],
+        $datasets = [
+            [
+                'label' => 'كمية المبيعات',
+                'data' => $data['quantities'],
             ],
+            [
+                'label' => 'قيمة المبيعات',
+                'data' => $data['values'],
+                'borderColor' => '#00441b',
+            ],
+        ];
+
+        // Check if user has permission to view profits
+        if (auth()->user()->can('view_profits_product')) {
+            $datasets[] = [
+                'label' => 'ارباح المبيعات',
+                'data' => $data['profits'],
+                'borderColor' => '#74c476',
+            ];
+        }
+        return [
+            'datasets' => $datasets,
             'labels' => $data['labels'],
         ];
     }

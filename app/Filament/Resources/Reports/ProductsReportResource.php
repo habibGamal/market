@@ -14,6 +14,7 @@ use App\Filament\Widgets\ProductsStatsOverview;
 use App\Models\Product;
 use App\Services\Reports\ProductReportService;
 use App\Traits\ReportsFilter;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\Section;
@@ -28,8 +29,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
-class ProductsReportResource extends Resource
+class ProductsReportResource extends Resource implements HasShieldPermissions
 {
     use ReportsFilter;
 
@@ -42,6 +44,16 @@ class ProductsReportResource extends Resource
     protected static ?string $modelLabel = 'تقرير المنتج';
 
     protected static ?string $pluralModelLabel = 'تقارير المنتجات';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_product_report_product');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('view_product_report_product');
+    }
 
     public static function form(Form $form): Form
     {
@@ -91,7 +103,8 @@ class ProductsReportResource extends Resource
                 TextColumn::make('order_items_sum_profit')
                     ->label('ارباح المنتج')
                     ->money('EGP')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn () => auth()->user()->can('view_profits_product')),
             ])
             ->filters([
                 SelectFilter::make('brand')
@@ -188,5 +201,10 @@ class ProductsReportResource extends Resource
             'index' => Pages\ListProductsReports::route('/'),
             'view' => Pages\ViewProductsReport::route('/{record}'),
         ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [];
     }
 }

@@ -8,13 +8,14 @@ use App\Filament\Widgets\RevenueChart;
 use App\Models\Expense;
 use App\Services\Reports\RevenueReportService;
 use App\Traits\ReportsFilter;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class RevenueReportResource extends Resource
+class RevenueReportResource extends Resource implements HasShieldPermissions
 {
     use ReportsFilter;
 
@@ -28,6 +29,11 @@ class RevenueReportResource extends Resource
 
     protected static ?string $pluralModelLabel = 'تقارير الإيرادات والأرباح';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_revenue_reports_expense');
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([]);
@@ -37,9 +43,7 @@ class RevenueReportResource extends Resource
     {
         // This report doesn't use a traditional table view
         // We'll display widgets instead
-        return $table->paginated(false)
-        // ->view('filament.resources.empty')
-        ;
+        return $table->paginated(false);
     }
 
     public static function getRelations(): array
@@ -59,6 +63,13 @@ class RevenueReportResource extends Resource
         return [
             RevenueStatsOverview::class,
             RevenueChart::class,
+        ];
+    }
+
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
         ];
     }
 }

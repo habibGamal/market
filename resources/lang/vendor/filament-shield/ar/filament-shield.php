@@ -79,5 +79,12 @@ return [
         'show_costs' => 'عرض التكاليف',
         'view_report' => 'عرض التقارير',
         'view_profits' => 'عرض الأرباح',
+        'view_revenue_reports' => 'عرض تقارير الارباح والخسارة',
+        'view_product_report' => 'عرض تقرير المنتجات',
+        'view_stock_state_report' => 'عرض تقرير حالة المخزون',
+        'view_cart_report' => 'عرض تقرير السلة',
+        'view_shortage_report' => 'عرض تقرير النواقص',
+        'view_product_expire_report' => 'عرض تقرير انتهاء صلاحية المنتجات',
+        'view_stock_levels' => 'عرض مستويات المخزون',
     ],
 ];

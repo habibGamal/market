@@ -15,7 +15,7 @@ class StockItemPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_reports::product::expiration::report');
+        return $user->can('{{ ViewAny }}');
     }
 
     /**
@@ -23,7 +23,7 @@ class StockItemPolicy
      */
     public function view(User $user, StockItem $stockItem): bool
     {
-        return $user->can('view_reports::product::expiration::report');
+        return $user->can('{{ View }}');
     }
 
     /**
@@ -31,7 +31,7 @@ class StockItemPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_reports::product::expiration::report');
+        return $user->can('{{ Create }}');
     }
 
     /**
@@ -39,7 +39,7 @@ class StockItemPolicy
      */
     public function update(User $user, StockItem $stockItem): bool
     {
-        return $user->can('update_reports::product::expiration::report');
+        return $user->can('{{ Update }}');
     }
 
     /**
@@ -47,7 +47,7 @@ class StockItemPolicy
      */
     public function delete(User $user, StockItem $stockItem): bool
     {
-        return $user->can('delete_reports::product::expiration::report');
+        return $user->can('{{ Delete }}');
     }
 
     /**
@@ -55,7 +55,7 @@ class StockItemPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_reports::product::expiration::report');
+        return $user->can('{{ DeleteAny }}');
     }
 
     /**
@@ -63,7 +63,7 @@ class StockItemPolicy
      */
     public function forceDelete(User $user, StockItem $stockItem): bool
     {
-        return $user->can('force_delete_reports::product::expiration::report');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class StockItemPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_reports::product::expiration::report');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**

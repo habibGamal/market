@@ -15,7 +15,7 @@ class OrderPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_order');
+        return $user->can('{{ ViewAny }}');
     }
 
     /**
@@ -23,7 +23,7 @@ class OrderPolicy
      */
     public function view(User $user, Order $order): bool
     {
-        return $user->can('view_order');
+        return $user->can('{{ View }}');
     }
 
     /**
@@ -31,7 +31,7 @@ class OrderPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_order');
+        return $user->can('{{ Create }}');
     }
 
     /**
@@ -39,7 +39,7 @@ class OrderPolicy
      */
     public function update(User $user, Order $order): bool
     {
-        return $user->can('update_order');
+        return $user->can('{{ Update }}');
     }
 
     /**
@@ -47,7 +47,7 @@ class OrderPolicy
      */
     public function delete(User $user, Order $order): bool
     {
-        return $user->can('delete_order');
+        return $user->can('{{ Delete }}');
     }
 
     /**
@@ -55,7 +55,7 @@ class OrderPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_order');
+        return $user->can('{{ DeleteAny }}');
     }
 
     /**

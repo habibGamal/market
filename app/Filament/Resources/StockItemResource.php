@@ -7,6 +7,7 @@ use App\Filament\Resources\StockItemResource\Pages;
 use App\Filament\Resources\StockItemResource\RelationManagers;
 use App\Models\Product;
 use App\Models\StockItem;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\Section;
@@ -16,8 +17,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
-class StockItemResource extends Resource
+class StockItemResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Product::class;
 
@@ -38,6 +40,16 @@ class StockItemResource extends Resource
     public static function canEdit($record): bool
     {
         return false;
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_stock_levels_product');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('view_stock_levels_product');
     }
 
     public static function form(Form $form): Form
@@ -161,5 +173,10 @@ class StockItemResource extends Resource
             'view' => Pages\ViewStockItem::route('/{record}'),
             // 'edit' => Pages\EditStockItem::route('/{record}/edit'),
         ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [];
     }
 }

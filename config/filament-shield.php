@@ -1,5 +1,7 @@
 <?php
 
+use App\Filament\Resources\Reports;
+
 return [
     'shield_resource' => [
         'should_register_navigation' => true,
@@ -72,10 +74,44 @@ return [
         ],
 
         'widgets' => [
-            'AccountWidget', 'FilamentInfoWidget',
+            'AccountWidget',
+            'FilamentInfoWidget',
         ],
 
-        'resources' => [],
+        'resources' => [
+            // 'BrandsReportResource',
+            // 'CartItemsByCustomersReportResource',
+            // 'CartItemsByProductsReportResource',
+            // 'CategoriesReportResource',
+            // 'DailyReportResource',
+            // 'DriversReportResource',
+            // 'ExpensesReportResource',
+            // 'InvoicesReportResource',
+            // 'OrdersByAreasReportResource',
+            // 'OrdersByCustomersReportResource',
+            // 'OrdersReportResource',
+            // 'ProductExpirationReportResource',
+            // 'ProductsReportResource',
+            // 'RevenueReportResource',
+            // 'StockStateReportResource',
+            // 'BrandsReportResource',
+            // 'CartItemsByCustomersReportResource',
+            // 'CartItemsByProductsReportResource',
+            // 'CategoriesReportResource',
+            // 'DailyReportResource',
+            // 'DriversReportResource',
+            // 'ExpensesReportResource',
+            // 'InvoicesReportResource',
+            // 'OrdersByAreasReportResource',
+            // 'OrdersByCustomersReportResource',
+            // 'OrdersReportResource',
+            // 'ProductExpirationReportResource',
+            // 'ProductsReportResource',
+            // 'RevenueReportResource',
+            // 'StockStateReportResource',
+            // 'ProductsShortageReportResource',
+            // 'StockItemResource'
+        ],
     ],
 
     'discovery' => [
@@ -89,3 +125,4 @@ return [
     ],
 
 ];
+

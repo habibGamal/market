@@ -15,7 +15,7 @@ class DriverPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_reports::drivers::report');
+        return $user->can('{{ ViewAny }}');
     }
 
     /**
@@ -23,7 +23,7 @@ class DriverPolicy
      */
     public function view(User $user, Driver $driver): bool
     {
-        return $user->can('view_reports::drivers::report');
+        return $user->can('{{ View }}');
     }
 
     /**
@@ -31,7 +31,7 @@ class DriverPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_reports::drivers::report');
+        return $user->can('{{ Create }}');
     }
 
     /**
@@ -39,7 +39,7 @@ class DriverPolicy
      */
     public function update(User $user, Driver $driver): bool
     {
-        return $user->can('update_reports::drivers::report');
+        return $user->can('{{ Update }}');
     }
 
     /**
@@ -47,7 +47,7 @@ class DriverPolicy
      */
     public function delete(User $user, Driver $driver): bool
     {
-        return $user->can('delete_reports::drivers::report');
+        return $user->can('{{ Delete }}');
     }
 
     /**
@@ -55,7 +55,7 @@ class DriverPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_reports::drivers::report');
+        return $user->can('{{ DeleteAny }}');
     }
 
     /**
@@ -63,7 +63,7 @@ class DriverPolicy
      */
     public function forceDelete(User $user, Driver $driver): bool
     {
-        return $user->can('force_delete_reports::drivers::report');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class DriverPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_reports::drivers::report');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**

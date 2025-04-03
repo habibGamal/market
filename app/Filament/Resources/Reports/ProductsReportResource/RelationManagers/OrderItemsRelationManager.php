@@ -58,7 +58,8 @@ class OrderItemsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('profit')
                     ->label('الربح')
                     ->money('EGP')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn() => auth()->user()->can('view_profits_product')),
                 Tables\Columns\TextColumn::make('order.status')
                     ->label('حالة الطلب')
                     ->badge()

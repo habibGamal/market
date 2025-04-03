@@ -9,6 +9,7 @@ use App\Filament\Resources\PurchaseInvoiceResource\RelationManagers\ItemsRelatio
 use App\Models\Product;
 use App\Models\PurchaseInvoice;
 use App\Models\Supplier;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Section;
@@ -22,7 +23,7 @@ use Awcodes\TableRepeater\Components\TableRepeater;
 use Awcodes\TableRepeater\Header;
 
 
-class PurchaseInvoiceResource extends InvoiceResource
+class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermissions
 {
     protected static ?string $model = PurchaseInvoice::class;
 
@@ -300,6 +301,20 @@ class PurchaseInvoiceResource extends InvoiceResource
             'create' => Pages\CreatePurchaseInvoice::route('/create'),
             'edit' => Pages\EditPurchaseInvoice::route('/{record}/edit'),
             'view' => Pages\ViewPurchaseInvoice::route('/{record}'),
+        ];
+    }
+
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'view_reports',
         ];
     }
 }
