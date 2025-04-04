@@ -63,7 +63,7 @@ class PurchaseInvoicePolicy
      */
     public function forceDelete(User $user, PurchaseInvoice $purchaseInvoice): bool
     {
-        return $user->can('force_delete_purchase::invoice');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class PurchaseInvoicePolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_purchase::invoice');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**

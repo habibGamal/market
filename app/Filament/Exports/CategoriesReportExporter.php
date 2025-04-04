@@ -25,7 +25,13 @@ class CategoriesReportExporter extends Exporter
                 ->formatStateUsing(fn ($state) => $state ? number_format($state, 2) . ' EGP' : '0.00 EGP'),
             ExportColumn::make('order_items_sum_profit')
                 ->label('الارباح')
-                ->formatStateUsing(fn ($state) => $state ? number_format($state, 2) . ' EGP' : '0.00 EGP'),
+                ->formatStateUsing(function ($state) {
+                    if (!auth()->user()->can('view_profits_category')) {
+                        return '*** EGP';
+                    }
+
+                    return $state ? number_format($state, 2) . ' EGP' : '0.00 EGP';
+                }),
         ];
     }
 

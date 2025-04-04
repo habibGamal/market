@@ -5,13 +5,14 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BusinessTypeResource\Pages;
 use App\Filament\Resources\BusinessTypeResource\RelationManagers\CategoriesRelationManager;
 use App\Models\BusinessType;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class BusinessTypeResource extends Resource
+class BusinessTypeResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = BusinessType::class;
 
@@ -105,6 +106,21 @@ class BusinessTypeResource extends Resource
             'index' => Pages\ListBusinessTypes::route('/'),
             'create' => Pages\CreateBusinessType::route('/create'),
             'edit' => Pages\EditBusinessType::route('/{record}/edit'),
+        ];
+    }
+
+
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'edit_menus',
         ];
     }
 }

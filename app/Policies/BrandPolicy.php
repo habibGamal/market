@@ -15,7 +15,7 @@ class BrandPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('{{ ViewAny }}');
+        return $user->can('view_any_brand');
     }
 
     /**
@@ -23,7 +23,7 @@ class BrandPolicy
      */
     public function view(User $user, Brand $brand): bool
     {
-        return $user->can('{{ View }}');
+        return $user->can('view_brand');
     }
 
     /**
@@ -31,7 +31,7 @@ class BrandPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('{{ Create }}');
+        return $user->can('create_brand');
     }
 
     /**
@@ -39,7 +39,7 @@ class BrandPolicy
      */
     public function update(User $user, Brand $brand): bool
     {
-        return $user->can('{{ Update }}');
+        return $user->can('update_brand');
     }
 
     /**
@@ -47,7 +47,7 @@ class BrandPolicy
      */
     public function delete(User $user, Brand $brand): bool
     {
-        return $user->can('{{ Delete }}');
+        return $user->can('delete_brand');
     }
 
     /**
@@ -55,7 +55,7 @@ class BrandPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('{{ DeleteAny }}');
+        return $user->can('delete_any_brand');
     }
 
     /**

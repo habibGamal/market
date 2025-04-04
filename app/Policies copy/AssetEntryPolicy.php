@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Order;
+use App\Models\AssetEntry;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class OrderPolicy
+class AssetEntryPolicy
 {
     use HandlesAuthorization;
 
@@ -15,15 +15,15 @@ class OrderPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_order');
+        return $user->can('view_any_asset::entry');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Order $order): bool
+    public function view(User $user, AssetEntry $assetEntry): bool
     {
-        return $user->can('view_order');
+        return $user->can('view_asset::entry');
     }
 
     /**
@@ -31,23 +31,23 @@ class OrderPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_order');
+        return $user->can('create_asset::entry');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Order $order): bool
+    public function update(User $user, AssetEntry $assetEntry): bool
     {
-        return $user->can('update_order');
+        return $user->can('update_asset::entry');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Order $order): bool
+    public function delete(User $user, AssetEntry $assetEntry): bool
     {
-        return $user->can('delete_order');
+        return $user->can('delete_asset::entry');
     }
 
     /**
@@ -55,13 +55,13 @@ class OrderPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_order');
+        return $user->can('delete_any_asset::entry');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, Order $order): bool
+    public function forceDelete(User $user, AssetEntry $assetEntry): bool
     {
         return $user->can('{{ ForceDelete }}');
     }
@@ -77,7 +77,7 @@ class OrderPolicy
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, Order $order): bool
+    public function restore(User $user, AssetEntry $assetEntry): bool
     {
         return $user->can('{{ Restore }}');
     }
@@ -93,7 +93,7 @@ class OrderPolicy
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, Order $order): bool
+    public function replicate(User $user, AssetEntry $assetEntry): bool
     {
         return $user->can('{{ Replicate }}');
     }

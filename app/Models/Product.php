@@ -19,6 +19,7 @@ class Product extends Model
         'name',
         'image',
         'barcode',
+        'description',
         'packet_cost',
         'packet_price',
         'piece_price',

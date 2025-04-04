@@ -7,6 +7,7 @@ use App\Jobs\ImportCsv;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use Filament\Tables\Columns\Column;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\HtmlString;
@@ -16,6 +17,7 @@ use Filament\Support\Facades\FilamentColor;
 use Filament\Actions\Exports\Jobs\ExportCsv as BaseExportCsv;
 use Filament\Actions\Imports\Jobs\ImportCsv as BaseImportCsv;
 use Illuminate\Support\Str;
+use Filament\Infolists\Components\TextEntry;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -48,6 +50,15 @@ class AppServiceProvider extends ServiceProvider
             return $this->formatStateUsing(function (Column $column, $state) {
                 return new HtmlString('<span class="font-medium">' . $column->getLabel() . '</span>: ' . $state);
             });
+        });
+
+
+        TextColumn::configureUsing(function (TextColumn $textColumn): void {
+            $textColumn->timezone('Africa/Cairo');
+        });
+
+        TextEntry::configureUsing(function (TextEntry $textEntry): void {
+            $textEntry->timezone('Africa/Cairo');
         });
 
         // FilamentShield::configurePermissionIdentifierUsing(

@@ -55,10 +55,16 @@ class Waste extends Model
         return $this->status === InvoiceStatus::CLOSED;
     }
 
+    public function getDeletableAttribute()
+    {
+        return $this->issue_note_id === null;
+    }
+
     public function getRawStatusAttribute()
     {
         return $this->status->value;
     }
+
 
     public function printTemplate()
     {

@@ -63,7 +63,7 @@ class AreaPolicy
      */
     public function forceDelete(User $user, Area $area): bool
     {
-        return $user->can('force_delete_area');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class AreaPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_area');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**

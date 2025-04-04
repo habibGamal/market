@@ -86,5 +86,6 @@ return [
         'view_shortage_report' => 'عرض تقرير النواقص',
         'view_product_expire_report' => 'عرض تقرير انتهاء صلاحية المنتجات',
         'view_stock_levels' => 'عرض مستويات المخزون',
+        'edit_menus' => 'تعديل القوائم',
     ],
 ];

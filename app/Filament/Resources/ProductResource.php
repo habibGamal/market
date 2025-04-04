@@ -54,6 +54,10 @@ class ProductResource extends Resource implements HasShieldPermissions
                                 Forms\Components\TextInput::make('name')
                                     ->label('الاسم')
                                     ->required(),
+                                Forms\Components\Textarea::make('description')
+                                    ->label('الوصف')
+                                    ->rows(3)
+                                    ->columnSpanFull(),
                                 Forms\Components\TextInput::make('barcode')
                                     ->label('الباركود')
                                     ->required()

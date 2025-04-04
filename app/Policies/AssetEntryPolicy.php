@@ -39,7 +39,7 @@ class AssetEntryPolicy
      */
     public function update(User $user, AssetEntry $assetEntry): bool
     {
-        return $user->can('update_asset::entry');
+        return false;
     }
 
     /**
@@ -47,6 +47,12 @@ class AssetEntryPolicy
      */
     public function delete(User $user, AssetEntry $assetEntry): bool
     {
+        $createdToday = $assetEntry->created_at->isToday();
+        // User cannot delete if the record wasn't created today, regardless of permissions
+        if (!$createdToday) {
+            return false;
+        }
+
         return $user->can('delete_asset::entry');
     }
 

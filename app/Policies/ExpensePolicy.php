@@ -39,7 +39,7 @@ class ExpensePolicy
      */
     public function update(User $user, Expense $expense): bool
     {
-        return $user->can('update_expense');
+        return false;
     }
 
     /**
@@ -47,6 +47,12 @@ class ExpensePolicy
      */
     public function delete(User $user, Expense $expense): bool
     {
+        $createdToday = $expense->created_at->isToday();
+        // User cannot delete if the record wasn't created today, regardless of permissions
+        if (!$createdToday) {
+            return false;
+        }
+
         return $user->can('delete_expense');
     }
 

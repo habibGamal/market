@@ -84,3 +84,43 @@ if (!function_exists('notifyCustomerWithReturnOrderStatus')) {
         );
     }
 }
+
+if (!function_exists('fetchAndSaveImageFromUrl')) {
+    /**
+     * Fetch image from URL and save it to storage
+     *
+     * @param string $imageUrl The URL of the image to fetch
+     * @param string $identifier A unique identifier for the image (barcode or other)
+     * @param string $directory The directory to save the image in
+     * @return string|null The path where the image was saved or null if failed
+     */
+    function fetchAndSaveImageFromUrl(string $imageUrl, string $identifier, string $directory = 'products'): ?string
+    {
+        if (empty($imageUrl) || !str_starts_with($imageUrl, 'https')) {
+            return null;
+        }
+
+        try {
+            $filename = \Illuminate\Support\Str::slug($identifier ?? time()) . '-' . time() . '.jpg';
+            $savePath = $directory . '/' . $filename;
+
+            $response = \Illuminate\Support\Facades\Http::timeout(10)
+                ->withHeaders([
+                    'User-Agent' => 'PostmanRuntime/7.43.0',
+                    'Accept' => '*/*',
+                    'Accept-Encoding' => 'gzip, deflate, br',
+                    'Accept-Language' => 'en-US,en;q=0.9,ar-EG;q=0.8,ar;q=0.7'
+                ])
+                ->get($imageUrl);
+
+            if ($response->successful()) {
+                \Illuminate\Support\Facades\Storage::disk('public')->put($savePath, $response->body());
+                return $savePath;
+            }
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        return null;
+    }
+}

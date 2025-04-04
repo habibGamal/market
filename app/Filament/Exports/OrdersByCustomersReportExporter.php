@@ -24,7 +24,14 @@ class OrdersByCustomersReportExporter extends Exporter
             ExportColumn::make('total_sales')
                 ->label('قيمة المبيعات'),
             ExportColumn::make('total_profit')
-                ->label('صافي الأرباح'),
+                ->label('صافي الأرباح')
+                ->formatStateUsing(function ($state) {
+                    if (!auth()->user()->can('view_profits_customer')) {
+                        return '*** EGP';
+                    }
+
+                    return number_format($state, 2) . ' EGP';
+                }),
             ExportColumn::make('total_returns')
                 ->label('قيمة المرتجعات'),
             ExportColumn::make('total_cancelled')

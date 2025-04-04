@@ -39,7 +39,7 @@ class AccountantReceiptNotePolicy
      */
     public function update(User $user, AccountantReceiptNote $accountantReceiptNote): bool
     {
-        return $user->can('update_accountant::receipt::note');
+        return false;
     }
 
     /**
@@ -47,6 +47,12 @@ class AccountantReceiptNotePolicy
      */
     public function delete(User $user, AccountantReceiptNote $accountantReceiptNote): bool
     {
+        $createdToday = $accountantReceiptNote->created_at->isToday();
+        // User cannot delete if the note wasn't created today, regardless of permissions
+        if (!$createdToday) {
+            return false;
+        }
+
         return $user->can('delete_accountant::receipt::note');
     }
 

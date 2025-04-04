@@ -39,7 +39,13 @@ class ProductsReportExporter extends Exporter
                 ->formatStateUsing(fn ($state) => number_format($state, 2) . ' EGP'),
             ExportColumn::make('order_items_sum_profit')
                 ->label('ارباح المنتج')
-                ->formatStateUsing(fn ($state) => number_format($state, 2) . ' EGP'),
+                ->formatStateUsing(function ($state) {
+                    if (!auth()->user()->can('view_profits_product')) {
+                        return '*** EGP';
+                    }
+
+                    return number_format($state, 2) . ' EGP';
+                }),
             ExportColumn::make('packet_cost')
                 ->label('تكلفة العبوة')
                 ->formatStateUsing(fn ($state) => number_format($state, 2) . ' EGP'),

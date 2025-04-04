@@ -16,6 +16,8 @@ class BrandExporter extends Exporter
         return [
             ExportColumn::make('name')
                 ->label('الاسم'),
+            ExportColumn::make('image')
+                ->label('الصورة'),
             ExportColumn::make('created_at')
                 ->label('تاريخ الإنشاء'),
             ExportColumn::make('updated_at')

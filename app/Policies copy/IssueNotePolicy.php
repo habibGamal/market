@@ -51,14 +51,6 @@ class IssueNotePolicy
     }
 
     /**
-     * Determine whether the user can show costs.
-     */
-    public function showCosts(User $user, ReceiptNote $receiptNote): bool
-    {
-        return $user->can('show_costs_receipt::note');
-    }
-
-    /**
      * Determine whether the user can bulk delete.
      */
     public function deleteAny(User $user): bool

@@ -39,7 +39,7 @@ class ReturnPurchaseInvoicePolicy
      */
     public function update(User $user, ReturnPurchaseInvoice $returnPurchaseInvoice): bool
     {
-        return $user->can('update_return::purchase::invoice');
+        return $user->can('update_return::purchase::invoice') && !$returnPurchaseInvoice->closed;
     }
 
     /**
@@ -47,7 +47,7 @@ class ReturnPurchaseInvoicePolicy
      */
     public function delete(User $user, ReturnPurchaseInvoice $returnPurchaseInvoice): bool
     {
-        return $user->can('delete_return::purchase::invoice');
+        return $user->can('delete_return::purchase::invoice') && $returnPurchaseInvoice->deletable;
     }
 
     /**

@@ -17,6 +17,7 @@ class ProductExporter extends Exporter
             ExportColumn::make('id')->label('معرف المنتج'),
             ExportColumn::make('name')->label('اسم المنتج'),
             ExportColumn::make('barcode')->label('الباركود'),
+            ExportColumn::make('description')->label('الوصف'),
             ExportColumn::make('image')->label('الصورة'),
             ExportColumn::make('is_active')->label('نشط'),
             ExportColumn::make('can_sell_pieces')->label('بيع بالقطعة'),

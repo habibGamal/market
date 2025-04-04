@@ -23,9 +23,21 @@ class OrdersReportExporter extends Exporter
             ExportColumn::make('driver.name')
                 ->label('مندوب التسليم'),
             ExportColumn::make('profit')
-                ->label('الربح'),
+                ->label('الربح')
+                ->formatStateUsing(function ($state) {
+                    if (!auth()->user()->can('view_profits_order', Order::class)) {
+                        return '*** EGP';
+                    }
+                    return number_format($state, 2) . ' EGP';
+                }),
             ExportColumn::make('net_profit')
-                ->label('صافي الربح'),
+                ->label('صافي الربح')
+                ->formatStateUsing(function ($state) {
+                    if (!auth()->user()->can('view_profits_order', Order::class)) {
+                        return '*** EGP';
+                    }
+                    return number_format($state, 2) . ' EGP';
+                }),
             ExportColumn::make('total')
                 ->label('المجموع'),
             ExportColumn::make('status')

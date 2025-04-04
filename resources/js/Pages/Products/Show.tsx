@@ -20,6 +20,7 @@ interface ShowProps {
         };
         barcode: string;
         packet_to_piece: number;
+        description?: string;
     };
 }
 
@@ -76,6 +77,13 @@ export default function Show({ product }: ShowProps) {
                         <h1 className="text-3xl font-bold text-secondary-900">
                             {product.name}
                         </h1>
+
+                        {/* Product Description */}
+                        {product.description && (
+                            <div className="text-secondary-700 text-sm border-r-2 border-primary-500 pr-4 py-1">
+                                {product.description}
+                            </div>
+                        )}
 
                         <div className="space-y-2">
                             <div className="text-sm text-secondary-600">

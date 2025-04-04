@@ -23,7 +23,14 @@ class OrdersByAreasReportExporter extends Exporter
             ExportColumn::make('total_sales')
                 ->label('قيمة المبيعات'),
             ExportColumn::make('total_profit')
-                ->label('الأرباح'),
+                ->label('الأرباح')
+                ->formatStateUsing(function ($state) {
+                    if (!auth()->user()->can('view_profits_area', Area::class)) {
+                        return '*** EGP';
+                    }
+
+                    return $state ? number_format($state, 2) . ' EGP' : '0.00 EGP';
+                }),
             ExportColumn::make('total_returns')
                 ->label('قيمة المرتجعات'),
             ExportColumn::make('total_cancelled')

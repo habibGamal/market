@@ -39,7 +39,7 @@ class AccountantIssueNotePolicy
      */
     public function update(User $user, AccountantIssueNote $accountantIssueNote): bool
     {
-        return $user->can('update_accountant::issue::note');
+        return false;
     }
 
     /**
@@ -47,6 +47,12 @@ class AccountantIssueNotePolicy
      */
     public function delete(User $user, AccountantIssueNote $accountantIssueNote): bool
     {
+        $createdToday = $accountantIssueNote->created_at->isToday();
+        // User cannot delete if the note wasn't created today, regardless of permissions
+        if (!$createdToday) {
+            return false;
+        }
+
         return $user->can('delete_accountant::issue::note');
     }
 

@@ -26,6 +26,17 @@ class ReceiptNotePolicy
         return $user->can('view_receipt::note');
     }
 
+    /**
+     * Determine whether the user can create models.
+     */
+    public function create(User $user): bool
+    {
+        return $user->can('create_receipt::note');
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
     public function update(User $user, ReceiptNote $receiptNote): bool
     {
         return $user->can('update_receipt::note') && !$receiptNote->closed;
@@ -37,14 +48,6 @@ class ReceiptNotePolicy
     public function delete(User $user, ReceiptNote $receiptNote): bool
     {
         return $user->can('delete_receipt::note') && !$receiptNote->closed;
-    }
-
-    /**
-     * Determine whether the user can show costs.
-     */
-    public function showCosts(User $user, ReceiptNote $receiptNote): bool
-    {
-        return $user->can('show_costs_receipt::note');
     }
 
     /**

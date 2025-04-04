@@ -28,6 +28,16 @@ class MenuResource extends Resource
 
     protected static ?int $navigationSort = 5;
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('edit_menus_business::type');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('edit_menus_business::type');
+    }
+
     public static function form(Form $form): Form
     {
         return $form

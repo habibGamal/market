@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Order;
+use App\Models\Offer;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class OrderPolicy
+class OfferPolicy
 {
     use HandlesAuthorization;
 
@@ -15,15 +15,15 @@ class OrderPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_order');
+        return $user->can('view_any_offer');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Order $order): bool
+    public function view(User $user, Offer $offer): bool
     {
-        return $user->can('view_order');
+        return $user->can('view_offer');
     }
 
     /**
@@ -31,23 +31,23 @@ class OrderPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_order');
+        return $user->can('create_offer');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Order $order): bool
+    public function update(User $user, Offer $offer): bool
     {
-        return $user->can('update_order');
+        return $user->can('update_offer');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Order $order): bool
+    public function delete(User $user, Offer $offer): bool
     {
-        return $user->can('delete_order');
+        return $user->can('delete_offer');
     }
 
     /**
@@ -55,15 +55,15 @@ class OrderPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_order');
+        return $user->can('delete_any_offer');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, Order $order): bool
+    public function forceDelete(User $user, Offer $offer): bool
     {
-        return $user->can('{{ ForceDelete }}');
+        return $user->can('force_delete_offer');
     }
 
     /**
@@ -71,13 +71,13 @@ class OrderPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('{{ ForceDeleteAny }}');
+        return $user->can('force_delete_any_offer');
     }
 
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, Order $order): bool
+    public function restore(User $user, Offer $offer): bool
     {
         return $user->can('{{ Restore }}');
     }
@@ -93,7 +93,7 @@ class OrderPolicy
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, Order $order): bool
+    public function replicate(User $user, Offer $offer): bool
     {
         return $user->can('{{ Replicate }}');
     }

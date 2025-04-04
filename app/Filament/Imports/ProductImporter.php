@@ -26,6 +26,7 @@ class ProductImporter extends Importer
                 ->rules(fn($record) => [
                     "unique:products,barcode,{$record?->id}"
                 ]),
+            ImportColumn::make('description')->label('الوصف'),
             ImportColumn::make('image')->label('الصورة'),
             ImportColumn::make('is_active')->label('نشط')
                 ->boolean(),
@@ -57,25 +58,14 @@ class ProductImporter extends Importer
         $this->record->before_discount = $this->data['before_discount'] ?? $this->record->before_discount;
 
         if (!empty($this->data['image']) && str_starts_with($this->data['image'], 'https')) {
-            try {
-                $filename = Str::slug($this->data['barcode'] ?? time()) . '-' . time() . '.jpg';
-                $savePath = 'products/' . $filename;
+            $savePath = fetchAndSaveImageFromUrl(
+                $this->data['image'],
+                $this->data['barcode'] ?? time(),
+                'products'
+            );
 
-                $response = Http::timeout(10)
-                    ->withHeaders([
-                        'User-Agent' => 'PostmanRuntime/7.43.0',
-                        'Accept' => '*/*',
-                        'Accept-Encoding' => 'gzip, deflate, br',
-                        'Accept-Language' => 'en-US,en;q=0.9,ar-EG;q=0.8,ar;q=0.7'
-                    ])
-                    ->get($this->data['image']);
-
-                if ($response->successful()) {
-                    Storage::disk('public')->put($savePath, $response->body());
-                    $this->record->image = $savePath;
-                }
-            } catch (\Exception $e) {
-                report($e);
+            if ($savePath) {
+                $this->record->image = $savePath;
             }
         }
     }

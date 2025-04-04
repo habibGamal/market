@@ -39,7 +39,7 @@ class IssueNotePolicy
      */
     public function update(User $user, IssueNote $issueNote): bool
     {
-        return $user->can('update_issue::note');
+        return $user->can('update_issue::note') && !$issueNote->closed;
     }
 
     /**
@@ -47,7 +47,7 @@ class IssueNotePolicy
      */
     public function delete(User $user, IssueNote $issueNote): bool
     {
-        return $user->can('delete_issue::note');
+        return $user->can('delete_issue::note') && !$issueNote->closed;
     }
 
     /**

@@ -15,7 +15,7 @@ class CategoryPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('{{ ViewAny }}');
+        return $user->can('view_any_category');
     }
 
     /**
@@ -23,7 +23,7 @@ class CategoryPolicy
      */
     public function view(User $user, Category $category): bool
     {
-        return $user->can('{{ View }}');
+        return $user->can('view_category');
     }
 
     /**
@@ -31,7 +31,7 @@ class CategoryPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('{{ Create }}');
+        return $user->can('create_category');
     }
 
     /**
@@ -39,7 +39,7 @@ class CategoryPolicy
      */
     public function update(User $user, Category $category): bool
     {
-        return $user->can('{{ Update }}');
+        return $user->can('update_category');
     }
 
     /**
@@ -47,7 +47,7 @@ class CategoryPolicy
      */
     public function delete(User $user, Category $category): bool
     {
-        return $user->can('{{ Delete }}');
+        return $user->can('delete_category');
     }
 
     /**
@@ -55,7 +55,7 @@ class CategoryPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('{{ DeleteAny }}');
+        return $user->can('delete_any_category');
     }
 
     /**

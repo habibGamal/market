@@ -39,7 +39,7 @@ class PurchaseInvoicePolicy
      */
     public function update(User $user, PurchaseInvoice $purchaseInvoice): bool
     {
-        return $user->can('update_purchase::invoice');
+        return $user->can('update_purchase::invoice') && !$purchaseInvoice->closed;
     }
 
     /**
@@ -47,7 +47,7 @@ class PurchaseInvoicePolicy
      */
     public function delete(User $user, PurchaseInvoice $purchaseInvoice): bool
     {
-        return $user->can('delete_purchase::invoice');
+        return $user->can('delete_purchase::invoice') && $purchaseInvoice->deletable;
     }
 
     /**

@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('image')->nullable();
             $table->string('barcode');
+            $table->text('description')->nullable();
             $table->decimal('packet_cost', 8, 2);
             $table->decimal('packet_price', 8, 2);
             $table->decimal('piece_price', 8, 2);

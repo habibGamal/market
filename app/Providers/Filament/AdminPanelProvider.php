@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Enums\SettingKey;
 use App\Filament\Pages\App\Profile;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Resources\ActivityLogResource;
@@ -33,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
-            ->brandName('Market')
+            ->brandName(settings(SettingKey::APP_NAME,'Sindbad'))
             ->passwordReset()
             ->sidebarCollapsibleOnDesktop()
             //            ->sidebarFullyCollapsibleOnDesktop()
@@ -98,7 +99,6 @@ class AdminPanelProvider extends PanelProvider
                     ->resourceCheckboxListColumns([
                         'default' => 1,
                         'sm' => 2,
-                        'lg' => 3,
                     ]),
                 ActivitylogPlugin::make()
                     ->label('سجل')

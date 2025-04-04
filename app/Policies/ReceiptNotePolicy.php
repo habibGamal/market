@@ -39,7 +39,7 @@ class ReceiptNotePolicy
      */
     public function update(User $user, ReceiptNote $receiptNote): bool
     {
-        return $user->can('update_receipt::note');
+        return $user->can('update_receipt::note') && !$receiptNote->closed;
     }
 
     /**
@@ -47,7 +47,7 @@ class ReceiptNotePolicy
      */
     public function delete(User $user, ReceiptNote $receiptNote): bool
     {
-        return $user->can('delete_receipt::note');
+        return $user->can('delete_receipt::note') && !$receiptNote->closed;
     }
 
     /**
