@@ -43,7 +43,26 @@ class DailyReportStats extends BaseWidget
                 ->description('القيمة الإفتتاحية لليوم')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color(Color::Blue),
-
+            Stat::make('إجمالي رأس المال', number_format($workDay->total_assets ?? 0, 2) . ' جنيه')
+                ->description('قيمة رأس المال المضاف')
+                ->descriptionIcon('heroicon-m-building-library')
+                ->color(Color::Indigo),
+            Stat::make('إجمالي المبيعات', number_format($workDay->total_sales ?? 0, 2) . ' جنيه')
+                ->description('قيمة المبيعات اليومية')
+                ->descriptionIcon('heroicon-m-currency-dollar')
+                ->color(Color::Green),
+            Stat::make('إجمالي مرتجعات المشتريات', number_format($workDay->total_purchase_returnes ?? 0, 2) . ' جنيه')
+                ->description('قيمة مرتجعات المشتريات')
+                ->descriptionIcon('heroicon-m-arrow-uturn-left')
+                ->color(Color::Purple),
+            Stat::make('إجمالي المشتريات', number_format($workDay->total_purchase ?? 0, 2) . ' جنيه')
+                ->description('قيمة المشتريات اليومية')
+                ->descriptionIcon('heroicon-m-shopping-bag')
+                ->color(Color::Amber),
+            Stat::make('إجمالي المصروفات', number_format($workDay->total_expenses ?? 0, 2) . ' جنيه')
+                ->description('قيمة المصروفات اليومية')
+                ->descriptionIcon('heroicon-m-credit-card')
+                ->color(Color::Red),
             Stat::make('رصيد نهاية اليوم', number_format($workDay->total_day ?? 0, 2) . ' جنيه')
                 ->description('القيمة النهائية لليوم')
                 ->descriptionIcon('heroicon-m-banknotes')

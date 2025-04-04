@@ -30,7 +30,7 @@ export default function Index({ categories }: Props) {
                                             className="transition-transform group-hover:scale-110"
                                         />
                                     </div>
-                                    <span className="text-sm block pb-2 font-medium text-secondary-900">
+                                    <span className="text-lg block pb-2 font-bold text-secondary-900">
                                         {category.name}
                                     </span>
                                 </div>

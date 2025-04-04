@@ -6,6 +6,8 @@ use App\Models\AccountantIssueNote;
 use App\Models\AccountantReceiptNote;
 use App\Models\Expense;
 use App\Models\ExpenseType;
+use App\Models\IssueNote;
+use App\Models\ReceiptNote;
 use App\Models\WorkDay;
 use App\Models\PurchaseInvoice;
 use App\Models\Driver;
@@ -48,7 +50,7 @@ class ExpenseReportService
             ->perDay()
             ->sum('total_expenses');
 
-        $purchaseIssueData = Trend::query(AccountantIssueNote::query()->where('for_model_type', PurchaseInvoice::class))
+        $purchaseIssueData = Trend::query(AccountantIssueNote::query()->where('for_model_type', ReceiptNote::class))
             ->between($startDate, $endDate)
             ->perDay()
             ->sum('paid');
@@ -58,7 +60,7 @@ class ExpenseReportService
             ->perDay()
             ->sum('paid');
 
-        $purchaseReturnReceiptData = Trend::query(AccountantReceiptNote::query()->where('from_model_type', ReturnPurchaseInvoice::class))
+        $purchaseReturnReceiptData = Trend::query(AccountantReceiptNote::query()->where('from_model_type', IssueNote::class))
             ->between($startDate, $endDate)
             ->perDay()
             ->sum('paid');
@@ -102,7 +104,7 @@ class ExpenseReportService
         $endDate = $endDate ? Carbon::parse($endDate) : now();
 
         return AccountantIssueNote::query()
-            ->where('for_model_type', PurchaseInvoice::class)
+            ->where('for_model_type', ReceiptNote::class)
             ->when($startDate, fn($query) => $query->where('created_at', '>=', $startDate))
             ->when($endDate, fn($query) => $query->where('created_at', '<=', $endDate))
             ->sum('paid');
@@ -126,7 +128,7 @@ class ExpenseReportService
         $endDate = $endDate ? Carbon::parse($endDate) : now();
 
         return AccountantReceiptNote::query()
-            ->where('from_model_type', ReturnPurchaseInvoice::class)
+            ->where('from_model_type', IssueNote::class)
             ->when($startDate, fn($query) => $query->where('created_at', '>=', $startDate))
             ->when($endDate, fn($query) => $query->where('created_at', '<=', $endDate))
             ->sum('paid');

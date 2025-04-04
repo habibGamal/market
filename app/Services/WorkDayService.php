@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AssetEntry;
 use App\Models\WorkDay;
 use App\Models\AccountantIssueNote;
 use App\Models\AccountantReceiptNote;
@@ -9,6 +10,7 @@ use App\Models\Driver;
 use App\Models\IssueNote;
 use App\Models\ReceiptNote;
 use App\Models\Expense;
+use App\Models\Asset;
 use Illuminate\Support\Carbon;
 
 class WorkDayService
@@ -22,6 +24,7 @@ class WorkDayService
                 'total_purchase' => 0,
                 'total_sales' => 0,
                 'total_expenses' => 0,
+                'total_assets' => 0,
                 'total_purchase_returnes' => 0,
                 'total_day' => 0,
             ]
@@ -60,8 +63,12 @@ class WorkDayService
             ->whereNotNull('approved_by')
             ->sum('value');
 
+        // Get total assets purchased today
+        $totalAssets = AssetEntry::whereDate('created_at', $today)
+            ->sum('value');
+
         // Calculate total day
-        $totalDay = $workDay->start_day + $totalSales - $totalPurchase - $totalExpenses + $totalPurchaseReturns;
+        $totalDay = $workDay->start_day + $totalAssets + $totalSales - $totalPurchase - $totalExpenses + $totalPurchaseReturns;
 
         // Update work day
         $workDay->update([
@@ -69,6 +76,7 @@ class WorkDayService
             'total_sales' => $totalSales,
             'total_expenses' => $totalExpenses,
             'total_purchase_returnes' => $totalPurchaseReturns,
+            'total_assets' => $totalAssets,
             'total_day' => $totalDay,
         ]);
 

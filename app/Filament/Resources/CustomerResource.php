@@ -121,6 +121,9 @@ class CustomerResource extends Resource implements HasShieldPermissions
                             ->label('نقاط التقييم')
                             ->numeric()
                             ->default(0),
+                        Forms\Components\DateTimePicker::make('phone_verified_at')
+                            ->label('تاريخ توثيق رقم الهاتف')
+                            ->nullable(),
                         Forms\Components\Toggle::make('blocked')
                             ->label('محظور')
                             ->default(false),

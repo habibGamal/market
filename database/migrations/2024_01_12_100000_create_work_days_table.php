@@ -13,6 +13,7 @@ return new class extends Migration
             $table->decimal('total_purchase', 10, 2)->default(0);
             $table->decimal('total_sales', 10, 2)->default(0);
             $table->decimal('total_expenses', 10, 2)->default(0);
+            $table->decimal('total_assets', 10, 2)->default(0);
             $table->decimal('total_purchase_returnes', 10, 2)->default(0);
             $table->decimal('total_day', 10, 2)->default(0);
             $table->decimal('start_day', 10, 2)->default(0);

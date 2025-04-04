@@ -17,13 +17,14 @@ import axios from "axios";
 
 interface Props {
     phone: string;
+    supportPhone?: string;
 }
 
 const formSchema = z.object({
     otp: z.string().length(6, "يجب أن يكون رمز التحقق 6 أرقام"),
 });
 
-export default function OtpVerification({ phone }: Props) {
+export default function OtpVerification({ phone, supportPhone }: Props) {
     const [isLoading, setIsLoading] = useState(false);
     const [countdown, setCountdown] = useState(0);
 
@@ -139,6 +140,24 @@ export default function OtpVerification({ phone }: Props) {
                     </div>
                 </form>
             </Form>
+
+            {supportPhone && (
+                <div className="mt-4 text-sm text-center">
+                    <p className="text-muted-foreground">
+                        هل تواجه مشكلة في استلام الرمز؟
+                    </p>
+                    <p className="flex items-center justify-center gap-1 mt-1">
+                        <span>تواصل مع الدعم الفني:</span>
+                        <a
+                            href={`tel:${supportPhone}`}
+                            className="text-primary font-medium hover:underline"
+                            dir="ltr"
+                        >
+                            {supportPhone}
+                        </a>
+                    </p>
+                </div>
+            )}
         </div>
     );
 }

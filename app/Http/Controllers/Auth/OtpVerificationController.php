@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\SettingKey;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Services\OtpService;
@@ -19,6 +20,7 @@ class OtpVerificationController extends Controller
     {
         return Inertia::render('Auth/OtpVerification', [
             'phone' => auth()->guard('customer')->user()->phone,
+            'supportPhone' => settings(SettingKey::SUPPORT_PHONE,'01107186025'),
         ]);
     }
 
