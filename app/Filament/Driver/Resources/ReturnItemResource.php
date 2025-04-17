@@ -26,6 +26,15 @@ class ReturnItemResource extends Resource
 
     protected static ?string $pluralModelLabel = 'المرتجعات';
 
+    public static function canViewAny(): bool
+    {
+        return true;
+    }
+
+    public static function canView($record): bool
+    {
+        return true;
+    }
     public static function table(Table $table): Table
     {
         return $table

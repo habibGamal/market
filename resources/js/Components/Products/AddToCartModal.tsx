@@ -31,7 +31,6 @@ export function AddToCartModal({
     loading,
     onAddToCart,
 }: AddToCartModalProps) {
-
     const enablePieces = product.packet_to_piece > 1 && product.can_sell_pieces;
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -51,7 +50,7 @@ export function AddToCartModal({
                             disabled={loading}
                         />
                     </div>
-                    {enablePieces && (
+                    {enablePieces ? (
                         <div className="flex gap-2 items-center">
                             <label className="text-sm font-medium min-w-24">
                                 عدد {product.piece_alter_name}
@@ -64,7 +63,7 @@ export function AddToCartModal({
                                 disabled={loading}
                             />
                         </div>
-                    )}
+                    ) : null}
                     <Button
                         className="w-full"
                         onClick={onAddToCart}

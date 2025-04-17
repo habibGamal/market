@@ -15,7 +15,7 @@ class StockItemPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('{{ ViewAny }}');
+        return true;//$user->can('{{ ViewAny }}');
     }
 
     /**
@@ -23,7 +23,7 @@ class StockItemPolicy
      */
     public function view(User $user, StockItem $stockItem): bool
     {
-        return $user->can('{{ View }}');
+        return true;//$user->can('{{ View }}');
     }
 
     /**

@@ -190,7 +190,6 @@ class NotificationManagerResource extends Resource
                     ->options(NotificationType::class),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Action::make('test')
                     ->label('اختبار الإشعار')

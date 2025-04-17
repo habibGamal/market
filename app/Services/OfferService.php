@@ -10,13 +10,13 @@ class OfferService
 {
     public function calculateOrderDiscount(Order $order): array
     {
-        $appliedOffers =  Offer::query()
+        $appliedOffers = Offer::query()
             ->where('is_active', true)
             ->where('start_at', '<=', now())
             ->where('end_at', '>=', now())
             ->get()
-            ->filter(fn (Offer $offer) => $this->isOrderEligibleForOffer($order, $offer));
-        $discount = $appliedOffers->sum(fn (Offer $offer) => $this->calculateDiscountValue($order, $offer));
+            ->filter(fn(Offer $offer) => $this->isOrderEligibleForOffer($order, $offer));
+        $discount = $appliedOffers->sum(fn(Offer $offer) => $this->calculateDiscountValue($order, $offer));
         return [
             'applied_offers' => $appliedOffers,
             'discount' => $discount,
@@ -29,30 +29,28 @@ class OfferService
 
         // Check business type condition
         if (isset($conditions['in_business_type']) && !empty($conditions['in_business_type'])) {
-            if (!in_array($order->customer->business_type_id, (array)$conditions['in_business_type'])) {
+            if (!in_array($order->customer->business_type_id, (array) $conditions['in_business_type'])) {
                 return false;
             }
         }
-
         // Check location conditions
         if (isset($conditions['in_gov']) && !empty($conditions['in_gov'])) {
-            if (!in_array($order->customer->gov_id, (array)$conditions['in_gov'])) {
+            if (!in_array($order->customer->gov_id, (array) $conditions['in_gov'])) {
                 return false;
             }
         }
 
         if (isset($conditions['in_cities']) && !empty($conditions['in_cities'])) {
-            if (!in_array($order->customer->city_id, (array)$conditions['in_cities'])) {
+            if (!in_array($order->customer->city_id, (array) $conditions['in_cities'])) {
                 return false;
             }
         }
 
         if (isset($conditions['in_areas']) && !empty($conditions['in_areas'])) {
-            if (!in_array($order->customer->area_id, (array)$conditions['in_areas'])) {
+            if (!in_array($order->customer->area_id, (array) $conditions['in_areas'])) {
                 return false;
             }
         }
-
         // Check minimum requirements
         if (isset($conditions['min_total_packets'])) {
             if ($order->items->sum('packets_quantity') < $conditions['min_total_packets']) {
@@ -79,19 +77,20 @@ class OfferService
             }
         }
 
+
         // Check brand conditions
         if (isset($conditions['brands'])) {
             if (!$this->checkBrandConditions($order, $conditions['brands'])) {
                 return false;
             }
         }
-
         // Check product conditions
         if (isset($conditions['products'])) {
             if (!$this->checkProductConditions($order, $conditions['products'])) {
                 return false;
             }
         }
+
 
         return true;
     }
@@ -100,7 +99,7 @@ class OfferService
     {
         if ($conditions['strategy'] === 'general') {
             $categoryGroups = $order->items
-                ->groupBy(fn ($item) => $item->product->category_id);
+                ->groupBy(fn($item) => $item->product->category_id);
 
             if ($categoryGroups->count() < $conditions['general']['number_of_diff_categories']) {
                 return false;
@@ -121,7 +120,7 @@ class OfferService
             }
         } else {
             foreach ($conditions['specific'] as $categoryId => $requirements) {
-                $categoryItems = $order->items->filter(fn ($item) => $item->product->category_id == $categoryId);
+                $categoryItems = $order->items->filter(fn($item) => $item->product->category_id == $requirements['category_id']);
 
                 if (isset($requirements['min_value'])) {
                     if ($categoryItems->sum('total') < $requirements['min_value']) {
@@ -144,7 +143,7 @@ class OfferService
     {
         if ($conditions['strategy'] === 'general') {
             $brandGroups = $order->items
-                ->groupBy(fn ($item) => $item->product->brand_id);
+                ->groupBy(fn($item) => $item->product->brand_id);
 
             if ($brandGroups->count() < $conditions['general']['number_of_diff_brands']) {
                 return false;
@@ -165,7 +164,7 @@ class OfferService
             }
         } else {
             foreach ($conditions['specific'] as $brandId => $requirements) {
-                $brandItems = $order->items->filter(fn ($item) => $item->product->brand_id == $brandId);
+                $brandItems = $order->items->filter(fn($item) => $item->product->brand_id == $requirements['brand_id']);
 
                 if (isset($requirements['min_value'])) {
                     if ($brandItems->sum('total') < $requirements['min_value']) {
@@ -188,7 +187,7 @@ class OfferService
     {
         if ($conditions['strategy'] === 'general') {
             $productGroups = $order->items
-                ->groupBy(fn ($item) => $item->product_id);
+                ->groupBy(fn($item) => $item->product_id);
 
             if ($productGroups->count() < $conditions['general']['number_of_diff_products']) {
                 return false;
@@ -209,7 +208,7 @@ class OfferService
             }
         } else {
             foreach ($conditions['specific'] as $productId => $requirements) {
-                $productItems = $order->items->filter(fn ($item) => $item->product_id == $productId);
+                $productItems = $order->items->filter(fn($item) => $item->product_id == $requirements['product_id']);
 
                 if (isset($requirements['min_value'])) {
                     if ($productItems->sum('total') < $requirements['min_value']) {

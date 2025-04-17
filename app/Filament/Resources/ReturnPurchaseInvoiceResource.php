@@ -171,6 +171,7 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
                         DatePicker::make('release_date')
                             ->label('تاريخ الإنتاج')
                             ->disabled()
+                            // ->timezone('UTC')
                             ->dehydrated(true)
                             ->required(),
                         Forms\Components\TextInput::make('total')

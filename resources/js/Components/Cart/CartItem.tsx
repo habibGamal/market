@@ -124,7 +124,7 @@ export function CartItem({
                             disabled={loading}
                         />
                     </div>
-                    {enablePieces && (
+                    {enablePieces ? (
                         <div className="flex items-center gap-2">
                             <span className="text-sm text-secondary-600 min-w-16">
                                 {product.piece_alter_name}:
@@ -137,7 +137,7 @@ export function CartItem({
                                 disabled={loading}
                             />
                         </div>
-                    )}
+                    ): null}
 
                     {errorMsg && (
                         <div className="text-xs text-destructive">

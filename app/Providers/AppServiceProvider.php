@@ -6,6 +6,8 @@ use App\Jobs\ExportCsv;
 use App\Jobs\ImportCsv;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -59,6 +61,14 @@ class AppServiceProvider extends ServiceProvider
 
         TextEntry::configureUsing(function (TextEntry $textEntry): void {
             $textEntry->timezone('Africa/Cairo');
+        });
+
+        DateTimePicker::configureUsing(function (DateTimePicker $dateTimePicker): void {
+            $dateTimePicker->timezone('Africa/Cairo');
+        });
+
+        DatePicker::configureUsing(function (DatePicker $dateTimePicker): void {
+            $dateTimePicker->timezone('UTC');
         });
 
         // FilamentShield::configurePermissionIdentifierUsing(

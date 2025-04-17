@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->call(CheckProductExpirations::class)
             ->dailyAt('00:01')
             ->timezone('Africa/Cairo');
-        $schedule->command('notifications:dispatch')->everySecond()->withoutOverlapping();
+        $schedule->command('notifications:dispatch')->everyMinute()->withoutOverlapping();
     })
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [

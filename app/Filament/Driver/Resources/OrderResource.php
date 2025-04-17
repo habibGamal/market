@@ -28,6 +28,15 @@ class OrderResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static ?string $modelLabel = 'طلب';
     protected static ?string $pluralModelLabel = 'الطلبات';
+    public static function canViewAny(): bool
+    {
+        return true;
+    }
+
+    public static function canView($record): bool
+    {
+        return true;
+    }
 
     public static function table(Table $table): Table
     {
