@@ -29,7 +29,7 @@ interface NavLink {
 
 const navLinks: NavLink[] = [
     {
-        href: "/favorites",
+        href: "/wishlist",
         label: "المفضلة",
         icon: <Heart className="h-5 w-5" />,
         requiresAuth: true,

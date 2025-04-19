@@ -29,12 +29,17 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        try {
+            $brandName = settings(SettingKey::APP_NAME, 'Sindbad');
+        } catch (\Exception $e) {
+            $brandName = 'Sindbad';
+        }
         return $panel
             ->default()
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
-            ->brandName(settings(SettingKey::APP_NAME,'Sindbad'))
+            ->brandName($brandName)
             ->passwordReset()
             ->sidebarCollapsibleOnDesktop()
             //            ->sidebarFullyCollapsibleOnDesktop()
@@ -104,7 +109,10 @@ class AdminPanelProvider extends PanelProvider
                     ->label('سجل')
                     ->pluralLabel('السجلات')
                     ->navigationGroup('إدارة النظام')
-                    ->resource(CustomActivityLogResource::class),
+                    ->resource(CustomActivityLogResource::class)
+                    ->authorize(
+                        fn() => auth()->user()->can('view_any_custom::activity::log')
+                    ),
             ])->renderHook(
                 \Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER,
                 fn(): string => \Illuminate\Support\Facades\Blade::render('@livewire(\App\Livewire\TopbarContent::class)'),

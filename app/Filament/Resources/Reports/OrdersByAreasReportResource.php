@@ -26,7 +26,8 @@ class OrdersByAreasReportResource extends Resource implements HasShieldPermissio
 
     protected static ?string $navigationIcon = 'heroicon-o-map';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة المبيعات';
+    protected static ?int $navigationSort = 12;
 
     protected static ?string $modelLabel = 'تقرير المنطقة';
 

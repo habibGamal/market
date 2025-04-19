@@ -24,7 +24,9 @@ class StockStateReportResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة المخزن';
+
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $modelLabel = 'تقرير حالة المخزون';
 

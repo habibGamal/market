@@ -36,6 +36,7 @@ class DailyReportStats extends BaseWidget
         $unavailableStock = $service->getUnavailableStockEvaluation();
         $reservedStock = $service->getReservedStockEvaluation();
         $orderStats = $service->getOrderStats($date);
+        $pendingAccountantIssueNotes = $service->getPendingAccountantIssueNotesStats();
 
         return [
             // Work Day Stats
@@ -67,6 +68,17 @@ class DailyReportStats extends BaseWidget
                 ->description('القيمة النهائية لليوم')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color(Color::Blue),
+
+            // Pending Accountant Issue Notes
+            Stat::make('عدد فواتير الشراء الغير مدفوعة', $pendingAccountantIssueNotes['count'])
+                ->description('عدد فواتير الشراء التي بدون أذونات صرف نقدية')
+                ->descriptionIcon('heroicon-m-exclamation-circle')
+                ->color(Color::Amber),
+
+            Stat::make('اجمالي المبالغ الغير مدفوعة', number_format($pendingAccountantIssueNotes['total'], 2) . ' جنيه')
+                ->description('قيمة فواتير الشراء التي بدون أذونات صرف نقدية')
+                ->descriptionIcon('heroicon-m-banknotes')
+                ->color(Color::Orange),
 
             // Stock Total Value
             Stat::make('تقييم المخزون الكلي (تكلفة)', number_format($stockStats['cost'], 2) . ' جنيه')
@@ -122,6 +134,7 @@ class DailyReportStats extends BaseWidget
                 ->description('إجمالي عدد المرتجعات')
                 ->descriptionIcon('heroicon-m-arrow-uturn-left')
                 ->color(Color::Red),
+
         ];
     }
 }

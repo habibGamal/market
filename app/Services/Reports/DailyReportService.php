@@ -4,6 +4,7 @@ namespace App\Services\Reports;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ReceiptNote;
 use App\Models\ReturnOrderItem;
 use App\Models\WorkDay;
 use App\Services\Stats\StockStatService;
@@ -96,4 +97,15 @@ class DailyReportService
             'total_returns' => ReturnOrderItem::whereDate('created_at', $date)->count(),
         ];
     }
+
+    public function getPendingAccountantIssueNotesStats(): array
+    {
+        $receiptNotes = ReceiptNote::needAccountantIsssueNote()->get();
+
+        return [
+            'count' => $receiptNotes->count(),
+            'total' => $receiptNotes->sum('total'),
+        ];
+    }
+
 }

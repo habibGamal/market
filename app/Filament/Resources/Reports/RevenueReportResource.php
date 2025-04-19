@@ -23,7 +23,8 @@ class RevenueReportResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة الحسابات';
+    protected static ?int $navigationSort = 12;
 
     protected static ?string $modelLabel = 'تقرير الإيرادات والأرباح';
 

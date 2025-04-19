@@ -38,7 +38,7 @@ class AccountantReceiptNoteResource extends Resource
                             MorphToSelect\Type::make(Driver::class)
                                 ->label('مندوب تسليم')
                                 ->modifyOptionsQueryUsing(function ($query) {
-                                    $query->driversOnly();
+                                    $query->needAccountantReceiptNote();
                                 })
                                 ->titleAttribute('name'),
                             MorphToSelect\Type::make(IssueNote::class)
@@ -96,7 +96,7 @@ class AccountantReceiptNoteResource extends Resource
                     ->label('نوع المستند')
                     ->formatStateUsing(fn(string $state) => match ($state) {
                         Driver::class => 'مندوب تسليم',
-                        IssueNote::class => 'اذن صرف',
+                        IssueNote::class => 'اذن صرف مرتجع مشتريات',
                         default => $state
                     })
                     ->sortable(),
@@ -148,25 +148,26 @@ class AccountantReceiptNoteResource extends Resource
         return $infolist
             ->schema([
                 \Filament\Infolists\Components\Grid::make(3)->schema([
-                    // TextEntry::make('fromModel')
-                    //     ->label('المستند')
-                    //     ->formatStateUsing(fn($state) => match ($state::class) {
-                    //         Driver::class => 'مندوب تسليم: ' . $state->name,
-                    //         IssueNote::class => 'اذن صرف #' . $state->id,
-                    //         default => $state::class . ' #' . $state->id
-                    //     })
-                    //     ->extraAttributes(['class' => 'font-bold'])
-                    //     ->suffixAction(
-                    //         \Filament\Infolists\Components\Actions\Action::make('viewDocument')
-                    //             ->label('عرض المستند')
-                    //             ->url(fn(Model $record) => match ($record->from_model_type) {
-                    //                 Driver::class => DriverResource::getUrl('view', ['record' => $record->from_model_id]),
-                    //                 IssueNote::class => IssueNoteResource::getUrl('view', ['record' => $record->from_model_id]),
-                    //                 default => '#'
-                    //             })
-                    //             ->icon('heroicon-m-arrow-top-right-on-square')
-                    //             ->openUrlInNewTab()
-                    //     ),
+                    TextEntry::make('fromModel')
+                        ->label('المستند')
+                        ->formatStateUsing(fn($state) => match ($state::class) {
+                            Driver::class => 'مندوب تسليم: ' . $state->name,
+                            IssueNote::class => 'اذن صرف مرتجع مشتريات #' . $state->id,
+                            default => $state::class . ' #' . $state->id
+                        })
+                        ->extraAttributes(['class' => 'font-bold'])
+                        ->suffixAction(
+                            \Filament\Infolists\Components\Actions\Action::make('viewDocument')
+                                ->label('عرض المستند')
+                                ->url(fn(Model $record) => match ($record->from_model_type) {
+                                    Driver::class => DriverResource::getUrl('edit', ['record' => $record->from_model_id]),
+                                    IssueNote::class => IssueNoteResource::getUrl('view', ['record' => $record->from_model_id]),
+                                    default => '#'
+                                })
+                                ->icon('heroicon-m-arrow-top-right-on-square')
+                                ->openUrlInNewTab()
+                        )
+                        ,
 
                     TextEntry::make('paid')
                         ->label('المبلغ المحصل')

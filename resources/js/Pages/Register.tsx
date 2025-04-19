@@ -99,7 +99,6 @@ export default function Register({ businessTypes, govs }: Props) {
     }, []);
 
     const onSubmit = async (data: z.infer<typeof formSchema>) => {
-        console.log(data);
         router.post("/register", data, {
             onStart: () => {
                 setIsLoading(true);

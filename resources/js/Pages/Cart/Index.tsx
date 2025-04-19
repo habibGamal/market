@@ -3,6 +3,7 @@ import { Button } from "@/Components/ui/button";
 import { CartItem } from "@/Components/Cart/CartItem";
 import { ShoppingBag } from "lucide-react";
 import { Head, router } from "@inertiajs/react";
+import { EmptyState } from "@/Components/EmptyState";
 import { useCart } from "@/Hooks/useCart";
 import type { Product } from "@/types";
 import { PageTitle } from "@/Components/ui/page-title";
@@ -71,25 +72,25 @@ export default function Cart({ cart, errors }: Props) {
         return (
             <>
                 <Head title="السلة" />
-                <div className="container mx-auto px-4 py-16">
-                    <div className="text-center">
-                        <ShoppingBag className="mx-auto h-12 w-12 text-secondary-400" />
-                        <h3 className="mt-2 text-lg font-medium text-secondary-900">
-                            السلة فارغة
-                        </h3>
-                        <p className="mt-1 text-sm text-secondary-500">
-                            لم تقم بإضافة أي منتجات إلى السلة بعد
-                        </p>
-                        <div className="mt-6">
-                            <Button
-                                onClick={() => router.get("/")}
-                                className="min-w-[200px]"
-                            >
-                                تصفح المنتجات
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+
+                <PageTitle>
+                    <ShoppingBag className="h-6 w-6 mr-2" />
+                    السلة
+                </PageTitle>
+
+                <EmptyState
+                    icon={ShoppingBag}
+                    title="السلة فارغة"
+                    description="لم تقم بإضافة أي منتجات إلى السلة بعد"
+                    actions={
+                        <Button
+                            onClick={() => router.get("/")}
+                            className="min-w-[200px]"
+                        >
+                            تصفح المنتجات
+                        </Button>
+                    }
+                />
             </>
         );
     }

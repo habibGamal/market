@@ -89,8 +89,16 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
                     ->schema([
                         Select::make('supplier_id')
                             ->label('المورد')
-                            ->options(Supplier::all()->pluck('name', 'id'))
-                            ->searchable()
+                            ->options(function () {
+                                return Supplier::all()->mapWithKeys(function ($supplier) {
+                                    $label = $supplier->name;
+                                    if ($supplier->company_name) {
+                                        $label .= ' - ' . $supplier->company_name;
+                                    }
+                                    return [$supplier->id => $label];
+                                });
+                            })
+                            ->searchable(['name', 'company_name'])
                             ->required()
                     ]),
                 Section::make('المنتجات')
@@ -116,7 +124,7 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
                                 $product = Product::with('stockItems')->find($state);
                                 $items = [...$get('items')];
                                 $newItems = $product->stockItems->map(function ($stockItem) {
-                                    $availableQuantity = $stockItem->piece_quantity  - $stockItem->unavailable_quantity;
+                                    $availableQuantity = $stockItem->piece_quantity - $stockItem->unavailable_quantity;
                                     if ($availableQuantity <= 0) {
                                         return null;
                                     }
@@ -205,6 +213,10 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
                     ->label('المورد')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('supplier.company_name')
+                    ->label('اسم الشركة')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('total')
                     ->label('المجموع')
                     ->sortable(),
@@ -230,15 +242,22 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\DeleteAction::make()->action(function (ReturnPurchaseInvoice $record, $action) {
-                    try{
+                    try {
                         $record->delete();
-                    }catch (\Exception $e){
+                    } catch (\Exception $e) {
                         \Filament\Notifications\Notification::make()
                             ->danger()
                             ->title($e->getMessage())
                             ->send();
                     }
                 }),
+                Tables\Actions\Action::make('view_receipt')
+                    ->label('عرض إذن الصرف')
+                    ->icon('heroicon-o-document')
+                    ->visible(fn(ReturnPurchaseInvoice $record) => $record->issue_note_id !== null)
+                    ->url(fn(ReturnPurchaseInvoice $record) => $record->issue_note_id
+                        ? IssueNoteResource::getUrl('view', ['record' => $record->issue_note_id])
+                        : null),
             ])
             ->bulkActions([]);
     }
@@ -252,8 +271,23 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
                 ->alignEnd(),
             TextEntry::make('id')
                 ->label('رقم الفاتورة'),
+            TextEntry::make('issue_note_id')
+                ->label('إذن الصرف')
+                ->formatStateUsing(fn($state) => $state ? $state : 'غير متوفر')
+                ->suffixAction(
+                    \Filament\Infolists\Components\Actions\Action::make('viewIssueNote')
+                        ->label('عرض إذن الصرف')
+                        ->url(fn($record) => $record->issue_note_id
+                            ? IssueNoteResource::getUrl('view', ['record' => $record->issue_note_id])
+                            : null)
+                        ->icon('heroicon-m-arrow-top-right-on-square')
+                        ->openUrlInNewTab()
+                        ->visible(fn($record) => $record->issue_note_id !== null)
+                ),
             TextEntry::make('supplier.name')
                 ->label('المورد'),
+            TextEntry::make('supplier.company_name')
+                ->label('اسم الشركة'),
             TextEntry::make('total')
                 ->label('المجموع'),
             TextEntry::make('status')

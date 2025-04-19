@@ -11,7 +11,7 @@ type FallbackImageProps = Omit<
 
 export function FallbackImage({
     src,
-    fallbackSrc = "/images/placeholder.svg",
+    fallbackSrc = "/images/output-onlinepngtools.png",
     className,
     alt = "",
     ...props

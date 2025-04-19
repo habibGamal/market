@@ -23,7 +23,8 @@ class CartItemsByProductsReportResource extends Resource implements HasShieldPer
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة المبيعات';
+    protected static ?int $navigationSort = 13;
 
     protected static ?string $modelLabel = 'تقرير سلة المشتريات حسب المنتجات';
 

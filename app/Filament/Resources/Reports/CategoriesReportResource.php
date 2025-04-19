@@ -26,11 +26,13 @@ class CategoriesReportResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة المنتجات';
 
     protected static ?string $modelLabel = 'تقرير الفئة';
 
     protected static ?string $pluralModelLabel = 'تقارير الفئات';
+
+    protected static ?int $navigationSort = 6;
 
     public static function canViewAny(): bool
     {

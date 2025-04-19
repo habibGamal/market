@@ -29,6 +29,7 @@ class OrderResource extends Resource implements HasShieldPermissions
     protected static ?string $model = Order::class;
 
     protected static ?string $navigationGroup = 'إدارة المبيعات';
+    protected static ?int $navigationSort = 1;
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static ?string $modelLabel = 'طلب';
     protected static ?string $pluralModelLabel = 'الطلبات';

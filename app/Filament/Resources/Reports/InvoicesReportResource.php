@@ -26,7 +26,9 @@ class InvoicesReportResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة المشتريات';
+
+    protected static ?int $navigationSort = 6;
 
     protected static ?string $modelLabel = 'تقرير الفواتير';
 

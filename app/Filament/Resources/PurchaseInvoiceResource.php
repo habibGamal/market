@@ -104,8 +104,16 @@ class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermis
                     ->schema([
                         Select::make('supplier_id')
                             ->label('المورد')
-                            ->options(Supplier::all()->pluck('name', 'id'))
-                            ->searchable()
+                            ->options(function () {
+                                return Supplier::all()->mapWithKeys(function ($supplier) {
+                                    $label = $supplier->name;
+                                    if ($supplier->company_name) {
+                                        $label .= ' - ' . $supplier->company_name;
+                                    }
+                                    return [$supplier->id => $label];
+                                });
+                            })
+                            ->searchable(['name', 'company_name'])
                             ->required()
                     ]),
                 Section::make('المنتجات')
@@ -215,6 +223,10 @@ class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermis
                     ->label('المورد')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('supplier.company_name')
+                    ->label('اسم الشركة')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('execution_date')
                     ->label('تاريخ التنفيذ')
                     ->date()
@@ -262,6 +274,19 @@ class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermis
                 ->alignEnd(),
             TextEntry::make('id')
                 ->label('رقم الفاتورة'),
+            TextEntry::make('receipt_note_id')
+                ->label('إذن الإستلام')
+                ->formatStateUsing(fn($state) => $state ? $state : 'غير متوفر')
+                ->suffixAction(
+                    \Filament\Infolists\Components\Actions\Action::make('viewReceiptNote')
+                        ->label('عرض إذن الإستلام')
+                        ->url(fn($record) => $record->receipt_note_id
+                            ? ReceiptNoteResource::getUrl('view', ['record' => $record->receipt_note_id])
+                            : null)
+                        ->icon('heroicon-m-arrow-top-right-on-square')
+                        ->openUrlInNewTab()
+                        ->visible(fn($record) => $record->receipt_note_id !== null)
+                ),
             TextEntry::make('total')
                 ->label('المجموع'),
             TextEntry::make('status')
@@ -277,6 +302,8 @@ class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermis
                 ->label('المسؤول'),
             TextEntry::make('supplier.name')
                 ->label('المورد'),
+            TextEntry::make('supplier.company_name')
+                ->label('اسم الشركة'),
             TextEntry::make('created_at')
                 ->label('تاريخ الإنشاء')
                 ->dateTime(),

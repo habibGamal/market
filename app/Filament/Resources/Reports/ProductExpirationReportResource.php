@@ -20,7 +20,7 @@ class ProductExpirationReportResource extends Resource implements HasShieldPermi
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة المنتجات';
 
     protected static ?string $navigationLabel = 'تقرير المنتجات قريبة الانتهاء';
 
@@ -28,7 +28,7 @@ class ProductExpirationReportResource extends Resource implements HasShieldPermi
 
     protected static ?string $pluralModelLabel = 'تقارير المنتجات قريبة الانتهاء';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 8;
 
     public static function canViewAny(): bool
     {

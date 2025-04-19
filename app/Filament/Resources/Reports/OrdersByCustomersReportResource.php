@@ -27,7 +27,8 @@ class OrdersByCustomersReportResource extends Resource implements HasShieldPermi
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة المبيعات';
+    protected static ?int $navigationSort = 11;
 
     protected static ?string $modelLabel = 'تقرير العميل';
 

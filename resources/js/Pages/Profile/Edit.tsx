@@ -40,6 +40,13 @@ export default function ProfileSettings({ auth }: PageProps) {
                     href="/profile/address"
                     requiresOtp
                 />
+
+                <SettingsCard
+                    title="حذف الحساب"
+                    description="حذف حسابك نهائياً من النظام"
+                    href="/profile/delete-account"
+                    variant="destructive"
+                />
             </div>
         </>
     );
@@ -50,6 +57,7 @@ interface SettingsCardProps {
     description: string;
     href: string;
     requiresOtp?: boolean;
+    variant?: 'default' | 'destructive';
 }
 
 function SettingsCard({
@@ -57,6 +65,7 @@ function SettingsCard({
     description,
     href,
     requiresOtp = false,
+    variant = 'default',
 }: SettingsCardProps) {
     const [isLoading, setIsLoading] = useState(false);
 
@@ -69,12 +78,16 @@ function SettingsCard({
 
     return (
         <Card
-            className="hover:bg-accent/50 transition-colors cursor-pointer"
+            className={`hover:bg-accent/50 transition-colors cursor-pointer ${
+                variant === 'destructive' ? 'border-destructive/50' : ''
+            }`}
             onClick={handleNavigate}
         >
             <CardHeader className="flex gap-2 flex-row items-center justify-between p-4">
                 <div>
-                    <CardTitle className="text-right text-lg">
+                    <CardTitle className={`text-right text-lg ${
+                        variant === 'destructive' ? 'text-destructive' : ''
+                    }`}>
                         {title}
                     </CardTitle>
                     <CardDescription className="text-right mt-1">
@@ -86,7 +99,9 @@ function SettingsCard({
                         )}
                     </CardDescription>
                 </div>
-                <ChevronLeft className="ml-2 h-5 w-5 text-muted-foreground" />
+                <ChevronLeft className={`ml-2 h-5 w-5 ${
+                    variant === 'destructive' ? 'text-destructive' : 'text-muted-foreground'
+                }`} />
             </CardHeader>
         </Card>
     );

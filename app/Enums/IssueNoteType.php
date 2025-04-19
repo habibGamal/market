@@ -38,4 +38,13 @@ enum IssueNoteType: string implements HasColor, HasIcon, HasLabel
             self::WASTE => 'اذن صرف للهالك',
         };
     }
+
+    public static function toSelectArray(): array
+    {
+        return [
+            self::ORDERS->value => self::ORDERS->getLabel(),
+            self::RETURN_PURCHASES->value => self::RETURN_PURCHASES->getLabel(),
+            self::WASTE->value => self::WASTE->getLabel(),
+        ];
+    }
 }

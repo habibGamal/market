@@ -24,7 +24,8 @@ class DriversReportResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة المبيعات';
+    protected static ?int $navigationSort = 15;
 
     protected static ?string $modelLabel = 'تقرير مندوب التسليم';
 

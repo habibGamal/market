@@ -18,7 +18,8 @@ class DailyReportResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة الحسابات';
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $modelLabel = 'التقرير اليومي';
 

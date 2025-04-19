@@ -19,13 +19,15 @@ class ProductsShortageReportResource extends Resource implements HasShieldPermis
 {
     protected static ?string $model = Product::class;
     protected static ?string $navigationIcon = 'heroicon-o-exclamation-triangle';
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة المنتجات';
     protected static ?string $navigationLabel = 'تقرير المنتجات تحت الحد الأدنى';
     protected static ?string $modelLabel = 'تقرير المنتجات تحت الحد الأدنى';
 
     protected static ?string $pluralModelLabel = 'تقارير المنتجات تحت الحد الأدنى';
 
     protected static ?string $slug = 'products-shortage-reports';
+
+    protected static ?int $navigationSort = 9;
 
     public static function canViewAny(): bool
     {

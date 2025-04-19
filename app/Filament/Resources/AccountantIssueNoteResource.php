@@ -36,7 +36,7 @@ class AccountantIssueNoteResource extends Resource
                         ->label('نوع المستند')
                         ->types([
                             MorphToSelect\Type::make(ReceiptNote::class)
-                                ->label('اذن استلام مشتريات')
+                                ->label('صرف نقدية للمشتريات')
                                 ->modifyOptionsQueryUsing(function ($query) {
                                     $query->needAccountantIsssueNote();
                                 })
@@ -77,7 +77,7 @@ class AccountantIssueNoteResource extends Resource
                 Tables\Columns\TextColumn::make('for_model_type')
                     ->label('نوع المستند')
                     ->formatStateUsing(fn(string $state) => match ($state) {
-                        ReceiptNote::class => 'اذن استلام مشتريات',
+                        ReceiptNote::class => 'صرف نقدية للمشتريات',
                         default => $state
                     })
                     ->sortable(),
@@ -128,7 +128,7 @@ class AccountantIssueNoteResource extends Resource
                     TextEntry::make('forModel')
                         ->label('نوع المستند')
                         ->formatStateUsing(fn($state) => match ($state::class) {
-                            ReceiptNote::class => 'اذن استلام مشتريات #' . $state->id,
+                            ReceiptNote::class => 'صرف نقدية للمشتريات #' . $state->id,
                             default => $state::class . ' #' . $state->id
                         })
                         ->extraAttributes(['class' => 'font-bold'])

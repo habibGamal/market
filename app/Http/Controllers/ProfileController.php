@@ -182,19 +182,27 @@ class ProfileController extends Controller
     }
 
     /**
+     * Display the delete account page.
+     */
+    public function deleteAccount(Request $request): Response
+    {
+        return Inertia::render('Profile/DeleteAccount');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse
     {
         $request->validate([
-            'password' => ['required', 'current_password'],
+            'password' => ['required', 'current_password:customer'],
         ]);
 
-        $user = $request->user();
+        $customer = auth()->guard('customer')->user();
 
-        Auth::logout();
+        Auth::guard('customer')->logout();
 
-        $user->delete();
+        $customer->delete();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

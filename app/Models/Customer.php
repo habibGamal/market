@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
@@ -10,7 +11,7 @@ use NotificationChannels\WebPush\HasPushSubscriptions;
 
 class Customer extends Authenticatable
 {
-    use HasFactory, Notifiable, HasPushSubscriptions;
+    use HasFactory, Notifiable, HasPushSubscriptions, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -92,5 +93,10 @@ class Customer extends Authenticatable
     public function cancelledItems()
     {
         return $this->hasManyThrough(CancelledOrderItem::class, Order::class);
+    }
+
+    public function wishlistProducts()
+    {
+        return $this->belongsToMany(Product::class, 'wishlist_items')->withTimestamps();
     }
 }

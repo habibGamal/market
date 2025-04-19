@@ -240,6 +240,20 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                 ->alignEnd(),
             TextEntry::make('id')
                 ->label('رقم الإذن'),
+            TextEntry::make('purchaseInvoice.id')
+                ->label('فاتورة المشتريات')
+                ->visible(fn($record) => $record->purchaseInvoice !== null)
+                ->formatStateUsing(fn($state) => $state ? $state : 'غير متوفر')
+                ->suffixAction(
+                    \Filament\Infolists\Components\Actions\Action::make('viewPurchaseInvoice')
+                        ->label('عرض فاتورة المشتريات')
+                        ->url(fn($record) => $record->purchaseInvoice
+                            ? PurchaseInvoiceResource::getUrl('view', ['record' => $record->purchaseInvoice->id])
+                            : null)
+                        ->icon('heroicon-m-arrow-top-right-on-square')
+                        ->openUrlInNewTab()
+                        ->visible(fn($record) => $record->purchaseInvoice !== null)
+                ),
             TextEntry::make('total')
                 ->label('المجموع')
                 ->visible(fn() => auth()->user()->can('show_costs_receipt::note')),

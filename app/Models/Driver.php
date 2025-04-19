@@ -51,6 +51,13 @@ class Driver extends User
         });
     }
 
+    public function scopeNeedAccountantReceiptNote($query)
+    {
+        return $query->whereHas('account', function ($query) {
+            $query->where('balance', '>', 0);
+        });
+    }
+
     public function accountantReceiptNotes(): MorphMany
     {
         return $this->morphMany(AccountantReceiptNote::class, 'from_model');

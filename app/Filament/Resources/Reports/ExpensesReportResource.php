@@ -29,7 +29,8 @@ class ExpensesReportResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-receipt-percent';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة الحسابات';
+    protected static ?int $navigationSort = 11;
 
     protected static ?string $modelLabel = 'تقرير المصروفات';
 

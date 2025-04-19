@@ -7,6 +7,19 @@
 
     <title inertia>{{ settings('app_name', 'Sindbad') }}</title>
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2N1NHRZM1Y"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'G-2N1NHRZM1Y');
+    </script>
+
     <link rel="manifest" href="/manifest.json">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

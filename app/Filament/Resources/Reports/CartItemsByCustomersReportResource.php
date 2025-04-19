@@ -21,7 +21,8 @@ class CartItemsByCustomersReportResource extends Resource implements HasShieldPe
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة المبيعات';
+    protected static ?int $navigationSort = 14;
 
     protected static ?string $modelLabel = 'تقرير سلة المشتريات حسب العملاء';
 

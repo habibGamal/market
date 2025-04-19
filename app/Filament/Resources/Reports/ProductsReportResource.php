@@ -39,7 +39,9 @@ class ProductsReportResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-pie';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة المنتجات';
+
+    protected static ?int $navigationSort = 7;
 
     protected static ?string $modelLabel = 'تقرير المنتج';
 

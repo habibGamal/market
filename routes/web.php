@@ -12,6 +12,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PlaceOrderController;
+use App\Http\Controllers\WishlistController;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Category;
@@ -30,6 +31,9 @@ Route::get('/', [PageBuilderController::class, 'home']);
 Route::get('/hot-deals', [PageBuilderController::class, 'hotDeals']);
 Route::get('/product-list', [ProductListController::class, 'index']);
 Route::get('/support', [ProfileController::class, 'support'])->name('support');
+Route::get('/offline', function () {
+    return view('offline');
+});
 Route::get('/products/{product}', function (Product $product) {
     return Inertia::render('Products/Show', [
         'product' => array_merge($product->toArray(), [
@@ -38,6 +42,7 @@ Route::get('/products/{product}', function (Product $product) {
             'isDeal' => $product->is_deal,
             'category' => $product->category,
             'brand' => $product->brand,
+            'isInWishlist' => auth('customer')->check() ? auth('customer')->user()->wishlistProducts()->where('product_id', $product->id)->exists() : false,
         ])
     ]);
 })->name('products.show');
@@ -91,6 +96,11 @@ Route::middleware(['auth:customer'])->group(function () {
         Route::get('/place-order', [OrderController::class, 'previewPlaceOrder'])->name('place-order.show');
         Route::get('/returns', [OrderController::class, 'returns'])->name('returns.index');
 
+        // Wishlist routes
+        Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+        Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
+        Route::delete('/wishlist/{productId}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+
         Route::get('/my-reports', [CustomerReportController::class, 'show'])->name('my-reports.show');
     });
     Route::post('/subscribe', function () {
@@ -116,6 +126,7 @@ Route::middleware(['auth:customer'])->group(function () {
     Route::post('/profile/update-password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
     Route::get('/profile/address', [ProfileController::class, 'editAddress'])->name('profile.address');
     Route::post('/profile/update-address', [ProfileController::class, 'updateAddress'])->name('profile.update-address');
+    Route::get('/profile/delete-account', [ProfileController::class, 'deleteAccount'])->name('profile.delete-account');
     Route::post('/profile/send-otp', [ProfileController::class, 'sendOtp'])->name('profile.send-otp');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });

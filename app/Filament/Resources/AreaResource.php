@@ -33,7 +33,7 @@ class AreaResource extends Resource implements HasShieldPermissions
 
     protected static ?string $pluralModelLabel = 'المناطق';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 7;
 
     public static function form(Form $form): Form
     {

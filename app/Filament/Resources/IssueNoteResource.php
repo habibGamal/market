@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\InvoiceStatus;
+use App\Enums\IssueNoteType;
 use App\Filament\Interfaces\InvoiceResource;
 use App\Filament\Resources\IssueNoteResource\Pages;
 use App\Filament\Resources\IssueNoteResource\RelationManagers;
@@ -16,6 +18,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Awcodes\TableRepeater\Header;
 use Filament\Infolists\Components\TextEntry;
@@ -118,7 +121,18 @@ class IssueNoteResource extends InvoiceResource implements HasShieldPermissions
                     ->dateTime()
                     ->sortable(),
             ])
-            ->filters([])
+            ->filters([
+                Tables\Filters\SelectFilter::make('note_type')
+                    ->label('نوع الإذن')
+                    ->options(IssueNoteType::toSelectArray())
+                    ->searchable()
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('الحالة')
+                    ->options(InvoiceStatus::toSelectArray())
+                    ->searchable()
+                    ->multiple(),
+            ])
             ->headerActions([
                 Tables\Actions\ExportAction::make()
                     ->exporter(IssueNoteExporter::class),
@@ -148,7 +162,18 @@ class IssueNoteResource extends InvoiceResource implements HasShieldPermissions
                 ->label('الحالة'),
             TextEntry::make('note_type')
                 ->badge()
-                ->label('نوع الإذن'),
+                ->label('نوع الإذن')
+                ->suffixAction(
+                    \Filament\Infolists\Components\Actions\Action::make('viewDocument')
+                        ->label('عرض المستند')
+                        ->url(fn(Model $record) => match ($record->note_type) {
+                            IssueNoteType::WASTE => WasteResource::getUrl('view', ['record' => $record->waste->id]),
+                            IssueNoteType::RETURN_PURCHASES => ReturnPurchaseInvoiceResource::getUrl('view', ['record' => $record->returnPurchaseInvoice->id]),
+                            default => '#'
+                        })
+                        ->icon('heroicon-m-arrow-top-right-on-square')
+                        ->openUrlInNewTab()
+                ),
             TextEntry::make('officer.name')
                 ->label('المسؤول'),
             TextEntry::make('created_at')

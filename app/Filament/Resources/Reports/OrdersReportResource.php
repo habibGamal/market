@@ -29,7 +29,8 @@ class OrdersReportResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة المبيعات';
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $modelLabel = 'الطلبية';
 

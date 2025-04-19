@@ -22,6 +22,7 @@ class OfferResource extends Resource
     protected static ?string $model = Offer::class;
     protected static ?string $navigationIcon = 'heroicon-o-gift';
     protected static ?string $navigationLabel = 'العروض';
+    protected static ?int $navigationSort = 3;
     protected static ?string $modelLabel = 'عرض';
     protected static ?string $pluralModelLabel = 'العروض';
 

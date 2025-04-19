@@ -14,34 +14,31 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         Warehouse::factory()->create([
-            'name' => 'Warehouse 1',
-            'address' => '123 Fake St.',
+            'name' => 'Main',
+            'address' => 'Main.',
         ]);
 
-        Driver::factory(3)->create()->each(function ($driver) {
-            $driver->account()->update([
-                'balance' => 1000 // Setting initial balance of 1000
-            ]);
-        });
+        // Driver::factory(3)->create()->each(function ($driver) {
+        //     $driver->account()->update([
+        //         'balance' => 1000 // Setting initial balance of 1000
+        //     ]);
+        // });
 
         BusinessType::factory()->create([
             'name' => 'سوبرماركت',
         ]);
 
-        BusinessType::factory()->create([
-            'name' => 'صيدلية',
-        ]);
         Customer::factory()->create([
             'phone' => '01000000000',
             'phone_verified_at' => now(),
-            'password' => 'password',
+            'password' => 'review_password',
         ]);
         $this->call([
             UserSeeder::class,
-            ProductSeeder::class,
+            // ProductSeeder::class,
             ShieldSeeder::class,
-            PendingOrderSeeder::class,
-            SupplierSeeder::class,
+            // PendingOrderSeeder::class,
+            // SupplierSeeder::class,
             // ProductReportSeeder::class,
         ]);
     }

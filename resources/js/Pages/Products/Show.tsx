@@ -1,12 +1,13 @@
 import { useState } from "react";
+import { WishlistButton } from "@/Components/Products/WishlistButton";
 import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
 import { FallbackImage } from "@/Components/ui/fallback-image";
 import { Dialog, DialogTrigger } from "@/Components/ui/dialog";
-import { ProductsHorizontalSection } from "@/Components/Products/ProductsSection";
 import { useCart } from "@/Hooks/useCart";
 import { AddToCartModal } from "@/Components/Products/AddToCartModal";
 import type { Product } from "@/types";
+import { Link } from "@inertiajs/react";
 
 interface ShowProps {
     product: Product & {
@@ -92,13 +93,23 @@ export default function Show({ product }: ShowProps) {
                             </div>
                             <div className="text-sm text-secondary-600">
                                 <span className="font-medium">الفئة:</span>{" "}
-                                {product.category.name}
+                                <Link
+                                    href={route('categories.show', product.category.id)}
+                                    className="text-primary-600 hover:underline"
+                                >
+                                    {product.category.name}
+                                </Link>
                             </div>
                             <div className="text-sm text-secondary-600">
                                 <span className="font-medium">
                                     العلامة التجارية:
                                 </span>{" "}
-                                {product.brand.name}
+                                <Link
+                                    href={`/product-list?id=${product.brand.id}&model=brand`}
+                                    className="text-primary-600 hover:underline"
+                                >
+                                    {product.brand.name}
+                                </Link>
                             </div>
                             <div className="text-sm text-secondary-600">
                                 <span className="font-medium">
@@ -144,19 +155,24 @@ export default function Show({ product }: ShowProps) {
                             )}
                         </div>
 
-                        {/* Add to Cart */}
-                        <Dialog open={open} onOpenChange={setOpen}>
-                            <DialogTrigger asChild>
-                                <Button
-                                    size="lg"
-                                    className="w-full"
-                                    disabled={isDisabled}
-                                    variant={isDisabled ? "outline" : "default"}
-                                >
-                                    {isDisabled ? "غير متوفر" : "أضف للسلة"}
-                                </Button>
-                            </DialogTrigger>
-                        </Dialog>
+                        {/* Add to Cart and Wishlist */}
+                        <div className="flex gap-2">
+                            <Dialog open={open} onOpenChange={setOpen}>
+                                <DialogTrigger asChild>
+                                    <Button
+                                        size="lg"
+                                        className="w-full"
+                                        disabled={isDisabled}
+                                        variant={isDisabled ? "outline" : "default"}
+                                    >
+                                        {isDisabled ? "غير متوفر" : "أضف للسلة"}
+                                    </Button>
+                                </DialogTrigger>
+                            </Dialog>
+
+                            {/* Wishlist Button */}
+                            <WishlistButton product={product} />
+                        </div>
 
                         <AddToCartModal
                             open={open}

@@ -244,6 +244,13 @@ class WasteResource extends InvoiceResource
                             ->send();
                     }
                 }),
+                Tables\Actions\Action::make('view_receipt')
+                    ->label('عرض إذن الصرف')
+                    ->icon('heroicon-o-document')
+                    ->visible(fn(Waste $record) => $record->issue_note_id !== null)
+                    ->url(fn(Waste $record) => $record->issue_note_id
+                        ? IssueNoteResource::getUrl('view', ['record' => $record->issue_note_id])
+                        : null),
             ])
             ->bulkActions([]);
     }
@@ -256,7 +263,20 @@ class WasteResource extends InvoiceResource
             ])->columnSpanFull()
                 ->alignEnd(),
             TextEntry::make('id')
-                ->label('رقم الإذن'),
+                ->label('رقم التالف'),
+            TextEntry::make('issue_note_id')
+                ->label('إذن الصرف')
+                ->formatStateUsing(fn($state) => $state ? $state : 'غير متوفر')
+                ->suffixAction(
+                    \Filament\Infolists\Components\Actions\Action::make('viewIssueNote')
+                        ->label('عرض إذن الصرف')
+                        ->url(fn($record) => $record->issue_note_id
+                            ? IssueNoteResource::getUrl('view', ['record' => $record->issue_note_id])
+                            : null)
+                        ->icon('heroicon-m-arrow-top-right-on-square')
+                        ->openUrlInNewTab()
+                        ->visible(fn($record) => $record->issue_note_id !== null)
+                ),
             TextEntry::make('total')
                 ->label('المجموع'),
             TextEntry::make('status')

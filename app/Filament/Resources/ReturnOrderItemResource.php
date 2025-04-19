@@ -23,6 +23,7 @@ class ReturnOrderItemResource extends Resource
     protected static ?string $model = ReturnOrderItem::class;
 
     protected static ?string $navigationGroup = 'إدارة المبيعات';
+    protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-arrow-uturn-left';
     protected static ?string $modelLabel = 'مرتجع';
     protected static ?string $pluralModelLabel = 'المرتجعات';

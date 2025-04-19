@@ -34,12 +34,13 @@ class CreateReceiptNote extends CreateRecord
                         ->options(function () {
                             return PurchaseInvoice::query()
                                 ->withoutReceipt()
-                                ->with('supplier:id,name')
+                                ->with('supplier')
                                 ->get()
                                 ->mapWithKeys(function ($invoice) {
                                     $supplierName = $invoice->supplier->name;
+                                    $companyName = $invoice->supplier->company_name;
                                     $executionDate = $invoice->execution_date ? \Carbon\Carbon::parse($invoice->execution_date)->format('Y-m-d') : 'بدون تاريخ';
-                                    return [$invoice->id => "#$invoice->id - $supplierName - $executionDate"];
+                                    return [$invoice->id => "#$invoice->id - $supplierName - $companyName - $executionDate"];
                                 })
                                 ->toArray();
                         })

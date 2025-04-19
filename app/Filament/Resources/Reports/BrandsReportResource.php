@@ -26,11 +26,13 @@ class BrandsReportResource extends Resource  implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
 
-    protected static ?string $navigationGroup = 'التقارير';
+    protected static ?string $navigationGroup = 'إدارة المنتجات';
 
     protected static ?string $modelLabel = 'تقرير العلامة التجارية';
 
     protected static ?string $pluralModelLabel = 'تقارير العلامات التجارية';
+
+    protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
     {

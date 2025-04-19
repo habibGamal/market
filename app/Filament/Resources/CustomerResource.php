@@ -15,6 +15,7 @@ use Filament\Tables\Table;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Actions\BulkActionGroup;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CustomerResource extends Resource implements HasShieldPermissions
 {
@@ -25,7 +26,12 @@ class CustomerResource extends Resource implements HasShieldPermissions
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $modelLabel = 'عميل';
     protected static ?string $pluralModelLabel = 'العملاء';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 4;
+
+    public static function canRestore($record): bool
+    {
+        return true;
+    }
 
     public static function form(Form $form): Form
     {
@@ -181,16 +187,19 @@ class CustomerResource extends Resource implements HasShieldPermissions
                     ->relationship('area', 'name'),
                 Tables\Filters\TernaryFilter::make('blocked')
                     ->label('محظور'),
+                Tables\Filters\TrashedFilter::make()
+                    ->label('العملاء المحذوفة'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\RestoreAction::make()
+                    ->label('استعادة')
+                ,
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    Tables\Actions\BulkActionGroup::make([
-                        Tables\Actions\ExportBulkAction::make()->exporter(CustomerExporter::class),
-                        Tables\Actions\DeleteBulkAction::make(),
-                    ]),
+                    Tables\Actions\ExportBulkAction::make()->exporter(CustomerExporter::class),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->headerActions([
@@ -229,5 +238,14 @@ class CustomerResource extends Resource implements HasShieldPermissions
             'view_report_orders',
             'view_profits',
         ];
+    }
+
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

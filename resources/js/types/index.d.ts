@@ -110,6 +110,7 @@ export interface Product {
     has_stock?: boolean;
     packet_alter_name: string;
     piece_alter_name: string;
+    isInWishlist?: boolean;
 }
 
 export interface OrderItem {

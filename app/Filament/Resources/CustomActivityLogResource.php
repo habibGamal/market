@@ -29,6 +29,11 @@ class CustomActivityLogResource extends ActivitylogResource
         return parent::getCauserNameColumnCompoment()->sortable();
     }
 
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('view_custom::activity::log');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -80,7 +85,7 @@ class CustomActivityLogResource extends ActivitylogResource
 
                 Forms\Components\Section::make()
                     ->columns()
-                    ->visible(fn ($record) => $record->properties?->count() > 0)
+                    ->visible(fn($record) => $record->properties?->count() > 0)
                     ->schema(function (?Model $record) {
                         /** @var \Spatie\Activitylog\Models\Activity $record */
                         $properties = $record->properties->except(['attributes', 'old']);
@@ -95,13 +100,13 @@ class CustomActivityLogResource extends ActivitylogResource
 
                         if ($old = $record->properties->get('old')) {
                             $schema[] = Forms\Components\KeyValue::make('old')
-                                ->formatStateUsing(fn () => self::formatDateValues($old))
+                                ->formatStateUsing(fn() => self::formatDateValues($old))
                                 ->label('القديم');
                         }
 
                         if ($attributes = $record->properties->get('attributes')) {
                             $schema[] = Forms\Components\KeyValue::make('attributes')
-                                ->formatStateUsing(fn () => self::formatDateValues($attributes))
+                                ->formatStateUsing(fn() => self::formatDateValues($attributes))
                                 ->label('السمات');
                         }
 
@@ -117,7 +122,7 @@ class CustomActivityLogResource extends ActivitylogResource
                                             // Handle second level nested array
                                             $nestedSchema[] = Forms\Components\KeyValue::make("properties.{$key}.{$nestedKey}")
                                                 ->label($nestedKey)
-                                                ->formatStateUsing(fn () => $nestedValue);
+                                                ->formatStateUsing(fn() => $nestedValue);
                                         }
                                     }
 
@@ -128,7 +133,7 @@ class CustomActivityLogResource extends ActivitylogResource
                                     } else {
                                         $propertiesSchema[] = Forms\Components\KeyValue::make("properties.{$key}")
                                             ->label($key)
-                                            ->formatStateUsing(fn () => $value);
+                                            ->formatStateUsing(fn() => $value);
                                     }
                                 } else {
                                     $properties[$key] = $value;
@@ -148,8 +153,16 @@ class CustomActivityLogResource extends ActivitylogResource
     {
         return [
             'index' => ListCustomActivityLogs::route('/'),
-            'view'  => ViewCustomActivityLog::route('/{record}'),
+            'view' => ViewCustomActivityLog::route('/{record}'),
         ];
     }
 
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+        ];
+    }
 }

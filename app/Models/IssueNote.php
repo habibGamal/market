@@ -100,4 +100,14 @@ class IssueNote extends Model
             ->where('status', InvoiceStatus::CLOSED)
             ->whereDoesntHave('accountantReceiptNotes');
     }
+
+    public function waste()
+    {
+        return $this->hasOne(Waste::class);
+    }
+
+    public function returnPurchaseInvoice()
+    {
+        return $this->hasOne(ReturnPurchaseInvoice::class);
+    }
 }

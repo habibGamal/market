@@ -10,31 +10,56 @@ import { AddToCartModal } from "@/Components/Products/AddToCartModal";
 
 interface ProductCardProps {
     product: Product;
+    additionalActions?: React.ReactNode;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, additionalActions }: ProductCardProps) {
     const [open, setOpen] = useState(false);
-    const { packets, setPackets, pieces, setPieces, loading, addToCart } = useCart({
-        onSuccess: () => setOpen(false),
-    });
+    const { packets, setPackets, pieces, setPieces, loading, addToCart } =
+        useCart({
+            onSuccess: () => setOpen(false),
+        });
 
     // Determine if product is out of stock
     const isDisabled = product.has_stock === false || !product.is_active;
 
     return (
-        <div className={`relative group flex flex-col justify-between h-full max-w-[250px] ${isDisabled ? 'opacity-60' : ''}`}>
+        <div
+            className={`relative group flex flex-col justify-between h-full max-w-[250px] ${
+                isDisabled ? "opacity-60" : ""
+            }`}
+        >
             {/* Badge */}
             {(product.is_new || product.is_deal || isDisabled) && (
                 <Badge
                     className="absolute top-2 right-2 z-10"
-                    variant={isDisabled ? "outline" : product.is_deal ? "destructive" : "default"}
+                    variant={
+                        isDisabled
+                            ? "outline"
+                            : product.is_deal
+                            ? "destructive"
+                            : "default"
+                    }
                 >
-                    {isDisabled ? "غير متوفر" : product.is_deal ? "عرض خاص" : "جديد"}
+                    {isDisabled
+                        ? "غير متوفر"
+                        : product.is_deal
+                        ? "عرض خاص"
+                        : "جديد"}
                 </Badge>
             )}
             {/* Product Image */}
-            <Link href={route('products.show', product.id)} preserveState preserveScroll className="block">
-                <div className={`relative aspect-square overflow-hidden rounded-lg mb-3 ${isDisabled ? 'grayscale' : ''}`}>
+            <Link
+                href={route("products.show", product.id)}
+                preserveState
+                preserveScroll
+                className="block"
+            >
+                <div
+                    className={`relative aspect-square overflow-hidden rounded-lg mb-3 ${
+                        isDisabled ? "grayscale" : ""
+                    }`}
+                >
                     <FallbackImage
                         src={product.image}
                         alt={product.name}
@@ -58,7 +83,9 @@ export function ProductCard({ product }: ProductCardProps) {
                         )}
                         <span className="text-lg font-bold text-primary-500">
                             {product.prices.packet.discounted}{" "}
-                            <span className="text-xs">ج.م/{product.packet_alter_name}</span>
+                            <span className="text-xs">
+                                ج.م/{product.packet_alter_name}
+                            </span>
                         </span>
                     </div>
                 )}
@@ -72,22 +99,27 @@ export function ProductCard({ product }: ProductCardProps) {
                         )}
                         <span className="text-sm text-secondary-700">
                             {product.prices.piece.discounted}{" "}
-                            <span className="text-xs">ج.م/{product.piece_alter_name}</span>
+                            <span className="text-xs">
+                                ج.م/{product.piece_alter_name}
+                            </span>
                         </span>
                     </div>
                 )}
                 {/* Add to Cart Dialog */}
-                <Dialog open={open} onOpenChange={setOpen}>
-                    <DialogTrigger asChild>
-                        <Button
-                            className="w-full mt-2"
-                            disabled={isDisabled}
-                            variant={isDisabled ? "outline" : "default"}
-                        >
-                            {isDisabled ? "غير متوفر" : "أضف للسلة"}
-                        </Button>
-                    </DialogTrigger>
-                </Dialog>
+                <div className="flex gap-2 items-center mt-4">
+                    <Dialog open={open} onOpenChange={setOpen}>
+                        <DialogTrigger asChild>
+                            <Button
+                                className="flex-1"
+                                disabled={isDisabled}
+                                variant={isDisabled ? "outline" : "default"}
+                            >
+                                {isDisabled ? "غير متوفر" : "أضف للسلة"}
+                            </Button>
+                        </DialogTrigger>
+                    </Dialog>
+                    {additionalActions}
+                </div>
                 <AddToCartModal
                     open={open}
                     onOpenChange={setOpen}
