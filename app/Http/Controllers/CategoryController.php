@@ -46,7 +46,8 @@ class CategoryController extends Controller
     {
         // Get brands with products in this category
         $brandsWithProducts = Brand::whereHas('products', function ($query) use ($category) {
-            $query->where('category_id', $category->id);
+            $query->whereIn('category_id', $category->children()->pluck('id'))
+                ->orWhere('category_id', $category->id);
         })->get();
 
         return Inertia::render('Categories/Show', [

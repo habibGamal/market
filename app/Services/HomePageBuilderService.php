@@ -30,7 +30,7 @@ class HomePageBuilderService
 
         $paginators = $sectionQuery->clone()->get()
             ->map(function ($section) {
-                $productsPagination = $this->sectionService->getProductsOfSection($section)->paginate(3, pageName: 'section_' . $section->id . '_products_page');
+                $productsPagination = $this->sectionService->getProductsOfSection($section)->where('products.is_active', true)->paginate(3, pageName: 'section_' . $section->id . '_products_page');
                 $paginatorIdentifier = 'section_' . $section->id . '_products_page';
                 $productsResult[$paginatorIdentifier . '_data'] = inertia()->merge(
                     $productsPagination->items()

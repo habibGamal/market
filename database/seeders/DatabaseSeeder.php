@@ -13,10 +13,10 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        Warehouse::factory()->create([
-            'name' => 'Main',
-            'address' => 'Main.',
-        ]);
+        // Warehouse::factory()->create([
+        //     'name' => 'Main',
+        //     'address' => 'Main.',
+        // ]);
 
         // Driver::factory(3)->create()->each(function ($driver) {
         //     $driver->account()->update([
@@ -24,19 +24,19 @@ class DatabaseSeeder extends Seeder
         //     ]);
         // });
 
-        BusinessType::factory()->create([
-            'name' => 'سوبرماركت',
-        ]);
+        // BusinessType::factory()->create([
+        //     'name' => 'سوبرماركت',
+        // ]);
 
-        Customer::factory()->create([
-            'phone' => '01000000000',
-            'phone_verified_at' => now(),
-            'password' => 'review_password',
-        ]);
+        // Customer::factory()->create([
+        //     'phone' => '01000000000',
+        //     'phone_verified_at' => now(),
+        //     'password' => 'review_password',
+        // ]);
         $this->call([
             UserSeeder::class,
             // ProductSeeder::class,
-            ShieldSeeder::class,
+            // ShieldSeeder::class,
             // PendingOrderSeeder::class,
             // SupplierSeeder::class,
             // ProductReportSeeder::class,

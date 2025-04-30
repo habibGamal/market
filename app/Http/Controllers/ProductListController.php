@@ -26,7 +26,8 @@ class ProductListController extends Controller
         }
 
         // Get base query for products based on model and ID
-        $baseQuery = $this->productListService->getProducts($model, $id);
+        $baseQuery = $this->productListService->getProducts($model, $id)
+        ->where('products.is_active', true);
 
         // Apply filters and get paginated results
         $query = $this->productListService->applyFilters($baseQuery->clone());
@@ -53,7 +54,7 @@ class ProductListController extends Controller
         $searchQuery = request('q');
 
         // Get base query for search
-        $baseQuery = $this->productListService->getSearchQuery($searchQuery);
+        $baseQuery = $this->productListService->getSearchQuery($searchQuery)->where('is_active', true);
 
         // Apply filters and get paginated results
         $query = $this->productListService->applyFilters($baseQuery);

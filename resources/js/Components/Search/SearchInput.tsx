@@ -87,6 +87,17 @@ export function SearchInput({
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     onFocus={() => query && setShowSuggestions(true)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (onSearch) {
+                                onSearch(query);
+                            } else {
+                                router.visit(`/search?q=${encodeURIComponent(query)}`);
+                            }
+                            setShowSuggestions(false);
+                        }
+                    }}
                     className="w-full pl-10 pr-8"
                 />
                 {loading && (
