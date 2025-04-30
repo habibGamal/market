@@ -88,10 +88,6 @@ export default function Show({ product }: ShowProps) {
 
                         <div className="space-y-2">
                             <div className="text-sm text-secondary-600">
-                                <span className="font-medium">الباركود:</span>{" "}
-                                {product.barcode}
-                            </div>
-                            <div className="text-sm text-secondary-600">
                                 <span className="font-medium">الفئة:</span>{" "}
                                 <Link
                                     href={route('categories.show', product.category.id)}
