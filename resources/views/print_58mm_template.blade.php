@@ -166,14 +166,41 @@
         </div>
 
         <!-- Items Section -->
-        @if ($template->getItems())
+        @if ($template->getItemsWithHeaders() && count($template->getItemsWithHeaders()) > 0)
+            <div class="divider"></div>
+
+            <!-- Items List with Individual Headers -->
+            @foreach ($template->getItemsWithHeaders() as $itemWithHeader)
+                <div class="item-container">
+                    @foreach ($itemWithHeader['item'] as $index => $value)
+                        @if (is_array($value))
+                            <div class="item-row">
+                                <div class="nested-item-container">
+                                    @foreach ($value as $nestedIndex => $nestedValue)
+                                        <div class="item-row">
+                                            <span class="item-label">{{ isset($itemWithHeader['headers'][$index][$nestedIndex]) ? $itemWithHeader['headers'][$index][$nestedIndex] . ':' : '' }}</span>
+                                            <span class="item-value">{!! $nestedValue !!}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @else
+                            <div class="item-row">
+                                <span class="item-label">{{ isset($itemWithHeader['headers'][$index]) ? $itemWithHeader['headers'][$index] . ':' : '' }}</span>
+                                <span class="item-value">{!! $value !!}</span>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            @endforeach
+        @elseif ($template->getItems())
             <div class="divider"></div>
 
             @php
                 $itemHeaders = $template->getItemHeaders() ?? [];
             @endphp
 
-            <!-- Items List -->
+            <!-- Legacy Items List -->
             @foreach ($template->getItems() as $item)
                 <div class="item-container">
                     @php

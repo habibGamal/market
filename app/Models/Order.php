@@ -83,7 +83,7 @@ class Order extends Model
         return $query->whereDoesntHave('driverTask')
             ->notCancelled()
             ->whereNot('status', OrderStatus::DELIVERED)
-            ->whereDate('created_at', '<', Carbon::today())
+            ->whereDate('created_at', '<', now('Africa/Cairo')->startOfDay())
         ;
     }
 
@@ -92,7 +92,7 @@ class Order extends Model
         return $query->whereNull('issue_note_id')
             ->notCancelled()
             ->whereHas('driverTask')
-            ->whereDate('created_at', '<', Carbon::today())
+            ->whereDate('created_at', '<', now('Africa/Cairo')->startOfDay())
         ;
     }
 
@@ -100,7 +100,7 @@ class Order extends Model
     {
         return $this->status !== OrderStatus::DELIVERED &&
             $this->status !== OrderStatus::CANCELLED &&
-            $this->created_at->startOfDay()->lt(now()->startOfDay());
+            $this->created_at->startOfDay()->lt(now('Africa/Cairo')->startOfDay());
     }
 
     public function getIsAbleToMakeIssueNoteAttribute(): bool
@@ -108,7 +108,7 @@ class Order extends Model
         return is_null($this->issue_note_id) &&
             $this->status !== OrderStatus::CANCELLED &&
             $this->driverTask !== null &&
-            $this->created_at->startOfDay()->lt(now()->startOfDay());
+            $this->created_at->startOfDay()->lt(now('Africa/Cairo')->startOfDay());
     }
 
     protected function netTotal(): Attribute
@@ -208,27 +208,45 @@ class Order extends Model
             ->info('العنوان', $this->customer->address)
             ->info('الحالة', $this->status->getLabel())
             ->total($this->netTotal)
-            ->itemHeaders([['المنتج', 'الإجمالي'], ['عبوات', 'سعر العبوة'], ['قطع', 'سعر القطعة']])
-            ->items($this->items->map(function ($item) use ($returnedItems) {
-                $netQuantity = $this->calculateNetQuantity($item, $returnedItems);
-
-                return [
-                    [
-                        $item->product->name,
-                        $netQuantity['netTotal']
-                    ],
-                    [
-                        $netQuantity['netPacketsQty'],
-                        $item->packet_price,
-                    ],
-                    [
-                        $netQuantity['netPieceQty'],
-                        $item->piece_price,
-                    ],
-                ];
-            })->toArray())
             ->footer(settings(SettingKey::ORDER_RECEIPT_FOOTER, '') ?? '')
             ->layout58mm();
+
+        // Add items with conditional headers
+        $this->items->each(function ($item) use ($template, $returnedItems) {
+            $netQuantity = $this->calculateNetQuantity($item, $returnedItems);
+            $itemData = [];
+            $itemHeaders = [];
+
+            // Always include product name and total
+            $itemData[] = [$item->product->name , $netQuantity['netTotal']];
+            $itemHeaders[] = ['المنتج' , 'الإجمالي'];
+
+            // Include packets only if there are any
+            if ($netQuantity['netPacketsQty'] > 0) {
+                $itemData[] = [
+                    $netQuantity['netPacketsQty'],
+                    $item->packet_price
+                ];
+                $itemHeaders[] = [
+                    'عبوات',
+                    'سعر العبوة'
+                ];
+            }
+
+            // Include pieces only if there are any
+            if ($netQuantity['netPieceQty'] > 0) {
+                $itemData[] = [
+                    $netQuantity['netPieceQty'],
+                    $item->piece_price
+                ];
+                $itemHeaders[] = [
+                    'قطع',
+                    'سعر القطعة'
+                ];
+            }
+
+            $template->itemWithHeaders($itemData, $itemHeaders);
+        });
 
 
         return $template;

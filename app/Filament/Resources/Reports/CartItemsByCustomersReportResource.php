@@ -14,6 +14,7 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class CartItemsByCustomersReportResource extends Resource implements HasShieldPermissions
 {
@@ -75,7 +76,7 @@ class CartItemsByCustomersReportResource extends Resource implements HasShieldPe
                     ->label('مجموع السلة')
                     ->money('EGP')
                     ->sortable(),
-                            ])
+            ])
             ->filters([
                 Tables\Filters\SelectFilter::make('gov_id')
                     ->label('المحافظة')
@@ -145,4 +146,5 @@ class CartItemsByCustomersReportResource extends Resource implements HasShieldPe
     {
         return [];
     }
+
 }

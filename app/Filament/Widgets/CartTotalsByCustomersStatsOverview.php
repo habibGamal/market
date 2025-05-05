@@ -19,9 +19,11 @@ class CartTotalsByCustomersStatsOverview extends BaseWidget
 
     protected function getStats(): array
     {
+        $query = $this->getPageTableQuery()->select('id');
+        $query->reorder();
 
-        $totalCartsValue = Cart::whereIn('customer_id', $this->getPageTableQuery()->select('id')->get()->pluck('id'))->sum('total');
-        $activeCartsCount = Cart::whereIn('customer_id', $this->getPageTableQuery()->select('id')->get()->pluck('id'))->where('total', '>', 0)->count();
+        $totalCartsValue = Cart::whereIn('customer_id',  $query->get()->pluck('id'))->sum('total');
+        $activeCartsCount = Cart::whereIn('customer_id',  $query->get()->pluck('id'))->where('total', '>', 0)->count();
 
         return [
             Stat::make('إجمالي قيم السلات', number_format($totalCartsValue, 2) . ' EGP')

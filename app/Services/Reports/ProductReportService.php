@@ -51,8 +51,8 @@ class ProductReportService
     {
         return $query->addSelect([
             'products.*',
-            DB::raw('agg.order_items_sum_piece_quantity * products.packet_to_piece + agg.order_items_sum_piece_quantity as order_items_sum_piece_quantity'),
-            DB::raw('COALESCE(return_agg.return_order_items_sum_piece_quantity * products.packet_to_piece + return_agg.return_order_items_sum_piece_quantity, 0) as return_order_items_sum_piece_quantity'),
+            DB::raw('agg.order_items_sum_packets_quantity * products.packet_to_piece + agg.order_items_sum_piece_quantity as order_items_sum_piece_quantity'),
+            DB::raw('COALESCE(return_agg.return_order_items_sum_packets_quantity * products.packet_to_piece + return_agg.return_order_items_sum_piece_quantity, 0) as return_order_items_sum_piece_quantity'),
             'order_items_sum_total' => 'agg.order_items_sum_total',
             'order_items_sum_profit' => 'agg.order_items_sum_profit',
         ])

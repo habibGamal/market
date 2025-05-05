@@ -254,7 +254,7 @@
                         @foreach ($template->getItems() as $item)
                             <tr class="hover:bg-gray-50 transition-colors">
                                 @foreach ($item as $value)
-                                    <td class="py-3 px-6 border-b border-gray-100">{{ $value }}</td>
+                                    <td class="px-6 border-b border-gray-100">{{ $value }}</td>
                                 @endforeach
                             </tr>
                         @endforeach

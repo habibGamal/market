@@ -101,6 +101,7 @@ class StockServices
             }
 
             $availableQuantity = $stockItem->reserved_quantity;
+            // $availableQuantity = $stockItem->piece_quantity;
 
             if ($availableQuantity > 0) {
                 $reserveQuantity = min($availableQuantity, $remainingQuantity);
@@ -110,7 +111,8 @@ class StockServices
         }
 
         if ($remainingQuantity > 0) {
-            throw new \Exception('الكمية المطلوبة غير متوفرة');
+            // $quantities['2025-05-05'] = $remainingQuantity;
+            throw new \Exception("الكمية المطلوبة غير متوفرة للمنتج {$product->name}");
         }
 
         return $quantities;
@@ -224,10 +226,10 @@ class StockServices
 
             $stockItems->each(function ($stockItem) use ($quantities) {
                 if ($stockItem->reserved_quantity < $quantities[$stockItem->release_date]) {
-                    throw new \Exception('الكمية المحجوزة غير كافية');
+                    throw new \Exception("الكمية المحجوزة للمنتج {$stockItem->product->name} غير كافية");
                 }
                 if ($stockItem->piece_quantity < $quantities[$stockItem->release_date]) {
-                    throw new \Exception('الكمية المتاحة غير كافية');
+                    throw new \Exception("الكمية المتاحة للمنتج {$stockItem->product->name} غير كافية");
                 }
                 $stockItem->decrement('piece_quantity', $quantities[$stockItem->release_date]);
                 $stockItem->decrement('reserved_quantity', $quantities[$stockItem->release_date]);

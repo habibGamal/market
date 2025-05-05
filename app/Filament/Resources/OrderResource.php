@@ -166,19 +166,22 @@ class OrderResource extends Resource implements HasShieldPermissions
                 Filter::make('created_at')
                     ->form([
                         DateTimePicker::make('created_from')
+                            ->format('Y-m-d H:i')
                             ->label('من تاريخ'),
                         DateTimePicker::make('created_until')
+                            ->format('Y-m-d H:i')
                             ->label('إلى تاريخ'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
+                        // dd($data);
                         return $query
                             ->when(
                                 $data['created_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->where('created_at', '>=', $date),
                             )
                             ->when(
                                 $data['created_until'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->where('created_at', '<=', $date),
                             );
                     })
             ])

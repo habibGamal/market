@@ -45,7 +45,7 @@ class ForgotPasswordController extends Controller
         }
 
         $otp = $this->otpService->generateOtp($phone);
-
+        $this->otpService->sendOtp($phone);
         if (app()->environment('local')) {
             logger()->info("Password Reset OTP for {$phone}: {$otp}");
             return response()->json(['otp' => $otp]);

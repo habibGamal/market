@@ -71,10 +71,14 @@ class ViewOrder extends ViewRecord
                             ->label('إجمالي المستلم')
                             ->content(function (callable $get) {
                                 $items = collect($get('items') ?? []);
-                                return $items->sum(function ($item) {
-                                    $itemModel = $this->getRecord()->items->find($item['item_id']);
-                                    return ($item['packets_quantity'] * $itemModel->packet_price) + ($item['piece_quantity'] * $itemModel->piece_price);
-                                });
+                                try {
+                                    return $items->sum(function ($item) {
+                                        $itemModel = $this->getRecord()->items->find($item['item_id']);
+                                        return (float)$item['packets_quantity'] * $itemModel->packet_price + (float)$item['piece_quantity'] * $itemModel->piece_price;
+                                    });
+                                } catch (\Exception $e) {
+                                    return 'جاري حساب المجموع';
+                                }
                             })
                             ->columnSpanFull(),
                     ];

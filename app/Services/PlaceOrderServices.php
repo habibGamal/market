@@ -225,7 +225,7 @@ class PlaceOrderServices
      */
     private function getOrCreateTodayOrder(int $customerId): Order
     {
-        $today = Carbon::today();
+        $today = Carbon::today('Africa/Cairo');
         $order = Order::where('customer_id', $customerId)
             ->whereDate('created_at', $today)
             ->where('status', OrderStatus::PENDING->value)

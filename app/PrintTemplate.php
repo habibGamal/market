@@ -20,6 +20,8 @@ class PrintTemplate
 
     protected $items = null;
 
+    protected $itemsWithHeaders = [];
+
     protected $layout = 'print_template';
 
     public function layout58mm()
@@ -73,6 +75,11 @@ class PrintTemplate
         return $this->items;
     }
 
+    public function getItemsWithHeaders(): array
+    {
+        return $this->itemsWithHeaders;
+    }
+
 
     public function title(string $title)
     {
@@ -122,6 +129,21 @@ class PrintTemplate
         return $this;
     }
 
+    public function itemWithHeaders(array $item, array $headers)
+    {
+        $this->itemsWithHeaders[] = [
+            'item' => $item,
+            'headers' => $headers
+        ];
+        return $this;
+    }
+
+    public function itemsWithHeaders(array $itemsWithHeaders)
+    {
+        $this->itemsWithHeaders = $itemsWithHeaders;
+        return $this;
+    }
+
     public function validate()
     {
         if (!$this->title) {
@@ -132,6 +154,7 @@ class PrintTemplate
             throw new \Exception('Logo URL is required');
         }
 
+        // Validate standard items and headers
         if ($this->itemHeaders && !$this->items) {
             throw new \Exception('Items are required when headers are provided');
         }
@@ -140,8 +163,22 @@ class PrintTemplate
             throw new \Exception('Headers are required when items are provided');
         }
 
-        if ($this->itemHeaders && $this->items && count($this->itemHeaders) !== count($this->items[0])) {
-            throw new \Exception('Headers and items must have the same length');
+        // Only validate if both items and headers are present using the old method
+        if ($this->itemHeaders && $this->items && count($this->items) > 0) {
+            if (count($this->itemHeaders) !== count($this->items[0])) {
+                throw new \Exception('Headers and items must have the same length');
+            }
+        }
+
+        // Validate each item with its own headers
+        foreach ($this->itemsWithHeaders as $itemWithHeader) {
+            if (!isset($itemWithHeader['headers']) || !isset($itemWithHeader['item'])) {
+                throw new \Exception('Each item with headers must have both item and headers keys');
+            }
+
+            if (count($itemWithHeader['headers']) !== count($itemWithHeader['item'])) {
+                throw new \Exception('Item headers and item data must have the same length');
+            }
         }
     }
 

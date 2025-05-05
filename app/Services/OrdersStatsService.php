@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Collection;
 
 class OrdersStatsService
@@ -18,7 +19,11 @@ class OrdersStatsService
         });
         $total_returns = $orders->sum('return_items_sum_total');
         $average_order_value = $total_orders > 0 ? $total_sales / $total_orders : 0;
-        $total_cancelled = $orders->where('status', '=', 'cancelled')->sum('total');
+        $total_cancelled = $orders->load('cancelledItems')->where('status', OrderStatus::CANCELLED)->sum(
+            function ($order) {
+                return $order->cancelledItems->sum('total');
+            }
+        );
 
         return [
             'total_orders' => $total_orders,
