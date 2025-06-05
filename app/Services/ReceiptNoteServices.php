@@ -80,7 +80,7 @@ class ReceiptNoteServices
                         'product_id' => $product->id,
                         'packets_quantity' => $product->pivot->packets_quantity,
                         'piece_quantity' => $product->pivot->piece_quantity,
-                        'packet_cost' => $product->packet_price,
+                        'packet_cost' => $product->packet_cost,
                         'release_dates' => [
                             [
                                 'piece_quantity' => ($product->pivot->packets_quantity * $product->packet_to_piece) + $product->pivot->piece_quantity,
@@ -92,8 +92,8 @@ class ReceiptNoteServices
                             'packets_quantity' => $product->pivot->packets_quantity,
                             'piece_quantity' => $product->pivot->piece_quantity,
                         ],
-                        'total' => ($product->pivot->packets_quantity * $product->packet_price) +
-                            ($product->pivot->piece_quantity * ($product->packet_price / $product->packet_to_piece))
+                        'total' => ($product->pivot->packets_quantity * $product->packet_cost) +
+                            ($product->pivot->piece_quantity * ($product->packet_cost / $product->packet_to_piece))
                     ];
                 })
         );

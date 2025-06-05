@@ -271,6 +271,9 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
             TextEntry::make('updated_at')
                 ->label('تاريخ التحديث')
                 ->dateTime(),
+            TextEntry::make('notes')
+                ->label('ملاحظات')
+                ->columnSpanFull(),
         ])
             ->columns(3);
     }

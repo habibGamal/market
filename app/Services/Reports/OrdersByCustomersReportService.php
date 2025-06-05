@@ -50,7 +50,7 @@ class OrdersByCustomersReportService
             'customers.*',
             'orders.orders_count',
             'order_items.total_sales',
-            DB::raw('order_items.total_profit - returns.profit_returns as total_profit'),
+            DB::raw('COALESCE(order_items.total_profit, 0) - COALESCE(returns.profit_returns, 0) as total_profit'),
             'returns.total_returns',
             'cancels.total_cancelled'
         ])

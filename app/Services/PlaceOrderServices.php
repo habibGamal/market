@@ -226,10 +226,23 @@ class PlaceOrderServices
     private function getOrCreateTodayOrder(int $customerId): Order
     {
         $today = Carbon::today('Africa/Cairo');
-        $order = Order::where('customer_id', $customerId)
-            ->whereDate('created_at', $today)
+        $order = null;
+
+        $lastPendingOrder = Order::where('customer_id', $customerId)
             ->where('status', OrderStatus::PENDING->value)
+            ->latest()
             ->first();
+
+        // If there's a pending order, check if it was created today in Cairo timezone
+        if ($lastPendingOrder) {
+            $lastPendingOrderDate = Carbon::parse($lastPendingOrder->created_at)->timezone('Africa/Cairo')->startOfDay();
+            $todayDate = $today->copy()->startOfDay();
+            // If the last pending order was created today, use it
+            if ($lastPendingOrderDate->equalTo($todayDate)) {
+                $order = $lastPendingOrder;
+            }
+        }
+
         if ($order) {
             return $order;
         } else {
