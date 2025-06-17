@@ -136,24 +136,24 @@ class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermis
                     ->label('عناصر الفاتورة')
                     ->relationship('items', fn($query) => $query->with('product:id,name'))
                     ->extraActions([
-                        self::exportCSVAction(
-                            fn($item, $product) => [
-                                $product->id,
-                                $product->name,
-                                $item['packets_quantity'],
-                                $item['packet_cost'],
-                                $item['total'],
-                            ]
-                        ),
-                        self::importCSVAction(
-                            fn($item, $product) => [
-                                'product_id' => $product->id,
-                                'product_name' => $product->name,
-                                'packets_quantity' => (float) $record[static::csvTitles()['quantity']],
-                                'packet_cost' => (float) $record[static::csvTitles()['quantity']],
-                                'total' => $record[static::csvTitles()['quantity']] * $record[static::csvTitles()['price']],
-                            ]
-                        ),
+                        // self::exportCSVAction(
+                        //     fn($item, $product) => [
+                        //         $product->id,
+                        //         $product->name,
+                        //         $item['packets_quantity'],
+                        //         $item['packet_cost'],
+                        //         $item['total'],
+                        //     ]
+                        // ),
+                        // self::importCSVAction(
+                        //     fn($item, $product) => [
+                        //         'product_id' => $product->id,
+                        //         'product_name' => $product->name,
+                        //         'packets_quantity' => (float) $record[static::csvTitles()['quantity']],
+                        //         'packet_cost' => (float) $record[static::csvTitles()['quantity']],
+                        //         'total' => $record[static::csvTitles()['quantity']] * $record[static::csvTitles()['price']],
+                        //     ]
+                        // ),
                     ])
                     ->headers([
                         Header::make('product_name')->label('المنتج')->width('150px'),

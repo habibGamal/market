@@ -4,8 +4,10 @@ namespace App\Filament\Resources;
 
 use App\Enums\InvoiceStatus;
 use App\Enums\ReceiptNoteType;
+use App\Enums\PaymentStatus;
 use App\Filament\Interfaces\InvoiceResource;
 use App\Filament\Resources\ReceiptNoteResource\Pages;
+use App\Filament\Resources\ReceiptNoteResource\RelationManagers;
 use App\Filament\Traits\InvoiceActions;
 use App\Filament\Traits\InvoiceLikeFilters;
 use App\Filament\Traits\InvoiceLikeFormFields;
@@ -196,6 +198,11 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                     ->badge()
                     ->label('نوع الإذن')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('payment_status')
+                    ->badge()
+                    ->label(label: 'حالة الدفع')
+                    ->formatStateUsing(fn($record) => $record->note_type === ReceiptNoteType::PURCHASES ? $record->payment_status : null)
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('purchaseInvoice.id')
                     ->label('رقم فاتورة المشتريات')
                     ->url(fn($record) => $record->purchaseInvoice ? PurchaseInvoiceResource::getUrl('view', ['record' => $record->purchaseInvoice]) : null)
@@ -263,6 +270,18 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
             TextEntry::make('note_type')
                 ->badge()
                 ->label('نوع الإذن'),
+            TextEntry::make('payment_status')
+                ->badge()
+                ->label('حالة الدفع')
+                ->visible(fn($record) => $record->note_type === ReceiptNoteType::PURCHASES),
+            TextEntry::make('total_paid')
+                ->label('إجمالي المدفوع')
+                ->money('EGP')
+                ->visible(fn($record) => $record->note_type === ReceiptNoteType::PURCHASES && $record->total_paid > 0),
+            TextEntry::make('remaining_amount')
+                ->label('المبلغ المتبقي')
+                ->money('EGP')
+                ->visible(fn($record) => $record->note_type === ReceiptNoteType::PURCHASES && $record->remaining_amount > 0),
             TextEntry::make('officer.name')
                 ->label('المسؤول'),
             TextEntry::make('created_at')
@@ -281,7 +300,7 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\AccountantIssueNotesRelationManager::class,
         ];
     }
 

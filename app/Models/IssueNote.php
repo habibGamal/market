@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\InvoiceStatus;
 use App\Enums\IssueNoteType;
+use App\Enums\PaymentStatus;
 use App\Traits\InvoiceHistory;
 use App\Observers\IssueNoteObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,6 +25,7 @@ class IssueNote extends Model
         'total' => 'decimal:2',
         'status' => InvoiceStatus::class,
         'note_type' => IssueNoteType::class,
+        'payment_status' => PaymentStatus::class,
     ];
 
     public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
@@ -98,7 +100,7 @@ class IssueNote extends Model
     {
         return $query->where('note_type', IssueNoteType::RETURN_PURCHASES)
             ->where('status', InvoiceStatus::CLOSED)
-            ->whereDoesntHave('accountantReceiptNotes');
+            ->where('payment_status', '!=', PaymentStatus::PAID);
     }
 
     public function waste()
@@ -109,5 +111,30 @@ class IssueNote extends Model
     public function returnPurchaseInvoice()
     {
         return $this->hasOne(ReturnPurchaseInvoice::class);
+    }
+
+    public function getTotalPaidAttribute()
+    {
+        return $this->accountantReceiptNotes()->sum('paid');
+    }
+
+    public function getRemainingAmountAttribute()
+    {
+        return $this->total - $this->total_paid;
+    }
+
+    public function updatePaymentStatus()
+    {
+        $totalPaid = $this->getTotalPaidAttribute();
+
+        if ($totalPaid >= $this->total) {
+            $this->payment_status = PaymentStatus::PAID;
+        } elseif ($totalPaid > 0) {
+            $this->payment_status = PaymentStatus::PARTIAL_PAID;
+        } else {
+            $this->payment_status = PaymentStatus::UNPAID;
+        }
+
+        $this->save();
     }
 }

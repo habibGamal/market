@@ -46,7 +46,8 @@ class AccountantReceiptNoteResource extends Resource
                                 ->modifyOptionsQueryUsing(function ($query) {
                                     $query->needAccountantReceiptNote();
                                 })
-                                ->titleAttribute('id'),
+                                ->titleAttribute('id')
+                                ->getOptionLabelFromRecordUsing(fn (IssueNote $record): string => "#{$record->id} - {$record->returnPurchaseInvoice->supplier->name}"),
                         ])
                         ->live()
                         ->afterStateUpdated(function ($state, Forms\Set $set,Forms\Get $get, $old) {
@@ -66,7 +67,7 @@ class AccountantReceiptNoteResource extends Resource
                             // dump($state);
                             $model = $state['from_model_type']::find($state['from_model_id']);
                             if ($state['from_model_type'] === IssueNote::class) {
-                                $set('paid', $model->total);
+                                $set('paid', $model->remaining_amount);
                             }
                             if ($state['from_model_type'] === Driver::class) {
                                 $set('paid', $model->account->balance);
@@ -79,6 +80,29 @@ class AccountantReceiptNoteResource extends Resource
                         ->label('المبلغ المحصل')
                         ->numeric()
                         ->required()
+                        ->minValue(0.01)
+                        ->step(0.01)
+                        ->suffix('جنيه')
+                        ->live()
+                        ->afterStateUpdated(function ($state, Forms\Get $get, $component) {
+                            if (!$get('from_model_id') || !$get('from_model_type')) {
+                                return;
+                            }
+                            $model = $get('from_model_type')::find($get('from_model_id'));
+                            if ($model && $get('from_model_type') === IssueNote::class && $state > $model->remaining_amount) {
+                                $component->state($model->remaining_amount);
+                            }
+                        })
+                        ->helperText(function (Forms\Get $get) {
+                            if (!$get('from_model_id') || !$get('from_model_type') || $get('from_model_type') !== IssueNote::class) {
+                                return null;
+                            }
+                            $model = $get('from_model_type')::find($get('from_model_id'));
+                            if ($model) {
+                                return 'المبلغ المتبقي: ' . number_format($model->remaining_amount, 2) . ' جنيه';
+                            }
+                            return null;
+                        })
                         ->disabled(fn($record) => $record !== null),
 
                     Forms\Components\Textarea::make('notes')

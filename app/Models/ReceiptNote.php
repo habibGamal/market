@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ReceiptNoteType;
+use App\Enums\PaymentStatus;
 use App\Observers\ReceiptNoteObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +22,7 @@ class ReceiptNote extends Model
     protected $casts = [
         'status' => InvoiceStatus::class,
         'note_type' => ReceiptNoteType::class,
+        'payment_status' => PaymentStatus::class,
     ];
 
     public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
@@ -62,7 +64,7 @@ class ReceiptNote extends Model
     {
         return $query->where('note_type', ReceiptNoteType::PURCHASES)
             ->where('status', InvoiceStatus::CLOSED)
-            ->whereDoesntHave('accountantIssueNotes');
+            ->where('payment_status', '!=', PaymentStatus::PAID);
     }
 
     public function printTemplate()
@@ -99,5 +101,30 @@ class ReceiptNote extends Model
     public function getRawNoteTypeAttribute()
     {
         return $this->note_type->value;
+    }
+
+    public function getTotalPaidAttribute()
+    {
+        return $this->accountantIssueNotes()->sum('paid');
+    }
+
+    public function getRemainingAmountAttribute()
+    {
+        return $this->total - $this->total_paid;
+    }
+
+    public function updatePaymentStatus()
+    {
+        $totalPaid = $this->getTotalPaidAttribute();
+
+        if ($totalPaid >= $this->total) {
+            $this->payment_status = PaymentStatus::PAID;
+        } elseif ($totalPaid > 0) {
+            $this->payment_status = PaymentStatus::PARTIAL_PAID;
+        } else {
+            $this->payment_status = PaymentStatus::UNPAID;
+        }
+
+        $this->save();
     }
 }

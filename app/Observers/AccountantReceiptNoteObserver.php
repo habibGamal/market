@@ -15,6 +15,7 @@ class AccountantReceiptNoteObserver
     public function creating(AccountantReceiptNote $accountantReceiptNote): void
     {
         $accountantReceiptNote->officer_id = auth()->id();
+
         app(AccountantReceiptNoteService::class)->handle($accountantReceiptNote);
     }
 
@@ -25,6 +26,12 @@ class AccountantReceiptNoteObserver
     {
         app(VaultService::class)->add($accountantReceiptNote->paid);
         app(WorkDayService::class)->update();
+
+        // Update payment status of the related model if it's an IssueNote
+        $relatedModel = $accountantReceiptNote->fromModel;
+        if ($relatedModel instanceof \App\Models\IssueNote) {
+            $relatedModel->updatePaymentStatus();
+        }
     }
 
     /**
@@ -34,5 +41,11 @@ class AccountantReceiptNoteObserver
     {
         app(VaultService::class)->remove($accountantReceiptNote->paid);
         app(WorkDayService::class)->update();
+
+        // Update payment status of the related model if it's an IssueNote
+        $relatedModel = $accountantReceiptNote->fromModel;
+        if ($relatedModel instanceof \App\Models\IssueNote) {
+            $relatedModel->updatePaymentStatus();
+        }
     }
 }
