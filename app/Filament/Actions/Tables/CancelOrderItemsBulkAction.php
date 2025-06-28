@@ -87,6 +87,7 @@ class CancelOrderItemsBulkAction extends BulkAction
                     $orderItem = $records->firstWhere('id', $item['item_id']);
                     return [
                         'order_item' => $orderItem,
+                        'order_item_id' => $orderItem->id,
                         'product_id' => $orderItem->product_id,
                         'packets_quantity' => $item['packets_quantity'],
                         'packet_price' => $orderItem->packet_price,

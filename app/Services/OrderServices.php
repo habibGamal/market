@@ -91,7 +91,8 @@ class OrderServices
         return DB::transaction(function () use ($order, $items) {
             $cancelledItems = collect();
             foreach ($items as $itemData) {
-                $orderItem = $itemData['order_item'];
+                $orderItemId = $itemData['order_item_id'];
+                $orderItem = $order->items()->findOrFail($orderItemId);
                 $orderItem->load('product');  // Ensure product is loaded
 
                 // Undo stock reservation for cancelled quantities
