@@ -108,7 +108,7 @@ class Product extends Model
                 'discounted' => $this->packet_price,
             ],
             'piece' => [
-                'original' => ($pieceOriginal !== null && $this->piece_price < $pieceOriginal) ? $pieceOriginal : null,
+                'original' => ($pieceOriginal !== null && $this->piece_price < $pieceOriginal) ? round($pieceOriginal, 2) : null,
                 'discounted' => $this->piece_price,
             ],
         ];
