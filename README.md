@@ -1,97 +1,101 @@
 # Larament
 
-[![Pint](https://github.com/codewithdennis/larament/actions/workflows/pint.yml/badge.svg)](https://packagist.org/packages/codewithdennis/larament)
-[![PEST](https://github.com/codewithdennis/larament/actions/workflows/pest.yml/badge.svg)](https://packagist.org/packages/codewithdennis/larament)
-[![PHPStan](https://github.com/CodeWithDennis/larament/actions/workflows/phpstan.yml/badge.svg)](https://github.com/CodeWithDennis/larament/actions/workflows/phpstan.yml)
-[![Total Installs](https://img.shields.io/packagist/dt/codewithdennis/larament.svg?style=flat-square)](https://packagist.org/packages/codewithdennis/larament)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/codewithdennis/larament.svg?style=flat-square)](https://packagist.org/packages/codewithdennis/larament)
+Larament is a starter template for building projects with Laravel and FilamentPHP. It provides a solid foundation for developing modern, data-driven web applications with a focus on e-commerce and inventory management.
 
-![larament](https://raw.githubusercontent.com/CodeWithDennis/larament/main/resources/images/larament.png)
+## Features
 
-Kickstart your project and save time with Larament! This time-saving starter kit includes a Laravel project with FilamentPHP already installed and set up, along with extra features.
+- **E-commerce Storefront:** A fully functional, customer-facing website for browsing products, managing carts, and placing orders.
+- **Advanced Admin Panel:** A comprehensive admin panel built with FilamentPHP for managing products, categories, brands, orders, customers, and more.
+- **Inventory Management:** A robust system for tracking stock levels, managing purchase invoices, and handling returns.
+- **Reporting and Analytics:** Detailed reports on sales, products, customers, and other key metrics.
+- **User Authentication:** Secure user registration, login, and profile management for both customers and administrators.
+- **Role-Based Access Control:** Fine-grained permission control using FilamentShield.
+- **Notifications:** A flexible notification system for keeping users informed about their orders and other important events.
+- **Search:** Powerful full-text search functionality for quickly finding products.
+- **Multi-language Support:** The application is designed to be easily translated into multiple languages.
 
-> [!NOTE]
-> This starter kit includes **Laravel 11** and **FilamentPHP 3** with some packages that improve the development experience. This will not contain any bloated features or unnecessary packages. If you want to add more features, you can do so by installing the necessary packages. 
+## Tech Stack
 
-## Configuration
+- **Backend:** Laravel 11, PHP 8.2
+- **Frontend:** TypeScript, React, Inertia.js
+- **Admin Panel:** FilamentPHP 3
+- **Database:** MySQL, PostgreSQL, or SQLite
+- **Testing:** Pest
+- **Code Styling:** Pint
+- **Static Analysis:** Larastan
 
-### Security and Testing
-![pest-php](https://raw.githubusercontent.com/CodeWithDennis/larament/main/resources/images/pest-php.png)
-- A handfull of [PESTPHP](https://pestphp.com/docs/installation) test cases are included for testing.
-- [Should be strict](https://laravel-news.com/shouldbestrict)
-  - Prevents lazy loading (N+1) queries.
-  - It prevents silently discarding attributes.
-  - It prevents accessing missing attributes.
-- [Prevent destructive commands from running in production](https://laravel-news.com/prevent-destructive-commands-from-running-in-laravel-11)
-- Archtest is included for architectural testing.
-- PHPStan is included for static analysis.
-- Laravel debugbar is included for debugging.
+## Getting Started
 
-### Quality of Life
-![global-search-keybinding](https://raw.githubusercontent.com/CodeWithDennis/larament/main/resources/images/global-search-keybinding.jpg)
-- A custom login page autofills email and password with seeded data, streamlining local testing.
-- A custom password generator action is available on the user profile and user resource pages.
-- Global user search includes email addresses in results for better user discovery.
-- All component labels are automatically translatable.
-- A `composer review` command that runs PINT, PHPStan, and PEST.
-- Helper file is included for custom helper functions.
-- A custom `php artisan make:filament-action` command is available for creating actions.
+### Prerequisites
 
-### Design
-![user-global-search](https://raw.githubusercontent.com/CodeWithDennis/larament/main/resources/images/user-global-search.jpg)
-- The Filament Panel's primary color is set to blue.
-- Single Page Application (SPA) mode is enabled by default.
-- Global search keybinding is preset to `CTRL + K` or `CMD + K`.
-- A ready-to-use FilamentPHP [custom theme](https://filamentphp.com/docs/3.x/panels/themes#creating-a-custom-theme) that also includes a sidebar separator.
-- A custom profile that includes the password generator action.
+- PHP 8.2 or higher
+- Composer
+- Node.js and npm
 
-## Default User
-The default user is seeded with the following credentials which is autofilled on the login page.
+### Installation
 
-```dotenv
-DEFAULT_USER_EMAIL="admin@example.com"
-DEFAULT_USER_PASSWORD="password"
-```
+1. **Clone the repository:**
 
-## Packages
+   ```bash
+   git clone https://github.com/your-username/larament.git
+   ```
 
-- [timokoerber/laravel-one-time-operations](https://github.com/TimoKoerber/laravel-one-time-operations)
-- [barryvdh/laravel-debugbar](https://github.com/barryvdh/laravel-debugbar)
-- [phpstan/phpstan](https://phpstan.org/user-guide/getting-started)
-- [pestphp/pest](https://pestphp.com/docs/installation)
-  - [pestphp/pest-plugin-faker](https://pestphp.com/docs/plugins#faker) 
-  - [pestphp/pest-plugin-laravel](https://pestphp.com/docs/plugins#laravel)
-  - [pestphp/pest-plugin-livewire](https://pestphp.com/docs/plugins#livewire)
+2. **Install dependencies:**
 
-## Installation
+   ```bash
+   composer install
+   npm install
+   ```
 
-**[Use this template](https://github.com/new?template_name=larament&template_owner=CodeWithDennis)** to create a new repository and clone it to your local machine, then navigate to the project directory to run the necessary commands.
+3. **Set up your environment:**
+
+   - Copy the `.env.example` file to `.env`:
+
+     ```bash
+     cp .env.example .env
+     ```
+
+   - Generate an application key:
+
+     ```bash
+     php artisan key:generate
+     ```
+
+   - Configure your database connection in the `.env` file.
+
+4. **Run database migrations and seed the database:**
+
+   ```bash
+   php artisan migrate --seed
+   ```
+
+5. **Build frontend assets:**
+
+   ```bash
+   npm run build
+   ```
+
+6. **Start the development server:**
+
+   ```bash
+   php artisan serve
+   ```
+
+### Accessing the Admin Panel
+
+The admin panel is located at `/admin`. You can log in with the default credentials:
+
+- **Email:** `admin@example.com`
+- **Password:** `password`
+
+## Testing
+
+To run the test suite, use the following command:
 
 ```bash
-composer install
-npm install && npm run build
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-php artisan db:seed
+composer pest
 ```
 
-###  CLI Installation
+## Contributing
 
-You can also use the following command to create a new project with Larament.
-
-```bash
-composer create-project --prefer-dist CodeWithDennis/larament example-app
-```
-
-If you don't want to remember the composer installation syntax for future projects, you can create an alias for your terminal:
-
-```bash
-alias larament="composer create-project --prefer-dist CodeWithDennis/larament"
-```
-
-This allows you to simply use `larament my-cool-app` in your terminal.
-
-```bash
-larament my-cool-app
-```
+Contributions are welcome! Please feel free to submit a pull request or open an issue.
