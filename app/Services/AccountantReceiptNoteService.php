@@ -38,9 +38,17 @@ class AccountantReceiptNoteService
     {
         $issueNote = IssueNote::find($note->from_model_id);
 
-        if ($issueNote->total !== $note->paid) {
+        // Get remaining amount using the model's helper method
+        $remainingAmount = $issueNote->remaining_amount;
 
-            throw new Exception('المبلغ المحصل لا يساوي إجمالي إذن الصرف');
+        // Validate that payment doesn't exceed remaining amount
+        if ($note->paid > $remainingAmount) {
+            throw new Exception('المبلغ المحصل (' . number_format($note->paid, 2) . ' جنيه) لا يمكن أن يتجاوز المبلغ المتبقي (' . number_format($remainingAmount, 2) . ' جنيه)');
+        }
+
+        // Validate that payment is positive
+        if ($note->paid <= 0) {
+            throw new Exception('المبلغ المحصل يجب أن يكون أكبر من صفر');
         }
     }
 }

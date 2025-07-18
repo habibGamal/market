@@ -77,7 +77,7 @@ trait InvoiceLikeFillByProduct
             ->afterStateUpdated(
                 function (Set $set, Get $get, ?int $state) use ($updateExistingItem, $newItem) {
                     if ($state) {
-                        $product = Product::find($state);
+                        $product = Product::select(['id', 'name', 'packet_cost', 'packet_price', 'packet_to_piece'])->find($state);
                         self::handleProductsSelection($set, $get, collect([$product]), $updateExistingItem, $newItem);
                     }
                 }
@@ -117,7 +117,7 @@ trait InvoiceLikeFillByProduct
             )
             ->action(function (array $data, Get $get, Set $set) use ($updateExistingItem, $newItem) {
                 $product_ids = array_merge(...array_values($data));
-                $products = Product::select(['id', 'name', 'packet_cost', 'packet_price'])->find($product_ids);
+                $products = Product::select(['id', 'name', 'packet_cost', 'packet_price', 'packet_to_piece'])->find($product_ids);
                 static::handleProductsSelection($set, $get, $products, $updateExistingItem, $newItem);
             })
             ->modalSubmitActionLabel('إضافة المنتجات');

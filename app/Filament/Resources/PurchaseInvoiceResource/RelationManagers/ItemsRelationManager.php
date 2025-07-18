@@ -33,6 +33,8 @@ class ItemsRelationManager extends RelationManager
                     ->label('المنتج'),
                 Tables\Columns\TextColumn::make('packets_quantity')
                     ->label('عدد العبوات'),
+                Tables\Columns\TextColumn::make('piece_quantity')
+                    ->label('عدد القطع'),
                 Tables\Columns\TextColumn::make('packet_cost')
                     ->label('تكلفة العبوة'),
                 Tables\Columns\TextColumn::make('total')

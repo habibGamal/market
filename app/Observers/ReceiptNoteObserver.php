@@ -3,11 +3,23 @@
 namespace App\Observers;
 
 use App\Enums\ReceiptNoteType;
+use App\Enums\PaymentStatus;
 use App\Models\ReceiptNote;
 use App\Services\ReceiptNoteServices;
 
 class ReceiptNoteObserver
 {
+    /**
+     * Handle the ReceiptNote "creating" event.
+     */
+    public function creating(ReceiptNote $receiptNote): void
+    {
+        // Set default payment status
+        if (!$receiptNote->payment_status) {
+            $receiptNote->payment_status = PaymentStatus::UNPAID;
+        }
+    }
+
     /**
      * Handle the ReceiptNote "created" event.
      */

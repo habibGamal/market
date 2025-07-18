@@ -112,6 +112,7 @@ it('can create a record', function () {
             'product_id' => $product->id,
             'product_name' => $product->name,
             'packets_quantity' => 5,
+            'piece_quantity' => 0,
             'packet_cost' => 100,
             'total' => 500,
         ]
@@ -139,6 +140,7 @@ it('can create a record', function () {
         'purchase_invoice_id' => $invoice->id,
         'product_id' => $product->id,
         'packets_quantity' => 5,
+        'piece_quantity' => 0,
         'packet_cost' => 100,
     ]);
 });

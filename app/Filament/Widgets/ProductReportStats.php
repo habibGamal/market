@@ -126,7 +126,7 @@ class ProductReportStats extends BaseWidget
                     $query->whereBetween('created_at', [$startDate, $endDate]);
                 }
             })
-            ->selectRaw('SUM(packets_quantity * ?) as total_pieces', [$this->record->packet_to_piece])
+            ->selectRaw('SUM((packets_quantity * ?) + piece_quantity) as total_pieces', [$this->record->packet_to_piece])
             ->value('total_pieces') ?? 0;
     }
 

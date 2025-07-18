@@ -29,6 +29,10 @@ class ExpenseTypeResource extends Resource implements HasShieldPermissions
                     ->label('الاسم')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Toggle::make('track')
+                    ->label('متابعة في التقارير')
+                    ->helperText('تفعيل هذا الخيار لإدراج هذا النوع من المصروفات في تقرير المركز المالي')
+                    ->default(false),
             ]);
     }
 
@@ -40,13 +44,21 @@ class ExpenseTypeResource extends Resource implements HasShieldPermissions
                     ->label('الاسم')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\ToggleColumn::make('track')
+                    ->label('متابعة في التقارير')
+                    ->sortable()
+                    ->tooltip('تفعيل/إلغاء متابعة هذا النوع في تقرير المركز المالي'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\TernaryFilter::make('track')
+                    ->label('المتابعة في التقارير')
+                    ->placeholder('الكل')
+                    ->trueLabel('متتبع')
+                    ->falseLabel('غير متتبع'),
             ])
             ->headerActions([
                 Tables\Actions\ExportAction::make()

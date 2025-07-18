@@ -6,6 +6,7 @@ use App\Filament\Exports\PurchaseInvoiceExporter;
 use App\Filament\Interfaces\InvoiceResource;
 use App\Filament\Resources\PurchaseInvoiceResource\Pages;
 use App\Filament\Resources\PurchaseInvoiceResource\RelationManagers\ItemsRelationManager;
+use App\Filament\Resources\ReceiptNoteResource;
 use App\Models\Product;
 use App\Models\PurchaseInvoice;
 use App\Models\Supplier;
@@ -40,7 +41,8 @@ class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermis
         return [
             'product_id' => 'الرقم المرجعي للمنتج',
             'product_name' => 'المنتج',
-            'packets_quantity' => 'الكمية',
+            'packets_quantity' => 'عدد العبوات',
+            'piece_quantity' => 'عدد القطع',
             'packet_cost' => 'سعر العبوة',
             'total' => 'الإجمالي',
         ];
@@ -50,7 +52,10 @@ class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermis
     public static function incrementQuantity($item)
     {
         $item['packets_quantity'] += 1;
-        $item['total'] = $item['packets_quantity'] * $item['packet_cost'];
+        // Update total calculation using the new formula
+        $product = \App\Models\Product::find($item['product_id']);
+        $totalPackets = $item['packets_quantity'] + (($item['piece_quantity'] ?? 0) / $product->packet_to_piece);
+        $item['total'] = $totalPackets * $item['packet_cost'];
         return $item;
     }
 
@@ -59,7 +64,9 @@ class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermis
         return [
             'product_id' => $product->id,
             'product_name' => $product->name,
+            'product_packet_to_piece' => $product->packet_to_piece,
             'packets_quantity' => 1,
+            'piece_quantity' => 0,
             'packet_cost' => $product->packet_cost,
             'total' => $product->packet_cost,
         ];
@@ -75,12 +82,26 @@ class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermis
                         const index = e.getAttribute('id').replace('data.items.','').replace('.total','');
                         const item = \$wire.data.items[index];
                         if(!item) return 0;
-                        return (item.packets_quantity * item.packet_cost).toFixed(2);
+                        const packetsQuantity = parseFloat(item.packets_quantity || 0);
+                        const pieceQuantity = parseFloat(item.piece_quantity || 0);
+                        const packetCost = parseFloat(item.packet_cost || 0);
+                        const packetToPiece = item.product_packet_to_piece || 1;
+
+                        const totalPackets = packetsQuantity + (pieceQuantity / packetToPiece);
+                        return (totalPackets * packetCost).toFixed(2);
                     },
                     //computeInvoiceTotal : \$wire.data.items?.reduce ? parseFloat(\$wire.data.items.reduce((acc, item) => acc + item.total, 0).toFixed(2)) : 0,
                     computeInvoiceTotal() {
                         const items = Object.values(Object.assign({},\$wire.data.items));
-                        return parseFloat(items.reduce((acc, item) => acc + (item.packets_quantity * item.packet_cost), 0).toFixed(2));
+                        return parseFloat(items.reduce((acc, item) => {
+                            const packetsQuantity = parseFloat(item.packets_quantity || 0);
+                            const pieceQuantity = parseFloat(item.piece_quantity || 0);
+                            const packetCost = parseFloat(item.packet_cost || 0);
+                            const packetToPiece = item.product_packet_to_piece || 1;
+
+                            const totalPackets = packetsQuantity + (pieceQuantity / packetToPiece);
+                            return acc + (totalPackets * packetCost);
+                        }, 0).toFixed(2));
                     }
                 }",
             ])
@@ -134,44 +155,35 @@ class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermis
                     ]),
                 TableRepeater::make('items')
                     ->label('عناصر الفاتورة')
-                    ->relationship('items', fn($query) => $query->with('product:id,name'))
-                    ->extraActions([
-                        self::exportCSVAction(
-                            fn($item, $product) => [
-                                $product->id,
-                                $product->name,
-                                $item['packets_quantity'],
-                                $item['packet_cost'],
-                                $item['total'],
-                            ]
-                        ),
-                        self::importCSVAction(
-                            fn($item, $product) => [
-                                'product_id' => $product->id,
-                                'product_name' => $product->name,
-                                'packets_quantity' => (float) $record[static::csvTitles()['quantity']],
-                                'packet_cost' => (float) $record[static::csvTitles()['quantity']],
-                                'total' => $record[static::csvTitles()['quantity']] * $record[static::csvTitles()['price']],
-                            ]
-                        ),
-                    ])
+                    ->relationship('items', fn($query) => $query->with('product:id,name,packet_to_piece'))
                     ->headers([
                         Header::make('product_name')->label('المنتج')->width('150px'),
-                        Header::make('packets_quantity')->label('الكمية')->width('150px'),
+                        Header::make('packets_quantity')->label('عدد العبوات')->width('120px'),
+                        Header::make('piece_quantity')->label('عدد القطع')->width('120px'),
                         Header::make('packet_cost')->label('سعر شراء العبوة')->width('150px'),
                         Header::make('total')->label('الإجمالي')->width('150px'),
                     ])
                     ->schema([
                         Forms\Components\Hidden::make('product_id'),
+                        Forms\Components\Hidden::make('product_packet_to_piece')
+                            ->formatStateUsing(fn($state, $record) => $record && $record->product ? $record->product->packet_to_piece : $state)
+                            ->dehydrated(false),
                         Forms\Components\TextInput::make('product_name')
                             ->label('المنتج')
                             ->formatStateUsing(fn($state, $record) => $record ? $record->product_name : $state)
                             ->disabled(),
                         Forms\Components\TextInput::make('packets_quantity')
-                            ->label('الكمية')
+                            ->label('عدد العبوات')
                             ->numeric()
                             ->required()
-                            ->minValue(1),
+                            ->minValue(0)
+                            ->default(0),
+                        Forms\Components\TextInput::make('piece_quantity')
+                            ->label('عدد القطع')
+                            ->numeric()
+                            ->required()
+                            ->minValue(0)
+                            ->default(0),
                         Forms\Components\TextInput::make('packet_cost')
                             ->label('سعر العبوة')
                             ->numeric()

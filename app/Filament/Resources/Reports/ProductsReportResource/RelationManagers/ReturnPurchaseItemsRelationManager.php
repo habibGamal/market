@@ -46,6 +46,9 @@ class ReturnPurchaseItemsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('packets_quantity')
                     ->label('عدد العبوات')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('piece_quantity')
+                    ->label('عدد القطع')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('packet_cost')
                     ->label('تكلفة العبوة')
                     ->money('EGP')

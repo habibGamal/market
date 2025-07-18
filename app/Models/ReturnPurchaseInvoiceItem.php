@@ -12,6 +12,16 @@ class ReturnPurchaseInvoiceItem extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'product_id',
+        'packets_quantity',
+        'piece_quantity',
+        'packet_cost',
+        'release_date',
+        'total',
+        'return_purchase_invoice_id',
+    ];
+
     protected $casts = [
         'release_date' => 'date',
     ];

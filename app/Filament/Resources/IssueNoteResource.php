@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\InvoiceStatus;
 use App\Enums\IssueNoteType;
+use App\Enums\PaymentStatus;
 use App\Filament\Interfaces\InvoiceResource;
 use App\Filament\Resources\IssueNoteResource\Pages;
 use App\Filament\Resources\IssueNoteResource\RelationManagers;
@@ -108,6 +109,11 @@ class IssueNoteResource extends InvoiceResource implements HasShieldPermissions
                     ->badge()
                     ->label('نوع الإذن')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('payment_status')
+                    ->badge()
+                    ->label('حالة القبض')
+                    ->formatStateUsing(fn($record) => $record->note_type === IssueNoteType::RETURN_PURCHASES ? $record->payment_status : null)
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('officer.name')
                     ->label('المسؤول')
                     ->searchable()
@@ -174,6 +180,18 @@ class IssueNoteResource extends InvoiceResource implements HasShieldPermissions
                         ->icon('heroicon-m-arrow-top-right-on-square')
                         ->openUrlInNewTab()
                 ),
+            TextEntry::make('payment_status')
+                ->badge()
+                ->label('حالة القبض')
+                ->visible(fn($record) => $record->note_type === IssueNoteType::RETURN_PURCHASES),
+            TextEntry::make('total_paid')
+                ->label('إجمالي المقبوض')
+                ->money('EGP')
+                ->visible(fn($record) => $record->note_type === IssueNoteType::RETURN_PURCHASES && $record->total_paid > 0),
+            TextEntry::make('remaining_amount')
+                ->label('المبلغ المتبقي')
+                ->money('EGP')
+                ->visible(fn($record) => $record->note_type === IssueNoteType::RETURN_PURCHASES && $record->remaining_amount > 0),
             TextEntry::make('officer.name')
                 ->label('المسؤول'),
             TextEntry::make('created_at')
@@ -205,6 +223,7 @@ class IssueNoteResource extends InvoiceResource implements HasShieldPermissions
     public static function getRelations(): array
     {
         return [
+            // RelationManagers\AccountantReceiptNotesRelationManager::class,
         ];
     }
 

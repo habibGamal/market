@@ -58,6 +58,26 @@ class SupplierResource extends Resource
                     ->label('اسم الشركة')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('balanceView.receipt_total')
+                    ->label('اجمالي الفواتير')
+                    ->money('EGP', true)
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('balanceView.receipt_paid')
+                    ->label('المدفوع من الفواتير')
+                    ->money('EGP', true)
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('balanceView.issue_total')
+                    ->label('اجمالي مرتجعات المشتريات')
+                    ->money('EGP', true)
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('balanceView.issue_paid')
+                    ->label('المدفوع من مرتجعات المشتريات')
+                    ->money('EGP', true)
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('balanceView.balance')
+                    ->label('المحصلة')
+                    ->money('EGP', true)
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
                     ->dateTime()
@@ -97,6 +117,11 @@ class SupplierResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery();
     }
 
     public static function getPages(): array

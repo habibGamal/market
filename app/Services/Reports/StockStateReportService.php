@@ -80,7 +80,7 @@ class StockStateReportService
                     ->join('products as p', 'p.id', '=', 'stock_items.product_id')
                     ->limit(1),
                 'returned_stock' => ReturnPurchaseInvoiceItem::query()
-                    ->selectRaw('SUM(return_purchase_invoice_items.packets_quantity * p.packet_to_piece)')
+                    ->selectRaw('SUM((return_purchase_invoice_items.packets_quantity * p.packet_to_piece) + return_purchase_invoice_items.piece_quantity)')
                     ->whereColumn('return_purchase_invoice_items.product_id', 'products.id')
                     ->join('products as p', 'p.id', '=', 'return_purchase_invoice_items.product_id')
                     ->join('return_purchase_invoices', 'return_purchase_invoice_items.return_purchase_invoice_id', '=', 'return_purchase_invoices.id')

@@ -30,11 +30,16 @@ class ListIssueNotes extends ListRecords
                         ->label('مرتجع المشتريات')
                         ->options(
                             ReturnPurchaseInvoice::query()
+                                ->with('supplier:id,name')
                                 ->whereNull('issue_note_id')
                                 ->where('status', InvoiceStatus::CLOSED)
                                 ->get()
-                                ->pluck('id', 'id')
-                                ->map(fn($id) => "#{$id}")
+                                ->mapWithKeys(function ($invoice) {
+                                    $supplierName = $invoice->supplier?->name ?? '';
+                                    return [
+                                        $invoice->id => $supplierName ? "{$supplierName} - #{$invoice->id}" : "#{$invoice->id}",
+                                    ];
+                                })
                         )
                         ->searchable()
                         ->required()
@@ -54,6 +59,8 @@ class ListIssueNotes extends ListRecords
 
                     // Fill issue note with return purchase invoice items
                     $services->fromReturnPurchaseInvoice($issueNote, $returnPurchaseInvoice);
+
+                    redirect(IssueNoteResource::getUrl('edit', ['record' => $issueNote->id]));
                 }),
             Actions\Action::make('createFromWaste')
                 ->label('انشاء من الهالك')

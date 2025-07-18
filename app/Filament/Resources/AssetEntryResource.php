@@ -30,8 +30,7 @@ class AssetEntryResource extends Resource implements HasShieldPermissions
                 Forms\Components\TextInput::make('value')
                     ->label('القيمة')
                     ->required()
-                    ->numeric()
-                    ->minValue(0),
+                    ->numeric(),
 
                 Forms\Components\Textarea::make('notes')
                     ->label('ملاحظات')

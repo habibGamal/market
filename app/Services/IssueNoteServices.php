@@ -136,7 +136,7 @@ class IssueNoteServices
                     'issue_note_id' => $issueNote->id,
                     'product_id' => $item->product_id,
                     'packets_quantity' => $item->packets_quantity,
-                    'piece_quantity' => 0, // Return purchase items only have packets
+                    'piece_quantity' => $item->piece_quantity,
                     'packet_cost' => $item->packet_cost,
                     'release_date' => $item->release_date,
                     'total' => $item->total,

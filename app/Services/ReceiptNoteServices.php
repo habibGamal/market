@@ -43,14 +43,17 @@ class ReceiptNoteServices
 
         $receipt->items()->createMany(
             $purchaseInvoice->items->map(function ($item) {
+                // Calculate total pieces from both packets and individual pieces
+                $totalPieces = ($item->packets_quantity * $item->product->packet_to_piece) + $item->piece_quantity;
+
                 return [
                     'product_id' => $item->product_id,
                     'packets_quantity' => $item->packets_quantity,
                     'packet_cost' => $item->packet_cost,
-                    'piece_quantity' => 0,
+                    'piece_quantity' => $item->piece_quantity,
                     'release_dates' => [
                         [
-                            'piece_quantity' => $item->packets_quantity * $item->product->packet_to_piece,
+                            'piece_quantity' => $totalPieces,
                             'release_date' => now()->format('Y-m-d'),
                         ]
                     ],

@@ -45,6 +45,7 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
             'product_id' => 'الرقم المرجعي للمنتج',
             'product_name' => 'المنتج',
             'packets_quantity' => 'عدد العبوات',
+            'piece_quantity' => 'عدد القطع',
             'packet_cost' => 'سعر العبوة',
             'release_date' => 'تاريخ الانتاج',
             'total' => 'الإجمالي',
@@ -60,16 +61,24 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
                         const index = e.getAttribute('id').replace('data.items.','').replace('.total','');
                         const item = \$wire.data.items[index];
                         if(!item) return 0;
-                        const packetCost = parseFloat(item.packet_cost);
+                        const packetCost = parseFloat(item.packet_cost || 0);
                         const packetsQuantity = parseFloat(item.packets_quantity || 0);
-                        return (packetsQuantity * packetCost).toFixed(2);
+                        const pieceQuantity = parseFloat(item.piece_quantity || 0);
+                        const packetToPiece = item.product_packet_to_piece || 1;
+
+                        const totalPackets = packetsQuantity + (pieceQuantity / packetToPiece);
+                        return (totalPackets * packetCost).toFixed(2);
                     },
                     computeInvoiceTotal() {
                         const items = Object.values(Object.assign({},\$wire.data.items));
                         return parseFloat(items.reduce((acc, item) => {
-                            const packetCost = parseFloat(item.packet_cost);
+                            const packetCost = parseFloat(item.packet_cost || 0);
                             const packetsQuantity = parseFloat(item.packets_quantity || 0);
-                            return acc + packetsQuantity * packetCost;
+                            const pieceQuantity = parseFloat(item.piece_quantity || 0);
+                            const packetToPiece = item.product_packet_to_piece || 1;
+
+                            const totalPackets = packetsQuantity + (pieceQuantity / packetToPiece);
+                            return acc + (totalPackets * packetCost);
                         }, 0)).toFixed(2);
                     }
                 }",
@@ -128,10 +137,16 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
                                     if ($availableQuantity <= 0) {
                                         return null;
                                     }
+
+                                    $packetsQuantity = (int) ($availableQuantity / $stockItem->product->packet_to_piece);
+                                    $pieceQuantity = $availableQuantity % $stockItem->product->packet_to_piece;
+
                                     return [
                                         'product_id' => $stockItem->product_id,
                                         'product_name' => $stockItem->product->name,
-                                        'packets_quantity' => (int) ($availableQuantity / $stockItem->product->packet_to_piece),
+                                        'product_packet_to_piece' => $stockItem->product->packet_to_piece,
+                                        'packets_quantity' => $packetsQuantity,
+                                        'piece_quantity' => $pieceQuantity,
                                         'packet_cost' => $stockItem->product->packet_cost,
                                         'release_date' => $stockItem->release_date,
                                     ];
@@ -152,16 +167,19 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
                     ]),
                 TableRepeater::make('items')
                     ->label('عناصر الفاتورة')
-                    ->relationship('items', fn($query) => $query->with('product:id,name'))
+                    ->relationship('items', fn($query) => $query->with('product:id,name,packet_to_piece'))
                     ->headers([
                         Header::make('product_name')->label('المنتج')->width('150px'),
-                        Header::make('packets_quantity')->label('عدد العبوات')->width('150px'),
+                        Header::make('packets_quantity')->label('عدد العبوات')->width('120px'),
+                        Header::make('piece_quantity')->label('عدد القطع')->width('120px'),
                         Header::make('packet_cost')->label('سعر العبوة')->width('150px'),
                         Header::make('release_date')->label('تاريخ الإنتاج')->width('150px'),
                         Header::make('total')->label('الإجمالي')->width('150px'),
                     ])
                     ->schema([
                         Forms\Components\Hidden::make('product_id'),
+                        Forms\Components\Hidden::make('product_packet_to_piece')->dehydrated(false)
+                            ->formatStateUsing(fn($state, $record) => $record && $record->product ? $record->product->packet_to_piece : $state),
                         Forms\Components\TextInput::make('product_name')
                             ->label('المنتج')
                             ->formatStateUsing(fn($state, $record) => $record ? $record->product_name : $state)
@@ -170,7 +188,14 @@ class ReturnPurchaseInvoiceResource extends InvoiceResource
                             ->label('عدد العبوات')
                             ->numeric()
                             ->required()
-                            ->minValue(0),
+                            ->minValue(0)
+                            ->default(0),
+                        Forms\Components\TextInput::make('piece_quantity')
+                            ->label('عدد القطع')
+                            ->numeric()
+                            ->required()
+                            ->minValue(0)
+                            ->default(0),
                         Forms\Components\TextInput::make('packet_cost')
                             ->label('تكلفة العبوة')
                             ->numeric()

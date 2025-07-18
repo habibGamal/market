@@ -47,21 +47,46 @@ class AccountantIssueNoteResource extends Resource
                                 }),
                         ])
                         ->live()
-                        ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                        ->disabled(fn($record) => $record !== null),
+                    Forms\Components\TextInput::make('paid')
+                        ->label('المبلغ المدفوع')
+                        ->numeric()
+                        ->required()
+                        ->minValue(0.01)
+                        ->step(0.01)
+                        ->suffix('جنيه')
+                        ->live()
+                        ->suffixAction(
+                            Forms\Components\Actions\Action::make('fillRemainingAmount')
+                                ->label('ملء المبلغ المتبقي')
+                                ->icon('heroicon-m-arrow-path')
+                                ->action(function (Forms\Set $set, Forms\Get $get) {
+                                    if (!$get('for_model_id') || !$get('for_model_type')) {
+                                        return;
+                                    }
+                                    $model = $get('for_model_type')::find($get('for_model_id'));
+                                    if ($model && $model->remaining_amount > 0) {
+                                        $set('paid', $model->remaining_amount);
+                                    }
+                                })
+                                ->visible(function (Forms\Get $get) {
+                                    if (!$get('for_model_id') || !$get('for_model_type')) {
+                                        return false;
+                                    }
+                                    $model = $get('for_model_type')::find($get('for_model_id'));
+                                    return $model && $model->remaining_amount > 0;
+                                })
+                        )
+                        ->helperText(function (Forms\Get $get) {
                             if (!$get('for_model_id') || !$get('for_model_type')) {
-                                return;
+                                return null;
                             }
                             $model = $get('for_model_type')::find($get('for_model_id'));
                             if ($model) {
-                                $set('paid', $model->total);
+                                return 'المبلغ المتبقي: ' . number_format($model->remaining_amount, 2) . ' جنيه';
                             }
-                        })
-                        ->disabled(fn($record) => $record !== null),
-                    Forms\Components\TextInput::make('paid')
-                        ->label('المدفوع')
-                        ->numeric()
-                        ->required()
-                        ->disabled(),
+                            return null;
+                        }),
 
                     Forms\Components\Textarea::make('notes')
                         ->label('ملاحظات')

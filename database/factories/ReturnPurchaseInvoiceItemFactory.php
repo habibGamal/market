@@ -15,7 +15,7 @@ class ReturnPurchaseInvoiceItemFactory extends Factory
         return [
             'product_id' => $product->id,
             'packets_quantity' => $this->faker->numberBetween(1, 10),
-            'piece_quantity' => $this->faker->numberBetween(1, $product->packet_to_piece),
+            'piece_quantity' => $this->faker->numberBetween(0, $product->packet_to_piece - 1),
             'packet_cost' => $product->packet_cost,
             'release_date' => $this->faker->date(),
             'return_purchase_invoice_id' => ReturnPurchaseInvoice::factory(),
