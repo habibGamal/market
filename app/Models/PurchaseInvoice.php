@@ -38,7 +38,7 @@ class PurchaseInvoice extends Model
     public function tapActivity(Activity $activity, string $eventName)
     {
         $activity->properties = $activity->properties->merge([
-            'items' => $this->compareItems(['packets_quantity', 'packet_cost']),
+            'items' => $this->compareItems(['packets_quantity', 'piece_quantity', 'packet_cost']),
         ]);
     }
 
@@ -81,11 +81,12 @@ class PurchaseInvoice extends Model
             ->info('تاريخ اخر تحديث', $this->updated_at->format('Y-m-d h:i:s A'))
             ->info('المسؤول', auth()->user()->name)
             ->total($this->total)
-            ->itemHeaders(['المنتج', 'الكمية', 'السعر', 'الإجمالي'])
+            ->itemHeaders(['المنتج', 'عدد العبوات', 'عدد القطع', 'السعر', 'الإجمالي'])
             ->items($this->items->map(function ($item) {
                 return [
                     $item->product->name,
                     $item->packets_quantity,
+                    $item->piece_quantity,
                     $item->packet_cost,
                     $item->total,
                 ];

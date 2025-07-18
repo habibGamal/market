@@ -20,6 +20,8 @@ class ReturnPurchaseItemsExporter extends Exporter
                 ->label('المنتج'),
             ExportColumn::make('packets_quantity')
                 ->label('عدد العبوات'),
+            ExportColumn::make('piece_quantity')
+                ->label('عدد القطع'),
             ExportColumn::make('packet_cost')
                 ->label('تكلفة العبوة')
                 ->formatStateUsing(fn ($state) => number_format($state, 2) . ' EGP'),

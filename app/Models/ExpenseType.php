@@ -14,6 +14,11 @@ class ExpenseType extends Model
 
     protected $fillable = [
         'name',
+        'track',
+    ];
+
+    protected $casts = [
+        'track' => 'boolean',
     ];
 
     public function expenses(): HasMany

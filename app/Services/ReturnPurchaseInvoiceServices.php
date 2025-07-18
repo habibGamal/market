@@ -105,8 +105,8 @@ class ReturnPurchaseInvoiceServices
                 $productQuantities[$item->product_id]['quantities'][$releaseDateKey] = 0;
             }
 
-            // Convert packets to pieces
-            $totalPieces = $item->packets_quantity * $item->product->packet_to_piece;
+            // Convert packets and pieces to total pieces
+            $totalPieces = ($item->packets_quantity * $item->product->packet_to_piece) + $item->piece_quantity;
             $productQuantities[$item->product_id]['quantities'][$releaseDateKey] += $totalPieces;
         }
         return $productQuantities;

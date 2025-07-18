@@ -27,7 +27,19 @@ class PurchaseInvoiceItemObserver
      */
     public function saving(PurchaseInvoiceItem $purchaseInvoiceItem): void
     {
-        $purchaseInvoiceItem->total = $purchaseInvoiceItem->packets_quantity * $purchaseInvoiceItem->packet_cost;
+        // Load product if not already loaded
+        if (!$purchaseInvoiceItem->relationLoaded('product')) {
+            $purchaseInvoiceItem->load('product');
+        }
+
+        $product = $purchaseInvoiceItem->product;
+        $packetsQuantity = $purchaseInvoiceItem->packets_quantity ?? 0;
+        $pieceQuantity = $purchaseInvoiceItem->piece_quantity ?? 0;
+        $packetCost = $purchaseInvoiceItem->packet_cost ?? 0;
+
+        // Calculate total using the new formula: (packets_quantity + piece_quantity / packet_to_piece) * packet_cost
+        $totalPackets = $packetsQuantity + ($pieceQuantity / $product->packet_to_piece);
+        $purchaseInvoiceItem->total = $totalPackets * $packetCost;
     }
 
     /**

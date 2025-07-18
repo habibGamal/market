@@ -25,7 +25,7 @@ class ViewReceiptNote extends ViewRecord
     {
         return [
             ItemsRelationManager::class,
-            ...($this->record->note_type === ReceiptNoteType::PURCHASES ? [AccountantIssueNotesRelationManager::class] : []),
+            ...($this->record->note_type === ReceiptNoteType::PURCHASES && $this->record->closed ? [AccountantIssueNotesRelationManager::class] : []),
         ];
     }
 

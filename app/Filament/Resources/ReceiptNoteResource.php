@@ -151,9 +151,7 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                             ]),
                         Actions::make(
                             [
-                                ReleaseDatesFormAction::make()
-
-                                ,
+                                ReleaseDatesFormAction::make(),
                             ]
                         ),
 
@@ -300,7 +298,7 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
     public static function getRelations(): array
     {
         return [
-            RelationManagers\AccountantIssueNotesRelationManager::class,
+            // RelationManagers\AccountantIssueNotesRelationManager::class,
         ];
     }
 

@@ -20,7 +20,15 @@ class PurchaseInvoiceObserver
     public function creating(PurchaseInvoice $purchaseInvoice): void
     {
         $purchaseInvoice->total = collect($purchaseInvoice->items)->sum(function ($item) {
-            return $item['packets_quantity'] * $item['packet_cost'];
+            // Get the product to access packet_to_piece
+            $product = \App\Models\Product::find($item['product_id']);
+            $packetsQuantity = $item['packets_quantity'] ?? 0;
+            $pieceQuantity = $item['piece_quantity'] ?? 0;
+            $packetCost = $item['packet_cost'] ?? 0;
+
+            // Calculate total using the new formula: (packets_quantity + piece_quantity / packet_to_piece) * packet_cost
+            $totalPackets = $packetsQuantity + ($pieceQuantity / $product->packet_to_piece);
+            return $totalPackets * $packetCost;
         });
         unset($purchaseInvoice->items);
     }
