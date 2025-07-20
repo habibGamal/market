@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\InvoiceStatus;
 use App\Enums\ReceiptNoteType;
 use App\Enums\PaymentStatus;
 use App\Models\ReceiptNote;
@@ -48,12 +49,12 @@ class ReceiptNoteObserver
         // as we dehydrate it in the form to trigger the observer
         $receiptNote->offsetUnset('items');
 
-        if (!$receiptNote->closed)
-            return;
-        $services = app(ReceiptNoteServices::class);
-        $services->toStock($receiptNote);
-        if($receiptNote->note_type === ReceiptNoteType::RETURN_ORDERS)
-            $services->removeQuantitiesFromDriverProducts($receiptNote);
+        if ($receiptNote->isDirty('status') && $receiptNote->status === InvoiceStatus::CLOSED) {
+            $services = app(ReceiptNoteServices::class);
+            $services->toStock($receiptNote);
+            if ($receiptNote->note_type === ReceiptNoteType::RETURN_ORDERS)
+                $services->removeQuantitiesFromDriverProducts($receiptNote);
+        }
     }
 
     /**
