@@ -1,4 +1,4 @@
-import { PropsWithChildren, useLayoutEffect, useRef } from "react";
+import { PropsWithChildren, useEffect, useLayoutEffect, useRef } from "react";
 import { TopNavigation } from "@/Components/Navigation/TopNavigation";
 import { BottomNavigation } from "@/Components/Navigation/BottomNavigation";
 import { router } from "@inertiajs/react";
@@ -36,6 +36,20 @@ export function MainLayout({ children }: PropsWithChildren) {
                 100
             );
         });
+    }, []);
+
+    useEffect(() => {
+        // refetch the page when the user clicks the back button
+        const handlePopState = (event: PopStateEvent) => {
+            event.stopImmediatePropagation();
+            router.reload({
+                replace: true,
+            });
+        };
+        window.addEventListener("popstate", handlePopState);
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
     }, []);
     return (
         <div className="min-h-screen bg-gray-50 pb-16">

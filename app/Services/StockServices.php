@@ -43,7 +43,9 @@ class StockServices
 
             // Get stock items ordered by release_date (FIFO)
             $stockItems = $product->stockItems()->where('piece_quantity', '>', 0)->orderBy('release_date')->lockForUpdate()->get();
-
+            $totalAvailableQuantity = $stockItems->sum(function ($item) {
+                return $item->piece_quantity - $item->reserved_quantity - $item->unavailable_quantity;
+            });
             foreach ($stockItems as $stockItem) {
                 if ($remainingQuantity <= 0) {
                     break;
@@ -59,7 +61,7 @@ class StockServices
             }
 
             if ($remainingQuantity > 0) {
-                throw new \Exception('الكمية المطلوبة غير متوفرة', 540);
+                throw new \Exception("الكمية المطلوبة غير متوفرة للمنتج {$product->name}. الكمية المتاحة هي {$totalAvailableQuantity}", 540);
             }
         });
     }
@@ -274,15 +276,15 @@ class StockServices
     }
 
     /**
-    * Remove quantities from stock
-    * @param \App\Models\Product $product
-    * @param array $quantities
-    * ex: $quantities = [
-    *  '2025-02-12' => 10,
-    *  '2025-02-13' => 20,
-    * ]
-    * @return void
-    */
+     * Remove quantities from stock
+     * @param \App\Models\Product $product
+     * @param array $quantities
+     * ex: $quantities = [
+     *  '2025-02-12' => 10,
+     *  '2025-02-13' => 20,
+     * ]
+     * @return void
+     */
     public function removeFromStock(Product $product, array $quantities)
     {
         DB::transaction(function () use ($product, $quantities) {
