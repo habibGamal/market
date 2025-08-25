@@ -3,30 +3,49 @@
 namespace App\Services\Reports;
 
 use App\Models\AssetEntry;
-use App\Models\Expense;
-use App\Models\ExpenseType;
+use App\Models\CashSettlement;
+use App\Models\DriverAccount;
+use App\Models\FixedAsset;
+use App\Models\Order;
 use App\Models\StockItem;
 use App\Models\SupplierBalance;
 use App\Models\Vault;
+use App\Enums\CashSettlementType;
+use App\Enums\CashSettlementStatus;
+use App\Enums\OrderStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class CentralCashFlowService
 {
     /**
-     * Get tracked expenses sum for the given period
+     * Get total stock cost evaluation
      */
-    public function getTrackedExpensesSum($startDate = null, $endDate = null): float
+    public function getStockCost(): float
     {
-        $startDate = $startDate ? Carbon::parse($startDate) : now()->startOfMonth();
-        $endDate = $endDate ? Carbon::parse($endDate) : now();
+        return StockItem::query()
+            ->join('products', 'stock_items.product_id', '=', 'products.id')
+            ->select(DB::raw('SUM((stock_items.piece_quantity / products.packet_to_piece) * products.packet_cost) as total_cost'))
+            ->value('total_cost') ?? 0;
+    }
 
-        return Expense::query()
-            ->join('expense_types', 'expenses.expense_type_id', '=', 'expense_types.id')
-            ->where('expense_types.track', true)
-            ->where('expenses.created_at', '>=', $startDate)
-            ->where('expenses.created_at', '<=', $endDate)
-            ->sum('expenses.value');
+    /**
+     * Get cost of orders in delivery status
+     */
+    public function getDeliveryOrdersCost(): float
+    {
+        return Order::query()
+            ->where('status', OrderStatus::OUT_FOR_DELIVERY)
+            ->with(['items.product'])
+            ->get()
+            ->sum(function ($order) {
+                return $order->items->sum(function ($item) {
+                    // Calculate cost: (packets_quantity * packet_cost) + ((piece_quantity / packet_to_piece) * packet_cost)
+                    $packetsCost = $item->packets_quantity * $item->packet_cost;
+                    $piecesCost = ($item->piece_quantity / $item->product->packet_to_piece) * $item->packet_cost;
+                    return $packetsCost + $piecesCost;
+                });
+            }) ?? 0;
     }
 
     /**
@@ -38,36 +57,79 @@ class CentralCashFlowService
     }
 
     /**
-     * Get total stock items cost evaluation
+     * Get sum of all drivers balance
      */
-    public function getStockItemsCost(): float
+    public function getDriversBalanceSum(): float
     {
-        return StockItem::query()
-            ->join('products', 'stock_items.product_id', '=', 'products.id')
-            ->select(DB::raw('SUM((stock_items.piece_quantity / products.packet_to_piece) * products.packet_cost) as total_cost'))
-            ->value('total_cost') ?? 0;
+        return DriverAccount::sum('balance') ?? 0;
     }
 
     /**
-     * Get total suppliers balances
+     * Get cash settlements with type IN (paid)
      */
-    public function getSuppliersBalancesSum(): float
+    public function getCashSettlementsInPaid(): float
     {
-        return SupplierBalance::sum('balance');
+        return CashSettlement::query()
+            ->where('type', CashSettlementType::IN)
+            ->where('status', CashSettlementStatus::PAID)
+            ->sum('value') ?? 0;
     }
 
     /**
-     * Get asset entries sum for the given period
+     * Get cash settlements with type IN (unpaid)
      */
-    public function getAssetEntriesSum($startDate = null, $endDate = null): float
+    public function getCashSettlementsInUnpaid(): float
     {
-        $startDate = $startDate ? Carbon::parse($startDate) : now()->startOfMonth();
-        $endDate = $endDate ? Carbon::parse($endDate) : now();
+        return CashSettlement::query()
+            ->where('type', CashSettlementType::IN)
+            ->where('status', CashSettlementStatus::UNPAID)
+            ->sum('value') ?? 0;
+    }
 
-        return AssetEntry::query()
-            ->where('created_at', '>=', $startDate)
-            ->where('created_at', '<=', $endDate)
-            ->sum('value');
+    /**
+     * Get total supplier balances
+     */
+    public function getSuppliersBalanceSum(): float
+    {
+        return SupplierBalance::sum('balance') ?? 0;
+    }
+
+    /**
+     * Get cash settlements with type OUT (paid)
+     */
+    public function getCashSettlementsOutPaid(): float
+    {
+        return CashSettlement::query()
+            ->where('type', CashSettlementType::OUT)
+            ->where('status', CashSettlementStatus::PAID)
+            ->sum('value') ?? 0;
+    }
+
+    /**
+     * Get cash settlements with type OUT (unpaid)
+     */
+    public function getCashSettlementsOutUnpaid(): float
+    {
+        return CashSettlement::query()
+            ->where('type', CashSettlementType::OUT)
+            ->where('status', CashSettlementStatus::UNPAID)
+            ->sum('value') ?? 0;
+    }
+
+    /**
+     * Get asset entries sum
+     */
+    public function getAssetEntriesSum(): float
+    {
+        return AssetEntry::sum('value') ?? 0;
+    }
+
+    /**
+     * Get fixed assets sum
+     */
+    public function getFixedAssetsSum(): float
+    {
+        return FixedAsset::sum('value') ?? 0;
     }
 
     /**
@@ -75,28 +137,50 @@ class CentralCashFlowService
      */
     public function getCashFlowData($startDate = null, $endDate = null): array
     {
-        $trackedExpenses = $this->getTrackedExpensesSum($startDate, $endDate);
+        // Assets section
+        $stockCost = $this->getStockCost();
+        $deliveryOrdersCost = $this->getDeliveryOrdersCost();
         $vaultBalance = $this->getCurrentVaultBalance();
-        $stockCost = $this->getStockItemsCost();
-        $suppliersBalance = $this->getSuppliersBalancesSum();
-        $assetEntries = $this->getAssetEntriesSum($startDate, $endDate);
+        $driversBalance = $this->getDriversBalanceSum();
+        $cashSettlementsInPaid = $this->getCashSettlementsInPaid();
+        $cashSettlementsInUnpaid = $this->getCashSettlementsInUnpaid();
+        $fixedAssets = $this->getFixedAssetsSum();
 
-        $totalAssets = $trackedExpenses + $vaultBalance + $stockCost;
-        $totalResponsibilities = $suppliersBalance + $assetEntries;
+        $totalAssets = $stockCost + $deliveryOrdersCost + $vaultBalance + $driversBalance + $cashSettlementsInUnpaid + $fixedAssets;
+
+        // Responsibilities section
+        $suppliersBalance = $this->getSuppliersBalanceSum();
+        $cashSettlementsOutPaid = $this->getCashSettlementsOutPaid();
+        $cashSettlementsOutUnpaid = $this->getCashSettlementsOutUnpaid();
+
+        $totalResponsibilities = $suppliersBalance + $cashSettlementsOutUnpaid;
+
+        // Asset entries (what we spent on assets)
+        $assetEntries = $this->getAssetEntriesSum();
+
+        // Final calculation: Assets - Responsibilities - Asset Entries
+        $finalResult = $totalAssets - $totalResponsibilities - $assetEntries;
 
         return [
             'assets' => [
-                'tracked_expenses' => $trackedExpenses,
-                'vault_balance' => $vaultBalance,
                 'stock_cost' => $stockCost,
+                'delivery_orders_cost' => $deliveryOrdersCost,
+                'vault_balance' => $vaultBalance,
+                'drivers_balance' => $driversBalance,
+                'cash_settlements_in_paid' => $cashSettlementsInPaid,
+                'cash_settlements_in_unpaid' => $cashSettlementsInUnpaid,
+                'fixed_assets' => $fixedAssets,
                 'total' => $totalAssets,
             ],
             'responsibilities' => [
                 'suppliers_balance' => $suppliersBalance,
-                'asset_entries' => $assetEntries,
+                'cash_settlements_out_paid' => $cashSettlementsOutPaid,
+                'cash_settlements_out_unpaid' => $cashSettlementsOutUnpaid,
                 'total' => $totalResponsibilities,
             ],
-            'net_position' => $totalAssets - $totalResponsibilities,
+            'asset_entries' => $assetEntries,
+            'final_result' => $finalResult,
+            'is_profit' => $finalResult > 0,
         ];
     }
 }

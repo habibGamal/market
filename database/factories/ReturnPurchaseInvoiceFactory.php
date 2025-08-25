@@ -15,7 +15,7 @@ class ReturnPurchaseInvoiceFactory extends Factory
             'issue_note_id' => null,
             'status' => InvoiceStatus::DRAFT,
             'officer_id' => User::factory(),
-            'supplier_id' => User::factory()->create(['role' => 'supplier']),
+            'supplier_id' => \App\Models\Supplier::factory(),
             'notes' => $this->faker->sentence(),
         ];
     }

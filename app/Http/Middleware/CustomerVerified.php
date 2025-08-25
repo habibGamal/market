@@ -12,13 +12,13 @@ class CustomerVerified
     {
         $customer = auth()->guard('customer')->user();
 
-        if (!$customer || !$customer->phone_verified_at) {
-            if ($request->expectsJson()) {
-                return response()->json(['message' => 'يجب التحقق من رقم هاتفك أولاً'], 403);
-            }
+        // if (!$customer || !$customer->phone_verified_at) {
+        //     if ($request->expectsJson()) {
+        //         return response()->json(['message' => 'يجب التحقق من رقم هاتفك أولاً'], 403);
+        //     }
 
-            return redirect()->route('otp.verify', ['phone' => $customer?->phone]);
-        }
+        //     return redirect()->route('otp.verify', ['phone' => $customer?->phone]);
+        // }
 
         return $next($request);
     }
