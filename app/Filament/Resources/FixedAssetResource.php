@@ -2,9 +2,8 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Exports\ExpenseExporter;
-use App\Filament\Resources\ExpenseResource\Pages;
-use App\Models\Expense;
+use App\Filament\Resources\FixedAssetResource\Pages;
+use App\Models\FixedAsset;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,36 +12,30 @@ use Filament\Tables\Table;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Actions\Action;
 
-class ExpenseResource extends Resource implements HasShieldPermissions
+class FixedAssetResource extends Resource implements HasShieldPermissions
 {
-    protected static ?string $model = Expense::class;
+    protected static ?string $model = FixedAsset::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office';
     protected static ?string $navigationGroup = 'إدارة الحسابات';
-    protected static ?string $modelLabel = 'مصروف';
-    protected static ?string $pluralModelLabel = 'المصروفات';
+    protected static ?string $modelLabel = 'أصل ثابت';
+    protected static ?string $pluralModelLabel = 'الأصول الثابتة';
 
     public static function form(Form $form): Form
     {
-        $isEdit = $form->getRecord() !== null;
-
         return $form
             ->schema([
-                Forms\Components\Select::make('expense_type_id')
-                    ->relationship('expenseType', 'name')
-                    ->label('نوع المصروف')
+                Forms\Components\TextInput::make('name')
+                    ->label('اسم الأصل')
                     ->required()
-                    ->searchable()
-                    ->preload(),
+                    ->maxLength(255),
 
                 Forms\Components\TextInput::make('value')
                     ->label('القيمة')
                     ->required()
                     ->numeric()
-                    ->minValue(0)
-                    ->disabled($isEdit),
+                    ->minValue(0),
 
                 Forms\Components\Textarea::make('notes')
                     ->label('ملاحظات')
@@ -54,8 +47,8 @@ class ExpenseResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('expenseType.name')
-                    ->label('نوع المصروف')
+                Tables\Columns\TextColumn::make('name')
+                    ->label('اسم الأصل')
                     ->searchable()
                     ->sortable(),
 
@@ -69,11 +62,6 @@ class ExpenseResource extends Resource implements HasShieldPermissions
                     ->searchable()
                     ->limit(150),
 
-                Tables\Columns\TextColumn::make('approvedBy.name')
-                    ->label('تمت الموافقة من')
-                    ->searchable()
-                    ->sortable(),
-
                 Tables\Columns\TextColumn::make('accountant.name')
                     ->label('المحاسب')
                     ->searchable()
@@ -85,21 +73,9 @@ class ExpenseResource extends Resource implements HasShieldPermissions
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('expense_type_id')
-                    ->relationship('expenseType', 'name')
-                    ->label('نوع المصروف')
-                    ->searchable()
-                    ->preload(),
-
                 Tables\Filters\SelectFilter::make('accountant_id')
                     ->relationship('accountant', 'name')
                     ->label('المحاسب')
-                    ->searchable()
-                    ->preload(),
-
-                Tables\Filters\SelectFilter::make('approved_by')
-                    ->relationship('approvedBy', 'name')
-                    ->label('تمت الموافقة من')
                     ->searchable()
                     ->preload(),
 
@@ -122,45 +98,15 @@ class ExpenseResource extends Resource implements HasShieldPermissions
                             );
                     })
                     ->columnSpan(2),
-
-                Tables\Filters\TernaryFilter::make('approved')
-                    ->label('حالة الموافقة')
-                    ->placeholder('الكل')
-                    ->trueLabel('تمت الموافقة')
-                    ->falseLabel('في انتظار الموافقة')
-                    ->queries(
-                        true: fn ($query) => $query->whereNotNull('approved_by'),
-                        false: fn ($query) => $query->whereNull('approved_by'),
-                    ),
             ])
-            ->filtersFormColumns(3)
-            ->headerActions([
-                Tables\Actions\ExportAction::make()
-                    ->label('تصدير')
-                    ->exporter(ExpenseExporter::class),
-            ])
+            ->filtersFormColumns(2)
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('approve')
-                    ->label('موافقة')
-                    ->icon('heroicon-o-check-circle')
-                    ->requiresConfirmation()
-                    ->visible(fn () => auth()->user()->can('approve_expense'))
-                    ->action(fn (Expense $record) => $record->approve()),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\BulkAction::make('approve')
-                        ->label('موافقة')
-                        ->icon('heroicon-o-check-circle')
-                        ->requiresConfirmation()
-                        ->visible(fn () => auth()->user()->can('approve_expense'))
-                        ->action(function ($records) {
-                            $records->each->approve();
-                        }),
                 ]),
             ]);
     }
@@ -169,16 +115,14 @@ class ExpenseResource extends Resource implements HasShieldPermissions
     {
         return $infolist
             ->schema([
-                TextEntry::make('expenseType.name')
-                    ->label('نوع المصروف'),
+                TextEntry::make('name')
+                    ->label('اسم الأصل'),
                 TextEntry::make('value')
                     ->label('القيمة')
                     ->money('EGP'),
                 TextEntry::make('notes')
                     ->label('ملاحظات')
                     ->columnSpanFull(),
-                TextEntry::make('approvedBy.name')
-                    ->label('تمت الموافقة من'),
                 TextEntry::make('accountant.name')
                     ->label('المحاسب'),
                 TextEntry::make('created_at')
@@ -191,13 +135,17 @@ class ExpenseResource extends Resource implements HasShieldPermissions
             ->columns(3);
     }
 
+    public static function canEdit($record = null): bool
+    {
+        return false;
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListExpenses::route('/'),
-            'create' => Pages\CreateExpense::route('/create'),
-            'view' => Pages\ViewExpense::route('/{record}'),
-            'edit' => Pages\EditExpense::route('/{record}/edit'),
+            'index' => Pages\ListFixedAssets::route('/'),
+            'create' => Pages\CreateFixedAsset::route('/create'),
+            'view' => Pages\ViewFixedAsset::route('/{record}'),
         ];
     }
 
@@ -207,11 +155,8 @@ class ExpenseResource extends Resource implements HasShieldPermissions
             'view',
             'view_any',
             'create',
-            'update',
             'delete',
             'delete_any',
-            'approve',
-            'view_revenue_reports',
         ];
     }
 }

@@ -23,7 +23,6 @@ class CashSettlement extends Model
         'type',
         'officer_id',
         'status',
-        'cash_settlement_account_id',
         'paid_at',
         'should_paid_at',
     ];
@@ -39,11 +38,6 @@ class CashSettlement extends Model
     public function officer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'officer_id');
-    }
-
-    public function cashSettlementAccount(): BelongsTo
-    {
-        return $this->belongsTo(CashSettlementAccount::class);
     }
 
     public function getActivitylogOptions(): LogOptions

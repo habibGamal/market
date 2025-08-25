@@ -16,7 +16,7 @@ class CashSettlementObserver
      */
     public function created(CashSettlement $cashSettlement): void
     {
-        //
+        $this->cashSettlementService->handleCreation($cashSettlement);
     }
 
     /**

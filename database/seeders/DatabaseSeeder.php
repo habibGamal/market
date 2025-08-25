@@ -35,7 +35,6 @@ class DatabaseSeeder extends Seeder
         // ]);
         $this->call([
             UserSeeder::class,
-            CashSettlementAccountSeeder::class,
             // ProductSeeder::class,
             // ShieldSeeder::class,
             // PendingOrderSeeder::class,

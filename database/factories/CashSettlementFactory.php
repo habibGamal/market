@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Enums\CashSettlementStatus;
 use App\Enums\CashSettlementType;
-use App\Models\CashSettlementAccount;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -31,7 +30,6 @@ class CashSettlementFactory extends Factory
             'type' => $this->faker->randomElement(CashSettlementType::cases()),
             'officer_id' => User::factory(),
             'status' => $isPaid ? CashSettlementStatus::PAID : CashSettlementStatus::UNPAID,
-            'cash_settlement_account_id' => CashSettlementAccount::factory(),
             'paid_at' => $paidAt,
             'should_paid_at' => $shouldPaidAt,
         ];

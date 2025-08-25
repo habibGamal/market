@@ -15,7 +15,6 @@ return new class extends Migration
             $table->string('type'); // in/out - will be handled by enum in PHP
             $table->foreignId('officer_id')->constrained('users')->cascadeOnDelete();
             $table->string('status'); // paid/unpaid - will be handled by enum in PHP
-            $table->foreignId('cash_settlement_account_id')->constrained()->cascadeOnDelete();
             $table->timestamp('paid_at')->nullable();
             $table->date('should_paid_at')->nullable();
             $table->timestamps();
