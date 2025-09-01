@@ -95,14 +95,15 @@ class OrdersReportResource extends Resource implements HasShieldPermissions
                 Filter::make('report_filter')
                     ->form(static::filtersForm())
                     ->query(function (Builder $query, array $data): Builder {
+                        logger()->info('Report Filter', $data);
                         return $query
                             ->when(
                                 $data['start_date'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->where('created_at', '>=', \Carbon\Carbon::parse($date, 'Africa/Cairo')->utc()),
                             )
                             ->when(
                                 $data['end_date'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->where('created_at', '<=', \Carbon\Carbon::parse($date, 'Africa/Cairo')->utc()),
                             );
                     }),
                 SelectFilter::make('area')

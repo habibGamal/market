@@ -25,15 +25,14 @@ class BrandReportService
         return DB::table('order_items')
             ->select(
                 'products.brand_id',
-                DB::raw('SUM(order_items.piece_quantity) as order_items_sum_piece_quantity'),
-                DB::raw('SUM(order_items.packets_quantity) as order_items_sum_packets_quantity'),
+                DB::raw('SUM(order_items.packets_quantity) * products.packet_to_piece  + SUM(order_items.piece_quantity) as order_items_sum_piece_quantity'),
                 DB::raw('SUM(order_items.total) as order_items_sum_total'),
                 DB::raw('SUM(order_items.profit) as order_items_sum_profit')
             )
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
             ->join('products', 'products.id', '=', 'order_items.product_id')
             ->whereBetween('orders.created_at', [$data['start_date'], $data['end_date']])
-            ->groupBy('products.brand_id');
+            ->groupBy('products.brand_id','products.packet_to_piece');
     }
 
     private function getReturnOrderItemsSubQuery(array $data)
@@ -41,12 +40,11 @@ class BrandReportService
         return DB::table('return_order_items')
             ->select(
                 'products.brand_id',
-                DB::raw('SUM(return_order_items.piece_quantity) as return_order_items_sum_piece_quantity'),
-                DB::raw('SUM(return_order_items.packets_quantity) as return_order_items_sum_packets_quantity')
+                DB::raw('SUM(return_order_items.packets_quantity) * products.packet_to_piece  + SUM(return_order_items.piece_quantity) as return_order_items_sum_piece_quantity')
             )
             ->join('products', 'products.id', '=', 'return_order_items.product_id')
             ->whereBetween('return_order_items.created_at', [$data['start_date'], $data['end_date']])
-            ->groupBy('products.brand_id');
+            ->groupBy('products.brand_id','products.packet_to_piece');
     }
 
     private function buildMainQuery(Builder $query, $subQuery, $returnSubQuery): Builder
