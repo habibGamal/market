@@ -86,6 +86,8 @@ class OrdersByCustomersReportResource extends Resource implements HasShieldPermi
                 Filter::make('report_filter')
                     ->form(static::filtersForm())
                     ->baseQuery(function (Builder $query, array $data): Builder {
+                        $data['start_date'] = \Carbon\Carbon::parse($data['start_date'], 'Africa/Cairo')->utc();
+                        $data['end_date'] = $data['end_date'] ? \Carbon\Carbon::parse($data['end_date'], 'Africa/Cairo')->utc() : null;
                         return app(OrdersByCustomersReportService::class)->getFilteredQuery($query, $data);
                     }),
                 SelectFilter::make('area')

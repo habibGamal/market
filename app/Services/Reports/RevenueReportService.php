@@ -41,6 +41,7 @@ class RevenueReportService
         // Total sales from orders
         $totalSales = OrderItem::query()
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status', \App\Enums\OrderStatus::DELIVERED)
             ->whereBetween('orders.created_at', [$startDate, $endDate])
             ->sum('order_items.total');
 
@@ -51,6 +52,22 @@ class RevenueReportService
 
         // Net sales = Total sales - Returns
         return $totalSales - $totalReturns;
+    }
+    /**
+     * Get net sales revenue
+     */
+    public function getOrderDiscounts($startDate = null, $endDate = null): float
+    {
+        $startDate = $startDate ? Carbon::parse($startDate) : now()->startOfMonth();
+        $endDate = $endDate ? Carbon::parse($endDate) : now();
+
+        $totalDiscounts = Order::query()
+            ->where('orders.status', \App\Enums\OrderStatus::DELIVERED)
+            ->whereBetween('orders.created_at', [$startDate, $endDate])
+            ->sum('orders.discount');
+
+
+        return $totalDiscounts;
     }
 
     /**
@@ -65,6 +82,7 @@ class RevenueReportService
         $soldItemsCost = OrderItem::query()
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
             ->whereBetween('orders.created_at', [$startDate, $endDate])
+            ->where('orders.status', \App\Enums\OrderStatus::DELIVERED)
             ->select(DB::raw('SUM(order_items.total - order_items.profit) as cost'))
             ->first()
             ->cost ?? 0;
@@ -193,10 +211,13 @@ class RevenueReportService
     public function getAllStats($startDate = null, $endDate = null): array
     {
         $netSales = $this->getNetSalesRevenue($startDate, $endDate);
+        $totalDiscounts = $this->getOrderDiscounts($startDate, $endDate);
         $cogs = $this->getCostOfGoodsSold($startDate, $endDate);
-        $grossProfit = $this->getGrossProfit($startDate, $endDate);
+        // $grossProfit = $this->getGrossProfit($startDate, $endDate);
+        $grossProfit = $netSales - $cogs - $totalDiscounts;
         $totalExpenses = $this->getTotalExpenses($startDate, $endDate);
-        $netProfit = $this->getNetProfit($startDate, $endDate);
+        // $netProfit = $this->getNetProfit($startDate, $endDate);
+        $netProfit = $grossProfit - $totalExpenses;
 
         // Calculate gross profit margin percentage
         $grossProfitMargin = $netSales ? ($grossProfit / $netSales) * 100 : 0;
@@ -206,6 +227,7 @@ class RevenueReportService
 
         return [
             'net_sales' => $netSales,
+            'total_discounts' => $totalDiscounts,
             'cogs' => $cogs,
             'gross_profit' => $grossProfit,
             'gross_profit_margin' => $grossProfitMargin,

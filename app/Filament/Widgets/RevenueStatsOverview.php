@@ -36,6 +36,11 @@ class RevenueStatsOverview extends BaseWidget
                 ->descriptionIcon('heroicon-m-shopping-cart')
                 ->color(Color::Blue),
 
+            Stat::make('إجمالي الخصومات', number_format($stats['total_discounts'], 2) . ' جنيه')
+                ->description('إجمالي الخصومات على الطلبات')
+                ->descriptionIcon('heroicon-m-tag')
+                ->color(Color::Indigo),
+
             // Cost of Goods Sold
             Stat::make('تكلفة البضاعة المباعة', number_format($stats['cogs'], 2) . ' جنيه')
                 ->description('إجمالي تكلفة المنتجات المباعة')
