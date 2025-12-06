@@ -26,6 +26,23 @@ class StockItemExporter extends Exporter
             ExportColumn::make('packets_quantity')
                 ->label('عدد العبوات')
                 ->formatStateUsing(fn($state) => number_format($state, 2)),
+            ExportColumn::make('packets_and_pieces')
+                ->label('العبوات والقطع')
+                ->formatStateUsing(function ($record) {
+                    $totalPieces = $record->stock_items_sum_piece_quantity ?? 0;
+                    $packetToPiece = $record->packet_to_piece ?? 1;
+
+                    $packets = floor($totalPieces / $packetToPiece);
+                    $pieces = $totalPieces % $packetToPiece;
+
+                    if ($packets > 0 && $pieces > 0) {
+                        return "{$packets} عبوة و {$pieces} قطعة";
+                    } elseif ($packets > 0) {
+                        return "{$packets} عبوة";
+                    } else {
+                        return "{$pieces} قطعة";
+                    }
+                }),
             ExportColumn::make('packet_cost')
                 ->label('تكلفة العبوة'),
             ExportColumn::make('packet_price')

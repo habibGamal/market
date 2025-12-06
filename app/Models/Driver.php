@@ -62,4 +62,9 @@ class Driver extends User
     {
         return $this->morphMany(AccountantReceiptNote::class, 'from_model');
     }
+
+    public function balanceTrackers(): HasMany
+    {
+        return $this->hasMany(DriverBalanceTracker::class, 'driver_id');
+    }
 }

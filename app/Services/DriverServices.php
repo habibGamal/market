@@ -6,9 +6,12 @@ use App\Models\Order;
 use App\Models\Driver;
 use App\Models\DriverTask;
 use App\Models\ReturnOrderItem;
+use App\Models\DriverBalanceTracker;
 use App\Enums\DriverStatus;
 use App\Enums\ReturnOrderStatus;
 use App\Enums\OrderStatus;
+use App\Enums\DriverBalanceTransactionType;
+use App\Enums\BalanceOperation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -77,21 +80,26 @@ class DriverServices
 
         if (!empty($itemsToReturn)) {
             $returnItems = $this->orderServices->returnItems($order, $itemsToReturn);
-            $this->markReturnItemsAsReceivedFromCustomer($returnItems);
+            $this->markReturnItemsAsReceivedFromCustomer($returnItems, false);
         }
 
         return $itemsToReturn;
     }
 
-    public function markReturnItemsAsReceivedFromCustomer(Collection $returnItems): void
+    public function markReturnItemsAsReceivedFromCustomer(Collection $returnItems,$deductDriverBalance=true): void
     {
         $driver = Driver::find(auth()->id());
-        DB::transaction(function () use ($returnItems, $driver) {
-            $returnItems->each(function (ReturnOrderItem $item) use ($driver) {
+        DB::transaction(function () use ($returnItems, $driver, $deductDriverBalance) {
+            $totalReturnAmount = 0;
+
+            $returnItems->each(function (ReturnOrderItem $item) use ($driver, &$totalReturnAmount) {
                 // Update return item status
                 $item->update([
                     'status' => ReturnOrderStatus::RECEIVED_FROM_CUSTOMER
                 ]);
+
+                // Accumulate the return amount to deduct from driver balance
+                $totalReturnAmount += $item->total;
 
                 // Check if product already exists in driver's returned products
                 $existingPivot = $driver->returnedProducts()->where('product_id', $item->product_id)->first();
@@ -110,6 +118,22 @@ class DriverServices
                     ]);
                 }
             });
+
+            // Deduct the total return amount from driver's balance
+            if ($totalReturnAmount > 0 && $deductDriverBalance) {
+                // Track the balance change
+                DriverBalanceTracker::track(
+                    driverId: $driver->id,
+                    transactionType: DriverBalanceTransactionType::RETURN,
+                    operation: BalanceOperation::DECREMENT,
+                    amount: $totalReturnAmount,
+                    relatedModel: $returnItems->first(),
+                    description: 'خصم قيمة الأصناف المرتجعة من العميل',
+                    notes: 'عدد الأصناف المرتجعة: ' . $returnItems->count()
+                );
+
+                $driver->account()->decrement('balance', $totalReturnAmount);
+            }
         });
     }
 
@@ -127,7 +151,19 @@ class DriverServices
 
             // Update driver balance with order's net total
             $driver = Driver::find(auth()->id());
+            // Track the balance change
+            DriverBalanceTracker::track(
+                driverId: $driver->id,
+                transactionType: DriverBalanceTransactionType::DELIVERY,
+                operation: BalanceOperation::INCREMENT,
+                amount: $order->netTotal,
+                relatedModel: $order,
+                description: 'إضافة صافي قيمة الطلب بعد التسليم',
+                notes: 'رقم الطلب: ' . $order->id
+            );
+
             $driver->account()->increment('balance', $order->netTotal);
+
         });
     }
 

@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Models\AccountantReceiptNote;
 use App\Models\Driver;
 use App\Models\IssueNote;
+use App\Models\DriverBalanceTracker;
+use App\Enums\DriverBalanceTransactionType;
+use App\Enums\BalanceOperation;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Exception;
@@ -30,7 +33,19 @@ class AccountantReceiptNoteService
         }
 
         DB::transaction(function () use ($driver, $note) {
+            // Track the balance change
+            DriverBalanceTracker::track(
+                driverId: $driver->id,
+                transactionType: DriverBalanceTransactionType::RECEIPT,
+                operation: BalanceOperation::DECREMENT,
+                amount: (float) $note->paid,
+                relatedModel: $note,
+                description: 'سند صرف محاسب - تحصيل من مندوب التسليم',
+                notes: 'رقم السند: ' . $note->id
+            );
+
             $driver->account->decrement('balance', $note->paid);
+
         });
     }
 

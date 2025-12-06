@@ -83,8 +83,24 @@ class StockItemResource extends Resource implements HasShieldPermissions
                         2
                     ))
                     ->label('عدد العبوات')
-                    // ->sortable()
                     ,
+                Tables\Columns\TextColumn::make('packets_and_pieces')
+                    ->label('العبوات والقطع')
+                    ->state(function ($record) {
+                        $totalPieces = $record->stock_items_sum_piece_quantity ?? 0;
+                        $packetToPiece = $record->packet_to_piece ?? 1;
+
+                        $packets = floor($totalPieces / $packetToPiece);
+                        $pieces = $totalPieces % $packetToPiece;
+
+                        if ($packets > 0 && $pieces > 0) {
+                            return "{$packets} عبوة و {$pieces} قطعة";
+                        } elseif ($packets > 0) {
+                            return "{$packets} عبوة";
+                        } else {
+                            return "{$pieces} قطعة";
+                        }
+                    }),
                 Tables\Columns\TextColumn::make('packet_cost')
                     ->label('تكلفة العبوة')
                     ->sortable(),

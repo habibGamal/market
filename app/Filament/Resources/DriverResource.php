@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Actions\GeneratePasswordAction;
 use App\Filament\Exports\DriverExporter;
 use App\Filament\Resources\DriverResource\Pages;
+use App\Filament\Resources\DriverResource\RelationManagers;
 use App\Models\Driver;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
@@ -148,7 +149,7 @@ class DriverResource extends Resource implements HasShieldPermissions
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\BalanceTrackersRelationManager::class,
         ];
     }
 
