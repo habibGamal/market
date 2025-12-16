@@ -189,7 +189,7 @@ class DriverServices
 
             // Process the return items
             $returnItems = $this->orderServices->returnItems($order, $itemsToReturn);
-            $this->markReturnItemsAsReceivedFromCustomer($returnItems);
+            $this->markReturnItemsAsReceivedFromCustomer($returnItems,false);
 
             // make discount value = 0 so that netTotal don't be negative
             // Update order status
