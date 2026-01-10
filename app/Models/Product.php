@@ -243,6 +243,14 @@ class Product extends Model
         return $this->hasMany(WasteItem::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<StockCountingItem>
+     */
+    public function stockCountingItems()
+    {
+        return $this->hasMany(StockCountingItem::class);
+    }
+
     public function isExpired(\Carbon\Carbon $releaseDate): bool
     {
         if (!isset($this->expiration_duration) || !isset($this->expiration_unit)) {

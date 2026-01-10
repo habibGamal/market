@@ -10,6 +10,7 @@ use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers\Cance
 use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers\ReceiptNoteItemsRelationManager;
 use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers\ReturnPurchaseItemsRelationManager;
 use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers\WasteItemsRelationManager;
+use App\Filament\Resources\Reports\ProductsReportResource\RelationManagers\StockCountingItemsRelationManager;
 use App\Filament\Widgets\ProductsStatsOverview;
 use App\Models\Product;
 use App\Services\Reports\ProductReportService;
@@ -187,6 +188,7 @@ class ProductsReportResource extends Resource implements HasShieldPermissions
             ReceiptNoteItemsRelationManager::class,
             ReturnPurchaseItemsRelationManager::class,
             WasteItemsRelationManager::class,
+            StockCountingItemsRelationManager::class,
         ];
     }
 

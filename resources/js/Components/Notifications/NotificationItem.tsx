@@ -3,6 +3,7 @@ import { ShoppingBag, Bell, PackageOpen, ClipboardList, TruckIcon, XCircle, Pack
 import { useRelativeTime } from "@/Hooks/useRelativeTime";
 import { useNotificationAction } from "@/Hooks/useNotificationAction";
 import { Notification } from "@/types";
+import { useState, useRef, useEffect } from "react";
 
 interface NotificationItemProps extends Omit<Notification, 'stats'> {
     onRead?: (id: string) => void;
@@ -31,9 +32,20 @@ export function NotificationItem({
     const Icon = iconMap[type];
     const { formatRelativeTime } = useRelativeTime();
     const { handleNotificationClick } = useNotificationAction();
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [isClamped, setIsClamped] = useState(false);
+    const descriptionRef = useRef<HTMLParagraphElement>(null);
 
     // Format date using the custom hook
     const formattedDate = formatRelativeTime(date);
+
+    // Check if text is clamped
+    useEffect(() => {
+        const element = descriptionRef.current;
+        if (element) {
+            setIsClamped(element.scrollHeight > element.clientHeight);
+        }
+    }, [description]);
 
     // Handle click using the custom hook
     const handleClick = () => handleNotificationClick(id, data, onRead);
@@ -75,9 +87,26 @@ export function NotificationItem({
                         {formattedDate}
                     </span>
                 </div>
-                <p className="mt-1 text-sm text-secondary-600 line-clamp-2">
+                <p
+                    ref={descriptionRef}
+                    className={cn(
+                        "mt-1 text-sm text-secondary-600",
+                        !isExpanded && "line-clamp-2"
+                    )}
+                >
                     {description}
                 </p>
+                {isClamped && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsExpanded(!isExpanded);
+                        }}
+                        className="mt-1 text-xs font-medium text-primary-600 hover:text-primary-700"
+                    >
+                        {isExpanded ? "عرض أقل" : "اقرأ المزيد"}
+                    </button>
+                )}
             </div>
         </div>
     );
