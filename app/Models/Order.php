@@ -252,6 +252,55 @@ class Order extends Model
         return $template;
     }
 
+    public function printTemplatePdf()
+    {
+        $this->loadMissing('items.product', 'customer', 'returnItems');
+
+        // Get returned items by product_id for easy lookup
+        $returnedItems = $this->returnItems->groupBy('product_id')
+            ->map(function ($items) {
+                return [
+                    'piece_quantity' => $items->sum('piece_quantity'),
+                    'packets_quantity' => $items->sum('packets_quantity')
+                ];
+            });
+
+        $template = printTemplate()
+            ->title('فاتورة طلب')
+            ->info('رقم الطلب', $this->id)
+            ->info('تاريخ الطلب', $this->created_at->format('Y-m-d h:i:s A'))
+            ->info('اسم العميل', $this->customer->name)
+            ->info('رقم الهاتف', $this->customer->phone)
+            ->info('المنطقة', $this->customer->area->name ?? '')
+            ->info('العنوان', $this->customer->address)
+            ->info('حالة الطلب', $this->status->getLabel())
+            ->total($this->netTotal);
+
+        // Build table headers and rows
+        $headers = ['المنتج', 'عبوات', 'سعر العبوة', 'قطع', 'سعر القطعة', 'الإجمالي'];
+        $items = [];
+
+        $this->items->each(function ($item) use (&$items, $returnedItems) {
+            $netQuantity = $this->calculateNetQuantity($item, $returnedItems);
+
+            // Only add items that haven't been fully returned
+            if ($netQuantity['netPieceQty'] > 0 || $netQuantity['netPacketsQty'] > 0) {
+                $items[] = [
+                    $item->product->name,
+                    $netQuantity['netPacketsQty'] > 0 ? $netQuantity['netPacketsQty'] : '-',
+                    $netQuantity['netPacketsQty'] > 0 ? number_format($item->packet_price, 2) . ' جنيه' : '-',
+                    $netQuantity['netPieceQty'] > 0 ? $netQuantity['netPieceQty'] : '-',
+                    $netQuantity['netPieceQty'] > 0 ? number_format($item->piece_price, 2) . ' جنيه' : '-',
+                    number_format($netQuantity['netTotal'], 2) . ' جنيه'
+                ];
+            }
+        });
+
+        $template->itemHeaders($headers)->items($items);
+
+        return $template;
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

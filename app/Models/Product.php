@@ -50,6 +50,34 @@ class Product extends Model
         'has_stock',
     ];
 
+    /**
+     * Scope a query to only include products with active categories.
+     */
+    public function scopeWithActiveCategory($query)
+    {
+        return $query->whereHas('category', function ($q) {
+            $q->where('is_active', true);
+        });
+    }
+
+    /**
+     * Scope a query to only include products with active brands.
+     */
+    public function scopeWithActiveBrand($query)
+    {
+        return $query->whereHas('brand', function ($q) {
+            $q->where('is_active', true);
+        });
+    }
+
+    /**
+     * Scope a query to only include products with active category and brand.
+     */
+    public function scopeWithActiveRelations($query)
+    {
+        return $query->withActiveCategory()->withActiveBrand();
+    }
+
     public function getPacketsQuantityAttribute()
     {
         if ($this->stock_items_sum_piece_quantity === null) return null;

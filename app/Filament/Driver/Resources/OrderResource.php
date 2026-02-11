@@ -125,6 +125,8 @@ class OrderResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+                printAction(Tables\Actions\Action::make('print')),
+                printPdfAction(Tables\Actions\Action::make('print-pdf'))
             ]);
     }
 

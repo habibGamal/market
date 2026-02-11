@@ -7,6 +7,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\Layout\Grid;
 use Filament\Tables\Columns\Layout\Stack;
+use Illuminate\Database\Eloquent\Model;
 
 class ReturnItemsRelationManager extends RelationManager
 {
@@ -14,6 +15,11 @@ class ReturnItemsRelationManager extends RelationManager
     protected static ?string $title = 'المرتجعات';
     protected static ?string $modelLabel = 'مرتجع';
     protected static ?string $pluralModelLabel = 'المرتجعات';
+
+    public static function canViewForRecord(Model $record , ?string $relationship): bool
+    {
+        return true;
+    }
 
     public function table(Table $table): Table
     {

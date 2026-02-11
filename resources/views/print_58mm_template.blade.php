@@ -104,7 +104,7 @@
             text-align: center;
             margin-top: 1.5mm;
             font-size: 6pt;
-            padding-bottom: 4mm;
+            padding-bottom: 0mm;
         }
 
         .centered {
@@ -148,8 +148,7 @@
 
     <div class="receipt-container">
         <div class="header">
-            <img src="{{ $template->getLogoUrl() }}" alt="Logo">
-            <h1>{{ $template->getTitle() }}</h1>
+            <h1>سندباد</h1>
             <div style="font-size: 7pt;">{{ now()->format('Y/m/d H:i') }}</div>
         </div>
 
@@ -241,7 +240,7 @@
             <div class="divider"></div>
             <div class="total">
                 <span>المجموع الكلي:</span>
-                <span>{{ number_format($template->getTotal(), 2) }}</span>
+                <span>{{ number_format(ceil($template->getTotal()), 0) }}</span>
             </div>
         @endif
 

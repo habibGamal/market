@@ -49,6 +49,7 @@ class SectionService
         }
 
         $productsQuery = Product::query()
+            ->withActiveRelations()
             ->select('products.*')
             ->join('sectionables', function ($join) use ($section) {
                 $join->on('products.id', '=', 'sectionables.sectionable_id')
@@ -60,6 +61,7 @@ class SectionService
         if ($section->brands->isNotEmpty()) {
             $productsQuery->union(
                 Product::query()
+                    ->withActiveRelations()
                     ->select('products.*')
                     ->whereIn('brand_id', $section->brands->pluck('id'))
             );
@@ -69,6 +71,7 @@ class SectionService
         if ($section->categories->isNotEmpty()) {
             $productsQuery->union(
                 Product::query()
+                    ->withActiveRelations()
                     ->select('products.*')
                     ->whereIn('category_id', $section->categories->pluck('id'))
             );
@@ -91,6 +94,7 @@ class SectionService
     protected function getFallbackProducts(int $businessTypeId): Builder
     {
         return Product::query()
+            ->withActiveRelations()
             ->select('products.*')
             ->inRandomOrder() // Randomize fallback products
             ->whereHas('category.businessTypes', function ($query) use ($businessTypeId) {
@@ -120,6 +124,7 @@ class SectionService
 
         // Join back to products to get all product fields
         return Product::query()
+            ->withActiveRelations()
             ->select('products.*')
             ->joinSub($trendingProductsSubquery, 'trending', function ($join) {
                 $join->on('products.id', '=', 'trending.id');
@@ -147,6 +152,7 @@ class SectionService
         if ($customerPreferences->isEmpty()) {
             // If no purchase history, return popular products in their business type
             return Product::query()
+                ->withActiveRelations()
                 ->select('products.*')
                 ->join('order_items', 'products.id', '=', 'order_items.product_id')
                 ->join('orders', 'order_items.order_id', '=', 'orders.id')
@@ -157,7 +163,7 @@ class SectionService
         }
 
         // Get products matching customer's preferred categories and brands
-        $query = Product::query()->where(function ($query) use ($customerPreferences) {
+        $query = Product::query()->withActiveRelations()->where(function ($query) use ($customerPreferences) {
             foreach ($customerPreferences as $preference) {
                 $query->orWhere(function ($q) use ($preference) {
                     $q->where('category_id', $preference->category_id)

@@ -14,7 +14,19 @@ class Category extends Model
 {
     use HasFactory, LogsActivity;
 
-    protected $fillable = ['name', 'image'];
+    protected $fillable = ['name', 'image', 'is_active', 'parent_id'];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    /**
+     * Scope a query to only include active categories.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 
     public function products()
     {

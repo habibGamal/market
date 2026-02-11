@@ -27,6 +27,7 @@ class CategoryController extends Controller
         // dd($businessTypeId);
         // Get categories for this business type
         $categories = Category::where('parent_id', '-1')
+            ->where('is_active', true)
             ->when($businessTypeId, function ($query) use ($businessTypeId) {
                 $query->whereHas('businessTypes', function ($query) use ($businessTypeId) {
                     $query->where('business_type_id', $businessTypeId);
@@ -44,9 +45,14 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
+        // Only show active categories
+        if (!$category->is_active) {
+            abort(404);
+        }
+
         // Get brands with products in this category
-        $brandsWithProducts = Brand::whereHas('products', function ($query) use ($category) {
-            $query->whereIn('category_id', $category->children()->pluck('id'))
+        $brandsWithProducts = Brand::where('is_active', true)->whereHas('products', function ($query) use ($category) {
+            $query->whereIn('category_id', $category->children()->where('is_active', true)->pluck('id'))
                 ->orWhere('category_id', $category->id);
         })->get();
 

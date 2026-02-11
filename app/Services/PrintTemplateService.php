@@ -15,4 +15,14 @@ class PrintTemplateService
         $template->validate();
         return view($template->getLayout(), ['template' => $template]);
     }
+
+    public function printPagePdf(Model $model)
+    {
+        if (!method_exists($model, 'printTemplatePdf')) {
+            throw new \Exception('PDF print template not found: please implement printTemplatePdf method in your model');
+        }
+        $template = $model->printTemplatePdf();
+        $template->validate();
+        return view($template->getLayout(), ['template' => $template]);
+    }
 }

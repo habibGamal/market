@@ -118,6 +118,9 @@ class IssueNoteResource extends InvoiceResource implements HasShieldPermissions
                     ->label('المسؤول')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('notes')
+                    ->label('ملاحظات')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
                     ->dateTime()
@@ -200,6 +203,18 @@ class IssueNoteResource extends InvoiceResource implements HasShieldPermissions
             TextEntry::make('updated_at')
                 ->label('تاريخ التحديث')
                 ->dateTime(),
+            TextEntry::make('orders')
+                ->label('العملاء')
+                ->formatStateUsing(function ($record) {
+                    return $record->orders->load('customer')->map(function ($order) {
+                        $url = OrderResource::getUrl('view', ['record' => $order->id]);
+                        return '<a href="' . $url . '" class="text-primary-600 hover:underline" target="_blank">' . e($order->customer->name) . '</a>';
+                    })->join(', ');
+                })
+                ->html()
+                ->columnSpanFull()
+                ->visible(fn($record) => $record->note_type === IssueNoteType::ORDERS),
+
             TextEntry::make('notes')
                 ->label('ملاحظات')
                 ->columnSpanFull(),

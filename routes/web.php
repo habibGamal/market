@@ -139,6 +139,12 @@ Route::middleware(['auth'])->group(function () {
         return $service->printPage($record);
     })->name('print');
 
+    Route::get('/print-pdf/{model}/{id}', function (string $model, $id, PrintTemplateService $service) {
+        $record = $model::findOrFail($id);
+        // Gate::authorize('view', $record);
+        return $service->printPagePdf($record);
+    })->name('print.pdf');
+
 });
 
 Route::get('/notify', function (NotificationService $notificationService) {

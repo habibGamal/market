@@ -68,15 +68,26 @@ class IssueNote extends Model
             ->info('تاريخ الاذن', $this->created_at->format('Y-m-d h:i:s A'))
             ->info('تاريخ اخر تحديث', $this->updated_at->format('Y-m-d h:i:s A'))
             ->info('المسؤول', auth()->user()->name)
+            ->info('الملاحظات', $this->notes ?? '-')
             ->total($this->total)
-            ->itemHeaders(['العلامة التجارية', 'المنتج', 'عدد العبوات', 'عدد القطع', 'تاريخ الانتاج'])
+            ->itemHeaders(['العلامة التجارية', 'المنتج', 'عدد العبوات', 'عدد القطع', 'تاريخ الانتاج', 'المخزون الحالي'])
             ->items($this->items->map(function ($item) {
+                $product = $item->product;
+                $product->loadSum('stockItems', 'piece_quantity');
+                $totalPieces = $product->stock_items_sum_piece_quantity ?? 0;
+                $packetToPiece = $product->packet_to_piece ?? 1;
+
+                $packets = floor($totalPieces / $packetToPiece);
+                $pieces = $totalPieces % $packetToPiece;
+                $currentStock = ($packets > 0 ? "{$packets} عبوة" : '') . ($pieces > 0 ? " و {$pieces} قطعة" : '');
+
                 return [
                     $item->product->brand->name,
                     $item->product->name,
                     $item->packets_quantity,
                     $item->piece_quantity,
                     $item->release_date,
+                    $currentStock
                 ];
             })->toArray());
     }

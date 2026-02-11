@@ -13,6 +13,7 @@ use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -60,6 +61,10 @@ class CategoryResource extends Resource implements HasShieldPermissions
                     ->imageEditor()
                     ->optimize('webp')
                     ->imageCropAspectRatio('1:1'),
+                Toggle::make('is_active')
+                    ->label('نشط')
+                    ->default(true)
+                    ->required(),
             ]);
     }
 
@@ -71,6 +76,9 @@ class CategoryResource extends Resource implements HasShieldPermissions
                     ->label('الاسم')
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->label('نشط')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
                     ->dateTime()

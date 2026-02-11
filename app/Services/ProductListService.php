@@ -29,7 +29,7 @@ class ProductListService
      */
     public function getSearchQuery(string $query = null)
     {
-        $baseQuery = Product::query();
+        $baseQuery = Product::query()->withActiveRelations();
 
         if ($query) {
             $baseQuery->where(function($q) use ($query) {
@@ -97,7 +97,7 @@ class ProductListService
                   ->from('categories')
                   ->whereIn('id', $productCategoryIds)
                   ->where('parent_id', '>', 0);
-        })->pluck('id');
+        })->where('is_active', true)->pluck('id');
 
         // Add parent categories
         $allCategoryIds = $allCategoryIds->merge($parentCategories);
@@ -108,19 +108,20 @@ class ProductListService
                   ->from('categories')
                   ->whereIn('id', $productCategoryIds)
                   ->where('parent_id', '>', 0);
-        })->pluck('id');
+        })->where('is_active', true)->pluck('id');
 
         // Add sibling categories
         $allCategoryIds = $allCategoryIds->merge($siblingCategories);
 
         // Get child categories of product categories
-        $childCategories = Category::whereIn('parent_id', $productCategoryIds)->pluck('id');
+        $childCategories = Category::whereIn('parent_id', $productCategoryIds)->where('is_active', true)->pluck('id');
 
         // Add child categories
         $allCategoryIds = $allCategoryIds->merge($childCategories);
 
         // Fetch all relevant categories with parent_id for nested structure
         return Category::whereIn('id', $allCategoryIds->unique())
+                      ->where('is_active', true)
                       ->select('id', 'name', 'parent_id')
                       ->get();
     }
@@ -130,8 +131,8 @@ class ProductListService
      */
     public function getAllCategories(): Collection
     {
-        // Get all categories with parent_id for hierarchical structure
-        return Category::select('id', 'name', 'parent_id')->get();
+        // Get all active categories with parent_id for hierarchical structure
+        return Category::where('is_active', true)->select('id', 'name', 'parent_id')->get();
     }
 
     /**
@@ -140,6 +141,7 @@ class ProductListService
     public function getFilterBrands($baseQuery): Collection
     {
         return Brand::whereIn('id', $baseQuery->clone()->pluck('brand_id')->unique())
+                   ->where('is_active', true)
                    ->select('id', 'name')
                    ->get();
     }
@@ -149,7 +151,7 @@ class ProductListService
      */
     public function getAllBrands(): Collection
     {
-        return Brand::select('id', 'name')->get();
+        return Brand::where('is_active', true)->select('id', 'name')->get();
     }
 
     /**
@@ -168,6 +170,12 @@ class ProductListService
     protected function getCategoryProducts(int $id)
     {
         $category = Category::findOrFail($id);
+
+        // Only show products from active categories
+        if (!$category->is_active) {
+            abort(404, 'Category is not active');
+        }
+
         return $category->products();
     }
 
@@ -177,6 +185,12 @@ class ProductListService
     protected function getBrandProducts(int $id)
     {
         $brand = Brand::findOrFail($id);
+
+        // Only show products from active brands
+        if (!$brand->is_active) {
+            abort(404, 'Brand is not active');
+        }
+
         return $brand->products();
     }
 }

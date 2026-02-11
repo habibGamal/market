@@ -34,6 +34,19 @@ if (!function_exists('printAction')) {
     }
 }
 
+if (!function_exists('printPdfAction')) {
+    function printPdfAction($action)
+    {
+        return $action
+            ->label('طباعة PDF')
+            ->icon('heroicon-o-document-text')
+            ->url(fn($record) => route('print.pdf', ['model' => get_class($record), 'id' => $record->id]))
+            ->openUrlInNewTab()
+            ->visible(fn($record) => $record->items->count() > 0)
+            ->color('primary');
+    }
+}
+
 if (!function_exists('settings')) {
     /**
      * Access the settings service.

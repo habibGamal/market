@@ -1,7 +1,7 @@
 <x-filament-panels::page>
     <div class="flex flex-col items-center justify-center min-h-[60vh] py-8 px-4 sm:px-0">
-        <div class="w-full max-w-xs sm:max-w-md md:max-w-lg rounded-2xl shadow-lg  p-4 flex flex-col items-center gap-4">
-            <img src="{{ asset('images/main.png') }}" alt="الرئيسية" class="w-40 h-40 object-contain rounded-xl shadow mb-2" loading="lazy" />
+        <div class="w-full max-w-xs sm:max-w-md md:max-w-xl rounded-2xl shadow-lg  p-4 flex flex-col items-center gap-4">
+            <img src="{{ asset('icon512_maskable.png') }}" alt="الرئيسية" class="w-full object-contain rounded-xl shadow mb-2" loading="lazy" />
             <div class="w-full text-center">
                 <h1 class="text-2xl font-bold text-primary-600 mb-2">مرحبا بك في {{ config('app.name') }}</h1>
                 @auth

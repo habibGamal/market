@@ -106,6 +106,41 @@ class ViewOrder extends ViewRecord
                 ->modalHeading('تسليم الأصناف للعميل')
                 ->modalSubmitActionLabel('تسليم'),
 
+            Action::make('deliver_all_items')
+                ->label('تسليم جميع الأصناف')
+                ->color('success')
+                ->icon('heroicon-o-check-badge')
+                ->visible(fn($record) => $record->status === OrderStatus::OUT_FOR_DELIVERY)
+                ->action(function ($record, $action) {
+                    try {
+                        $itemsData = $record->items->map(fn($item) => [
+                            'item_id' => $item->id,
+                            'packets_quantity' => $item->packets_quantity,
+                            'piece_quantity' => $item->piece_quantity,
+                        ])->toArray();
+
+                        app(DriverServices::class)->deliverOrder($record, $record->items, $itemsData);
+                        notifyCustomerWithOrderStatus($record->fresh());
+
+                        Notification::make()
+                            ->title('تم تسليم جميع الأصناف بنجاح')
+                            ->success()
+                            ->send();
+                    } catch (\Exception $e) {
+                        $action->failureNotification(
+                            Notification::make()
+                                ->title('حدث خطأ أثناء تسليم الأصناف')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send()
+                        )->halt()->failure();
+                    }
+                })
+                ->requiresConfirmation()
+                ->modalHeading('تسليم جميع الأصناف')
+                ->modalDescription('هل أنت متأكد من تسليم جميع أصناف الطلب بالكامل؟')
+                ->modalSubmitActionLabel('تسليم الكل'),
+
             Action::make('return_all_items')
                 ->label('إرجاع جميع الأصناف')
                 ->color('danger')
@@ -134,7 +169,7 @@ class ViewOrder extends ViewRecord
                 ->modalDescription('هل أنت متأكد من إرجاع جميع أصناف الطلب؟ لا يمكن التراجع عن هذا الإجراء.')
                 ->modalSubmitActionLabel('إرجاع'),
 
-            printAction(Actions\Action::make('print')),
+            // printAction(Actions\Action::make('print')),
         ];
     }
 }

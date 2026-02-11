@@ -12,6 +12,20 @@ class Brand extends Model
 {
     use HasFactory, LogsActivity;
 
+    protected $fillable = ['name', 'image', 'is_active'];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    /**
+     * Scope a query to only include active brands.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
     public function products()
     {
         return $this->hasMany(Product::class);

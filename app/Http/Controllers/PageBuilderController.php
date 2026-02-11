@@ -35,7 +35,7 @@ class PageBuilderController extends Controller
             ]),
             ...$content,
             'announcements' => $content['announcements'],
-            'categories' => Category::where('parent_id','-1')->get(),
+            'categories' => Category::where('parent_id','-1')->where('is_active', true)->get(),
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),
         ]);
