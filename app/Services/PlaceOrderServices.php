@@ -87,7 +87,7 @@ class PlaceOrderServices
             $this->orderServices->addOrderItems($order, $cartItems);
 
             // Order Validation & Evaluation
-            $skipIfAdmins = in_array(auth()->user()->id, [1, 2, 3]);
+            $skipIfAdmins = in_array(auth()->user()->id, [1, 2, 3,4]);
             $this->orderEvaluation($order, $skipIfAdmins);
 
             // add points to the customer based on total cart (as total order is accumilative)
