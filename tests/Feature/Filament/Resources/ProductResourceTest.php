@@ -167,7 +167,7 @@ it('can validate required', function (string $column) {
         ->assertActionExists('create')
         ->call('create')
         ->assertHasFormErrors([$column => ['required']]);
-})->with(['name', 'barcode', 'packet_to_piece', 'packet_cost', 'packet_price', 'piece_price', 'before_discount.packet_price', 'before_discount.piece_price', 'expiration_duration', 'expiration_unit', 'brand_id', 'category_id']);
+})->with(['name', 'packet_to_piece', 'packet_cost', 'packet_price', 'piece_price', 'expiration_duration', 'expiration_unit', 'brand_id', 'category_id']);
 
 // it('can validate unique', function (string $column) {
 //     $record = Product::factory()->create();

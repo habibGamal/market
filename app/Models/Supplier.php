@@ -41,6 +41,16 @@ class Supplier extends Model
         );
     }
 
+    public function purchaseInvoices()
+    {
+        return $this->hasMany(\App\Models\PurchaseInvoice::class);
+    }
+
+    public function returnPurchaseInvoices()
+    {
+        return $this->hasMany(\App\Models\ReturnPurchaseInvoice::class);
+    }
+
     // IssueNote relation through ReturnPurchaseInvoice
     public function issueNotes()
     {

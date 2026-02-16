@@ -23,8 +23,8 @@ class ProductImporter extends Importer
             ImportColumn::make('id')->label('معرف المنتج'),
             ImportColumn::make('name')->label('اسم المنتج'),
             ImportColumn::make('barcode')->label('الباركود')
-                ->rules(fn($record) => [
-                    "unique:products,barcode,{$record?->id}"
+                ->rules(fn($record, $state) => [
+                    $state ? "unique:products,barcode,{$record?->id}" : null
                 ]),
             ImportColumn::make('description')->label('الوصف'),
             ImportColumn::make('image')->label('الصورة'),
@@ -39,11 +39,9 @@ class ProductImporter extends Importer
             ImportColumn::make('packet_price')->label('سعر العبوة'),
             ImportColumn::make('piece_price')->label('سعر القطعة'),
             ImportColumn::make('before_discount_packet_price')->label('سعر العبوة قبل الخصم')
-                ->guess(['سعر العبوة قبل الخصم'])
-                ->requiredMappingForNewRecordsOnly(),
+                ->guess(['سعر العبوة قبل الخصم']),
             ImportColumn::make('before_discount_piece_price')->label('سعر القطعة قبل الخصم')
-                ->guess(['سعر القطعة قبل الخصم'])
-                ->requiredMappingForNewRecordsOnly(),
+                ->guess(['سعر القطعة قبل الخصم']),
             ImportColumn::make('expiration')->label('مدة الصلاحية'),
             ImportColumn::make('min_packets_stock_limit')->label('الحد الأدنى للمخزون (عبوات)'),
             ImportColumn::make('brand')->label('العلامة التجارية')

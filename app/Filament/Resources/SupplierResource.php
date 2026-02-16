@@ -93,6 +93,7 @@ class SupplierResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -115,7 +116,8 @@ class SupplierResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            SupplierResource\RelationManagers\PurchaseInvoicesRelationManager::class,
+            SupplierResource\RelationManagers\ReturnPurchaseInvoicesRelationManager::class,
         ];
     }
 
@@ -129,6 +131,7 @@ class SupplierResource extends Resource
         return [
             'index' => Pages\ListSuppliers::route('/'),
             'create' => Pages\CreateSupplier::route('/create'),
+            'view' => Pages\ViewSupplier::route('/{record}'),
             'edit' => Pages\EditSupplier::route('/{record}/edit'),
         ];
     }

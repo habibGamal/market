@@ -54,6 +54,24 @@ class OrdersReportResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->withCount([
+                    'items as brands_count' => function ($query) {
+                        $query->join('products', 'order_items.product_id', '=', 'products.id')
+                            ->distinct()
+                            ->select(\DB::raw('COUNT(DISTINCT products.brand_id)'));
+                    }
+                ])
+                ->addSelect([
+                    'items_profit' => \App\Models\OrderItem::selectRaw('COALESCE(SUM(profit), 0)')
+                        ->whereColumn('order_id', 'orders.id'),
+                    'returns_total' => \App\Models\ReturnOrderItem::selectRaw('COALESCE(SUM(total), 0)')
+                        ->whereColumn('order_id', 'orders.id'),
+                    'returns_profit' => \App\Models\ReturnOrderItem::selectRaw('COALESCE(SUM(profit), 0)')
+                        ->whereColumn('order_id', 'orders.id'),
+                ])
+                ->with(['returnItems', 'items']);
+            })
             ->columns([
                 TextColumn::make('id')
                     ->label('رقم الطلبية')
@@ -73,19 +91,56 @@ class OrdersReportResource extends Resource implements HasShieldPermissions
                 TextColumn::make('profit')
                     ->label('الربح')
                     ->money('EGP')
-                    ->sortable()
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy('items_profit', $direction);
+                    })
                     ->visible(fn ()=> auth()->user()->can('view_profits_order', Order::class)),
-                TextColumn::make('net_profit')
+                TextColumn::make('netProfit')
                     ->label('صافي الربح')
                     ->money('EGP')
-                    ->sortable()
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderByRaw("(items_profit - returns_profit - discount) {$direction}");
+                    })
+                    ->visible(fn ()=> auth()->user()->can('view_profits_order', Order::class)),
+                TextColumn::make('net_profit_percent')
+                    ->label('نسبة صافي الربح')
+                    ->getStateUsing(function (Order $record) {
+                        $netTotal = $record->netTotal;
+                        return $netTotal > 0 ? ($record->netProfit / $netTotal) * 100 : 0;
+                    })
+                    ->formatStateUsing(fn ($state) => number_format($state, 2) . '%')
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderByRaw("
+                            CASE
+                                WHEN (total - returns_total - discount) > 0
+                                THEN ((items_profit - returns_profit - discount) / (total - returns_total - discount)) * 100
+                                ELSE 0
+                            END {$direction}
+                        ");
+                    })
                     ->visible(fn ()=> auth()->user()->can('view_profits_order', Order::class)),
                 TextColumn::make('total')
                     ->label('المجموع')
-                    ->money('EGP'),
+                    ->money('EGP')
+                    ->sortable(),
+                TextColumn::make('netTotal')
+                    ->label('الصافي')
+                    ->money('EGP')
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderByRaw("(total - returns_total - discount) {$direction}");
+                    }),
+                TextColumn::make('brands_count')
+                    ->label('عدد الشركات')
+                    ->sortable()
+                    ->tooltip('عدد الشركات المختلفة في الطلب'),
                 TextColumn::make('status')
                     ->label('الحالة')
                     ->badge(),
+                TextColumn::make('customer.address')
+                    ->label('العنوان')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
                     ->dateTime()
@@ -141,7 +196,7 @@ class OrdersReportResource extends Resource implements HasShieldPermissions
                             ->label('المجموع')
                             ->money('EGP')
                             ->tooltip('إجمالي قيمة الطلب قبل المرتجعات والخصومات'),
-                        TextEntry::make('net_total')
+                        TextEntry::make('netTotal')
                             ->label('صافي المجموع')
                             ->money('EGP')
                             ->tooltip('إجمالي قيمة الطلب بعد خصم المرتجعات والخصومات'),
@@ -149,7 +204,7 @@ class OrdersReportResource extends Resource implements HasShieldPermissions
                             ->label('الربح')
                             ->money('EGP')
                             ->tooltip('إجمالي الربح قبل خصم المرتجعات والخصومات'),
-                        TextEntry::make('net_profit')
+                        TextEntry::make('netProfit')
                             ->label('صافي الربح')
                             ->money('EGP')
                             ->tooltip('صافي الربح بعد خصم المرتجعات والخصومات'),
@@ -201,7 +256,7 @@ class OrdersReportResource extends Resource implements HasShieldPermissions
     {
         return [
             'index' => Pages\ListOrdersReports::route('/'),
-            'view' => Pages\ViewOrdersReport::route('/{record}'),
+            'view' => \App\Filament\Resources\OrderResource\Pages\ViewOrder::route('/{record}'),
         ];
     }
 

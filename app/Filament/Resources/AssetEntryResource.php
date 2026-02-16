@@ -54,7 +54,8 @@ class AssetEntryResource extends Resource implements HasShieldPermissions
 
                 Tables\Columns\TextColumn::make('notes')
                     ->label('ملاحظات')
-                    ->limit(50),
+                    ->limit(50)
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')

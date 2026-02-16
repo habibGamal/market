@@ -225,6 +225,10 @@ class WasteResource extends InvoiceResource
                     ->label('تاريخ الإنشاء')
                     ->dateTime()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('notes')
+                    ->label('ملاحظات')
+                    ->limit(50)
+                    ->searchable(),
             ])
             ->filters(static::filters())
             ->headerActions([

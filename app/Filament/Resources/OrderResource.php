@@ -110,6 +110,16 @@ class OrderResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->withCount([
+                    'items as brands_count' => function ($query) {
+                        $query->join('products', 'order_items.product_id', '=', 'products.id')
+                            ->distinct()
+                            ->select(\DB::raw('COUNT(DISTINCT products.brand_id)'));
+                    }
+                ])
+                ->with('returnItems');
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->label('رقم الطلب')
@@ -117,6 +127,7 @@ class OrderResource extends Resource implements HasShieldPermissions
                     ->searchable(),
                 Tables\Columns\TextColumn::make('customer.name')
                     ->label('اسم العميل')
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('customer.phone')
                     ->label('رقم الهاتف')
@@ -134,20 +145,17 @@ class OrderResource extends Resource implements HasShieldPermissions
                 Tables\Columns\TextColumn::make('netTotal')
                     ->label('الصافي')
                     ->money('EGP')
-                    ->tooltip('إجمالي الطلب بعد خصم المرتجعات والخصومات'),
-                Tables\Columns\TextColumn::make('items_count')
+                    ->tooltip('إجمالي الطلب بعد خصم المرتجعات والخصومات')
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderByRaw("(total - discount) {$direction}");
+                    }),
+                Tables\Columns\TextColumn::make('brands_count')
                     ->label('عدد الشركات')
-                    ->getStateUsing(function (Order $record) {
-                        return $record->items()
-                            ->join('products', 'order_items.product_id', '=', 'products.id')
-                            ->join('brands', 'products.brand_id', '=', 'brands.id')
-                            ->distinct('brands.id')
-                            ->count('brands.id');
-                    })
-                    ->sortable(false)
+                    ->sortable()
                     ->tooltip('عدد الشركات المختلفة في الطلب'),
                 Tables\Columns\TextColumn::make('status')
                     ->label('الحالة')
+                    ->sortable()
                     ->badge(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')

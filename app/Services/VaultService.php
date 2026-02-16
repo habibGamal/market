@@ -10,7 +10,10 @@ class VaultService
     {
         return Vault::firstOrCreate(
             ['id' => 1],
-            ['balance' => 0]
+            [
+                'name' => 'الخزينة النقدية',
+                'balance' => 0,
+            ]
         );
     }
 

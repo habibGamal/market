@@ -5,6 +5,8 @@ namespace App\Services\Reports;
 use App\Models\AssetEntry;
 use App\Models\CashSettlement;
 use App\Models\DriverAccount;
+use App\Models\Expense;
+use App\Models\ExpenseType;
 use App\Models\FixedAsset;
 use App\Models\Order;
 use App\Models\StockItem;
@@ -49,11 +51,19 @@ class CentralCashFlowService
     }
 
     /**
-     * Get current vault balance
+     * Get current vault balance (Cash Vault - id = 1)
      */
     public function getCurrentVaultBalance(): float
     {
-        return Vault::first()->balance ?? 0;
+        return Vault::find(1)?->balance ?? 0;
+    }
+
+    /**
+     * Get sum of other vaults balance (excluding id = 1)
+     */
+    public function getOtherVaultsBalance(): float
+    {
+        return Vault::where('id', '!=', 1)->sum('balance') ?? 0;
     }
 
     /**
@@ -133,6 +143,30 @@ class CentralCashFlowService
     }
 
     /**
+     * Get tracked expenses grouped by expense type
+     */
+    public function getTrackedExpenses(): array
+    {
+        $trackedExpenseTypes = ExpenseType::where('track', true)->get();
+        $expenses = [];
+
+        foreach ($trackedExpenseTypes as $expenseType) {
+            $total = Expense::query()
+                ->where('expense_type_id', $expenseType->id)
+                ->whereNotNull('approved_by')
+                ->sum('value') ?? 0;
+
+            $expenses[] = [
+                'id' => $expenseType->id,
+                'name' => $expenseType->name,
+                'total' => $total,
+            ];
+        }
+
+        return $expenses;
+    }
+
+    /**
      * Get all cash flow data for the report
      */
     public function getCashFlowData($startDate = null, $endDate = null): array
@@ -141,12 +175,14 @@ class CentralCashFlowService
         $stockCost = $this->getStockCost();
         $deliveryOrdersCost = $this->getDeliveryOrdersCost();
         $vaultBalance = $this->getCurrentVaultBalance();
+        $otherVaultsBalance = $this->getOtherVaultsBalance();
         $driversBalance = $this->getDriversBalanceSum();
         $cashSettlementsInPaid = $this->getCashSettlementsInPaid();
         $cashSettlementsInUnpaid = $this->getCashSettlementsInUnpaid();
         $fixedAssets = $this->getFixedAssetsSum();
-
-        $totalAssets = $stockCost + $deliveryOrdersCost + $vaultBalance + $driversBalance + $cashSettlementsInUnpaid + $fixedAssets;
+        $trackedExpenses = $this->getTrackedExpenses();
+        $trackedExpensesTotal = array_sum(array_column($trackedExpenses, 'total'));
+        $totalAssets = $stockCost + $deliveryOrdersCost + $vaultBalance + $otherVaultsBalance +$trackedExpensesTotal+ $driversBalance + $cashSettlementsInUnpaid + $fixedAssets;
 
         // Responsibilities section
         $suppliersBalance = $this->getSuppliersBalanceSum();
@@ -166,12 +202,14 @@ class CentralCashFlowService
                 'stock_cost' => $stockCost,
                 'delivery_orders_cost' => $deliveryOrdersCost,
                 'vault_balance' => $vaultBalance,
+                'other_vaults_balance' => $otherVaultsBalance,
                 'drivers_balance' => $driversBalance,
                 'cash_settlements_in_paid' => $cashSettlementsInPaid,
                 'cash_settlements_in_unpaid' => $cashSettlementsInUnpaid,
                 'fixed_assets' => $fixedAssets,
                 'total' => $totalAssets,
             ],
+            'tracked_expenses' => $trackedExpenses,
             'responsibilities' => [
                 'suppliers_balance' => $suppliersBalance,
                 'cash_settlements_out_paid' => $cashSettlementsOutPaid,

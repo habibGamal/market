@@ -4,8 +4,10 @@ namespace App\Filament\Resources;
 
 use App\Filament\Exports\AccountantIssueNoteExporter;
 use App\Filament\Resources\AccountantIssueNoteResource\Pages;
+use App\Filament\Resources\SupplierResource;
 use App\Models\AccountantIssueNote;
 use App\Models\ReceiptNote;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Form;
@@ -38,14 +40,38 @@ class AccountantIssueNoteResource extends Resource
                             MorphToSelect\Type::make(ReceiptNote::class)
                                 ->label('صرف نقدية للمشتريات')
                                 ->modifyOptionsQueryUsing(function ($query) {
-                                    $query->needAccountantIsssueNote();
+                                    $query->needAccountantIsssueNote()
+                                        ->with(['purchaseInvoice.supplier']);
                                 })
                                 ->titleAttribute('id')
                                 ->getOptionLabelFromRecordUsing(function ($record) {
                                     $paymentDate = $record->purchaseInvoice->payment_date ? $record->purchaseInvoice->payment_date->format('Y-m-d') : 'غير محدد';
                                     return "اذن استلام #{$record->id} - " . $record->purchaseInvoice->supplier->name . " - " . $paymentDate;
+                                })
+                                ->getSearchResultsUsing(function (Forms\Components\Select $component, ?string $search): array {
+                                    $query = ReceiptNote::query()
+                                        ->needAccountantIsssueNote()
+                                        ->with(['purchaseInvoice.supplier']);
+
+                                    if (filled($search)) {
+                                        $query->where(function ($q) use ($search) {
+                                            $q->whereHas('purchaseInvoice.supplier', function ($sq) use ($search) {
+                                                $sq->where('name', 'like', "%{$search}%");
+                                            })->orWhere('id', 'like', "%{$search}%");
+                                        });
+                                    }
+
+                                    return $query->limit($component->getOptionsLimit())
+                                        ->get()
+                                        ->mapWithKeys(function ($record) {
+                                            $paymentDate = $record->purchaseInvoice->payment_date ? $record->purchaseInvoice->payment_date->format('Y-m-d') : 'غير محدد';
+                                            return [$record->id => "اذن استلام #{$record->id} - " . $record->purchaseInvoice->supplier->name . " - " . $paymentDate];
+                                        })
+                                        ->toArray();
                                 }),
                         ])
+                        ->searchable()
+                        ->preload()
                         ->live()
                         ->disabled(fn($record) => $record !== null),
                     Forms\Components\TextInput::make('paid')
@@ -111,6 +137,27 @@ class AccountantIssueNoteResource extends Resource
                     ->label('رقم المستند')
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('forModel.purchaseInvoice.supplier.name')
+                    ->label('اسم المورد')
+                    ->sortable()
+                    ->default('-')
+                    ->url(function ($record) {
+                        if ($record->for_model_type === ReceiptNote::class &&
+                            $record->forModel &&
+                            $record->forModel->purchaseInvoice &&
+                            $record->forModel->purchaseInvoice->supplier) {
+                            return SupplierResource::getUrl('view', ['record' => $record->forModel->purchaseInvoice->supplier->id]);
+                        }
+                        return null;
+                    })
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHasMorph('forModel', [ReceiptNote::class], function ($q) use ($search) {
+                            $q->whereHas('purchaseInvoice.supplier', function ($sq) use ($search) {
+                                $sq->where('name', 'like', "%{$search}%");
+                            });
+                        });
+                    }),
+
                 Tables\Columns\TextColumn::make('paid')
                     ->label('المدفوع')
                     ->sortable()
@@ -118,6 +165,8 @@ class AccountantIssueNoteResource extends Resource
 
                 Tables\Columns\TextColumn::make('notes')
                     ->label('ملاحظات')
+                    ->searchable()
+                    ->sortable()
                     ->limit(50),
 
                 Tables\Columns\TextColumn::make('officer.name')
@@ -130,7 +179,24 @@ class AccountantIssueNoteResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('supplier')
+                    ->label('المورد')
+                    ->options(function () {
+                        return \App\Models\Supplier::query()
+                            ->whereHas('purchaseInvoices.receipt.accountantIssueNotes')
+                            ->pluck('name', 'id');
+                    })
+                    ->query(function ($query, $data) {
+                        if (filled($data['value'])) {
+                            $query->whereHasMorph('forModel', [ReceiptNote::class], function ($q) use ($data) {
+                                $q->whereHas('purchaseInvoice', function ($pq) use ($data) {
+                                    $pq->where('supplier_id', $data['value']);
+                                });
+                            });
+                        }
+                    })
+                    ->searchable()
+                    ->preload(),
             ])
             ->headerActions([
                 Tables\Actions\ExportAction::make()

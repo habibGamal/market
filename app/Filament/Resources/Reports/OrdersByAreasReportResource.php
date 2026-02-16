@@ -58,6 +58,24 @@ class OrdersByAreasReportResource extends Resource implements HasShieldPermissio
                     ->money('EGP')
                     ->sortable()
                     ->visible(fn ()=> auth()->user()->can('view_profits_area', Area::class)),
+                TextColumn::make('profit_percent')
+                    ->label('نسبة الربح')
+                    ->getStateUsing(function ($record) {
+                        $totalSales = $record->total_sales ?? 0;
+                        $totalProfit = $record->total_profit ?? 0;
+                        return $totalSales > 0 ? ($totalProfit / $totalSales) * 100 : 0;
+                    })
+                    ->formatStateUsing(fn ($state) => number_format($state, 2) . '%')
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderByRaw("
+                            CASE
+                                WHEN order_items.total_sales > 0
+                                THEN ((order_items.total_profit - returns.profit_returns) / order_items.total_sales) * 100
+                                ELSE 0
+                            END {$direction}
+                        ");
+                    })
+                    ->visible(fn ()=> auth()->user()->can('view_profits_area', Area::class)),
                 TextColumn::make('total_returns')
                     ->label('قيمة المرتجعات')
                     ->money('EGP')

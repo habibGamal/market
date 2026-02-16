@@ -108,7 +108,7 @@ class ViewOrder extends ViewRecord
 
             Action::make('deliver_all_items')
                 ->label('تسليم جميع الأصناف')
-                ->color('success')
+                ->color('yellow')
                 ->icon('heroicon-o-check-badge')
                 ->visible(fn($record) => $record->status === OrderStatus::OUT_FOR_DELIVERY)
                 ->action(function ($record, $action) {

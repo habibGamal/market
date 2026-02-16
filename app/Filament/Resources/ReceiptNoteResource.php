@@ -218,6 +218,10 @@ class ReceiptNoteResource extends Resource implements HasShieldPermissions
                     ->label('تاريخ التحديث')
                     ->dateTime()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('notes')
+                    ->label('ملاحظات')
+                    ->limit(50)
+                    ->searchable(),
             ])
             ->filters(static::filters())
             ->headerActions([

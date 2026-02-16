@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Validation\Rule;
 
 class LimitsRelationManager extends RelationManager
 {
@@ -27,12 +28,16 @@ class LimitsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('selected_areas')
+                Forms\Components\Select::make('area_id')
                     ->label('المنطقة')
                     ->relationship('area', 'name')
                     ->rules([
                         function (Forms\Get $get, string $operation, ?Model $record, $state) {
-                            return ['unique:product_limits,area_id,' . ($state) . ',id,product_id,' . $this->ownerRecord->id];
+                            return [
+                                Rule::unique('product_limits', 'area_id')
+                                    ->where('product_id', $this->ownerRecord->id)
+                                    ->ignore($record?->id)
+                            ];
                         }
                     ])
                     ->preload()

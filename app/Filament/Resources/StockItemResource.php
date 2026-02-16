@@ -73,6 +73,10 @@ class StockItemResource extends Resource implements HasShieldPermissions
                     ->label('اسم')
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('brand.name')
+                    ->label('العلامة التجارية')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('stock_items_sum_piece_quantity')
                     ->sum('stockItems', 'piece_quantity')
                     ->label('عدد القطع')
@@ -83,7 +87,9 @@ class StockItemResource extends Resource implements HasShieldPermissions
                         2
                     ))
                     ->label('عدد العبوات')
-                    ,
+                    ->sortable(query: function ($query, string $direction) {
+                        return $query->orderByRaw("COALESCE(stock_items_sum_piece_quantity, 0) / NULLIF(packet_to_piece, 0) {$direction}");
+                    }),
                 Tables\Columns\TextColumn::make('packets_and_pieces')
                     ->label('العبوات والقطع')
                     ->state(function ($record) {
@@ -100,6 +106,32 @@ class StockItemResource extends Resource implements HasShieldPermissions
                         } else {
                             return "{$pieces} قطعة";
                         }
+                    })
+                    ->sortable(query: function ($query, string $direction) {
+                        return $query->orderByRaw("COALESCE(stock_items_sum_piece_quantity, 0) / NULLIF(packet_to_piece, 0) {$direction}");
+                    }),
+                Tables\Columns\TextColumn::make('last_stock_counting_date')
+                    ->label('آخر جرد')
+                    ->state(function ($record) {
+                        return $record->stockCountingItems()
+                            ->whereHas('stockCounting', function ($query) {
+                                $query->where('status', \App\Enums\InvoiceStatus::CLOSED);
+                            })
+                            ->latest()
+                            ->first()?->stockCounting?->created_at?->format('Y-m-d');
+                    })
+                    ->placeholder('لم يتم الجرد')
+                    ->sortable(query: function ($query, string $direction) {
+                        return $query->orderBy(
+                            \Illuminate\Support\Facades\DB::table('stock_counting_items')
+                                ->select('stock_countings.created_at')
+                                ->join('stock_countings', 'stock_counting_items.stock_counting_id', '=', 'stock_countings.id')
+                                ->whereColumn('stock_counting_items.product_id', 'products.id')
+                                ->where('stock_countings.status', \App\Enums\InvoiceStatus::CLOSED->value)
+                                ->orderBy('stock_countings.created_at', 'desc')
+                                ->limit(1),
+                            $direction
+                        );
                     }),
                 Tables\Columns\TextColumn::make('packet_cost')
                     ->label('تكلفة العبوة')

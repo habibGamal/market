@@ -27,7 +27,7 @@ class AccountantIssueNoteObserver
         }
 
         // Validate that payment doesn't exceed remaining amount
-        if ((float) $accountantIssueNote->paid > (float) $relatedModel->remaining_amount) {
+        if ((float) $accountantIssueNote->paid > ((float) $relatedModel->remaining_amount + 0.1)) {
             throw new \InvalidArgumentException('المبلغ المدفوع لا يمكن أن يتجاوز المبلغ المتبقي (' . number_format($relatedModel->remaining_amount, 2) . ' جنيه)');
         }
     }

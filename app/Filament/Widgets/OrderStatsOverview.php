@@ -3,7 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Resources\Reports\OrdersReportResource\Pages\ListOrdersReports;
-use App\Services\OrdersStatsService;
+use App\Services\OrdersStatsServiceOptimized;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -21,9 +21,8 @@ class OrderStatsOverview extends BaseWidget
 
     protected function getStats(): array
     {
-        $statsService = app(OrdersStatsService::class);
-        $result = $statsService->getOrdersWithStats($this->getPageTableQuery());
-        $stats = $statsService->calculateOrdersStats($result);
+        $statsService = app(OrdersStatsServiceOptimized::class);
+        $stats = $statsService->calculateOrdersStats($this->getPageTableQuery());
 
         $canViewProfits = auth()->user()->can('view_profits_order', \App\Models\Order::class);
 

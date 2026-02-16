@@ -14,9 +14,11 @@ class CentralCashFlowAssetsWidget extends BaseWidget
     protected function getStats(): array
     {
         $cashFlowService = app(CentralCashFlowService::class);
-        $assetsData = $cashFlowService->getCashFlowData()['assets'];
+        $cashFlowData = $cashFlowService->getCashFlowData();
+        $assetsData = $cashFlowData['assets'];
+        $trackedExpenses = $cashFlowData['tracked_expenses'];
 
-        return [
+        $stats = [
             Stat::make('تكلفة المخزون', number_format($assetsData['stock_cost'], 2) . ' جنيه')
                 ->description('إجمالي تكلفة المنتجات في المخزون')
                 ->descriptionIcon('heroicon-m-cube')
@@ -27,10 +29,15 @@ class CentralCashFlowAssetsWidget extends BaseWidget
                 ->descriptionIcon('heroicon-m-truck')
                 ->color(Color::Orange),
 
-            Stat::make('رصيد الخزينة الحالي', number_format($assetsData['vault_balance'], 2) . ' جنيه')
-                ->description('المبلغ المتوفر في الخزينة النقدية')
+            Stat::make('رصيد الخزينة النقدية', number_format($assetsData['vault_balance'], 2) . ' جنيه')
+                ->description('المبلغ المتوفر في الخزينة النقدية الافتراضية')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color(Color::Green),
+
+            Stat::make('أرصدة الخزائن الأخرى', number_format($assetsData['other_vaults_balance'], 2) . ' جنيه')
+                ->description('مجموع أرصدة الخزائن الأخرى')
+                ->descriptionIcon('heroicon-m-building-library')
+                ->color(Color::Teal),
 
             Stat::make('أرصدة مندوبين التسليم', number_format($assetsData['drivers_balance'], 2) . ' جنيه')
                 ->description('إجمالي أرصدة جميع مندوبين التسليم')
@@ -46,11 +53,22 @@ class CentralCashFlowAssetsWidget extends BaseWidget
                 ->description('إجمالي قيمة الأصول الثابتة')
                 ->descriptionIcon('heroicon-m-building-office')
                 ->color(Color::Purple),
-
-            Stat::make('إجمالي الأصول', number_format($assetsData['total'], 2) . ' جنيه')
-                ->description('مجموع جميع الأصول')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->color(Color::Emerald),
         ];
+
+        // Add tracked expense types
+        foreach ($trackedExpenses as $expense) {
+            $stats[] = Stat::make($expense['name'], number_format($expense['total'], 2) . ' جنيه')
+                ->description('إجمالي مصروفات ' . $expense['name'])
+                ->descriptionIcon('heroicon-m-currency-dollar')
+                ->color(Color::Red);
+        }
+
+        // Add total assets at the end
+        $stats[] = Stat::make('إجمالي الأصول', number_format($assetsData['total'], 2) . ' جنيه')
+            ->description('مجموع جميع الأصول')
+            ->descriptionIcon('heroicon-m-arrow-trending-up')
+            ->color(Color::Emerald);
+
+        return $stats;
     }
 }

@@ -287,6 +287,11 @@ class StockCountingResource extends InvoiceResource
                     ->label('المسؤول')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('notes')
+                    ->label('ملاحظات')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
                     ->dateTime()

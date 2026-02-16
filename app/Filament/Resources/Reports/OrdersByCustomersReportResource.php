@@ -73,6 +73,24 @@ class OrdersByCustomersReportResource extends Resource implements HasShieldPermi
                     ->money('EGP')
                     ->sortable()
                     ->visible(fn() => auth()->user()->can('view_profits_customer', Customer::class)),
+                TextColumn::make('profit_percent')
+                    ->label('نسبة الربح')
+                    ->getStateUsing(function ($record) {
+                        $totalSales = $record->total_sales ?? 0;
+                        $totalProfit = $record->total_profit ?? 0;
+                        return $totalSales > 0 ? ($totalProfit / $totalSales) * 100 : 0;
+                    })
+                    ->formatStateUsing(fn ($state) => number_format($state, 2) . '%')
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderByRaw("
+                            CASE
+                                WHEN order_items.total_sales > 0
+                                THEN ((COALESCE(order_items.total_profit, 0) - COALESCE(returns.profit_returns, 0)) / order_items.total_sales) * 100
+                                ELSE 0
+                            END {$direction}
+                        ");
+                    })
+                    ->visible(fn() => auth()->user()->can('view_profits_customer', Customer::class)),
                 TextColumn::make('total_returns')
                     ->label('قيمة المرتجعات')
                     ->money('EGP')

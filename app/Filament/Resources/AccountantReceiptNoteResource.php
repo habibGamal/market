@@ -129,6 +129,16 @@ class AccountantReceiptNoteResource extends Resource
                     ->label('رقم المستند')
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('fromModel.name')
+                    ->label('اسم المندوب')
+                    ->searchable(query: function ($query, string $search) {
+                        return $query->whereHasMorph(
+                            'fromModel',
+                            [Driver::class],
+                            fn($query) => $query->where('name', 'like', "%{$search}%")
+                        );
+                    }),
+
                 Tables\Columns\TextColumn::make('paid')
                     ->label('المبلغ المحصل')
                     ->sortable()
@@ -136,7 +146,8 @@ class AccountantReceiptNoteResource extends Resource
 
                 Tables\Columns\TextColumn::make('notes')
                     ->label('ملاحظات')
-                    ->limit(50),
+                    ->limit(50)
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('officer.name')
                     ->label('المسؤول')
@@ -148,7 +159,12 @@ class AccountantReceiptNoteResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('from_model_type')
+                    ->label('نوع المستند')
+                    ->options([
+                        Driver::class => 'مندوب تسليم',
+                        IssueNote::class => 'اذن صرف مرتجع مشتريات',
+                    ]),
             ])
             ->headerActions([
                 Tables\Actions\ExportAction::make()

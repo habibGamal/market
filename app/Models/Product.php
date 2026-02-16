@@ -121,7 +121,8 @@ class Product extends Model
 
     public function getIsDealAttribute(): bool
     {
-        return $this->packet_price < $this->before_discount['packet_price'];
+        return isset($this->before_discount['packet_price'])
+            && $this->packet_price < $this->before_discount['packet_price'];
     }
 
     public function getPricesAttribute(): array

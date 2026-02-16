@@ -61,7 +61,21 @@ class StockServices
             }
 
             if ($remainingQuantity > 0) {
-                throw new \Exception("الكمية المطلوبة غير متوفرة للمنتج {$product->name}. الكمية المتاحة هي {$totalAvailableQuantity}", 540);
+                $total = (int) $totalAvailableQuantity;
+                $packetToPiece = $product->packet_to_piece ?? 1;
+
+                $packets = (int) floor($total / $packetToPiece);
+                $pieces = $total % $packetToPiece;
+
+                if ($packets > 0 && $pieces > 0) {
+                    $readable = "{$packets} عبوة و {$pieces} قطعة";
+                } elseif ($packets > 0) {
+                    $readable = "{$packets} عبوة";
+                } else {
+                    $readable = "{$pieces} قطعة";
+                }
+
+                throw new \Exception("الكمية المطلوبة غير متوفرة للمنتج {$product->name}. الكمية المتاحة هي {$readable} ", 540);
             }
         });
     }

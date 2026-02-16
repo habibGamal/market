@@ -19,7 +19,7 @@ interface ShowProps {
             id: number;
             name: string;
         };
-        barcode: string;
+        barcode?: string | null;
         packet_to_piece: number;
         description?: string;
     };

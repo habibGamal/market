@@ -239,6 +239,10 @@ class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermis
                     ->label('اسم الشركة')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('notes')
+                    ->label('ملاحظات')
+                    ->limit(50)
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('execution_date')
                     ->label('تاريخ التنفيذ')
                     ->date()

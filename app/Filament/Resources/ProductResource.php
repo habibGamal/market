@@ -60,7 +60,6 @@ class ProductResource extends Resource implements HasShieldPermissions
                                     ->columnSpanFull(),
                                 Forms\Components\TextInput::make('barcode')
                                     ->label('الباركود')
-                                    ->required()
                                     ->unique(ignoreRecord: true),
                                 Forms\Components\Toggle::make('is_active')
                                     ->label('نشط')
@@ -169,12 +168,10 @@ class ProductResource extends Resource implements HasShieldPermissions
                                     ),
                                 Forms\Components\TextInput::make('before_discount.packet_price')
                                     ->label('سعر البيع (كرتونة / لفة) قبل الخصم')
-                                    ->numeric()
-                                    ->required(),
+                                    ->numeric(),
                                 Forms\Components\TextInput::make('before_discount.piece_price')
                                     ->label('سعر البيع (علبة/قطعة) قبل الخصم')
-                                    ->numeric()
-                                    ->required(),
+                                    ->numeric(),
                             ]),
                     ])
                     ->columnSpanFull()
