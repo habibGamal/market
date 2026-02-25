@@ -133,6 +133,11 @@ Route::middleware(['auth:customer'])->group(function () {
 
 // Admin/User Routes
 Route::middleware(['auth'])->group(function () {
+    Route::get('/reports/central-cash-flow', function (\App\Services\Reports\CentralCashFlowService $service) {
+        $data = $service->getCashFlowData();
+        return view('reports.central_cash_flow', compact('data'));
+    })->name('reports.central-cash-flow');
+
     Route::get('/print/{model}/{id}', function (string $model, $id, PrintTemplateService $service) {
         $record = $model::findOrFail($id);
         // Gate::authorize('view', $record);

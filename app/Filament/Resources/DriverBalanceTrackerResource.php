@@ -6,6 +6,10 @@ use App\Enums\BalanceOperation;
 use App\Enums\DriverBalanceTransactionType;
 use App\Filament\Resources\DriverBalanceTrackerResource\Pages;
 use App\Models\DriverBalanceTracker;
+use App\Models\Order;
+use App\Models\ReturnOrderItem;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -144,6 +148,22 @@ class DriverBalanceTrackerResource extends Resource implements HasShieldPermissi
                     ->searchable()
                     ->toggleable(),
 
+                Tables\Columns\TextColumn::make('customer_name')
+                    ->label('العميل')
+                    ->getStateUsing(function (DriverBalanceTracker $record): ?string {
+                        if ($record->related_model_type === Order::class) {
+                            return $record->relatedModel?->customer?->name;
+                        }
+
+                        if ($record->related_model_type === ReturnOrderItem::class) {
+                            return $record->relatedModel?->order?->customer?->name;
+                        }
+
+                        return null;
+                    })
+                    ->placeholder('—')
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('createdBy.name')
                     ->label('تم بواسطة')
                     ->sortable()
@@ -198,6 +218,19 @@ class DriverBalanceTrackerResource extends Resource implements HasShieldPermissi
         return [
             //
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with([
+                'driver',
+                'createdBy',
+                'relatedModel' => fn (MorphTo $morphTo) => $morphTo->morphWith([
+                    Order::class => ['customer'],
+                    ReturnOrderItem::class => ['order.customer'],
+                ]),
+            ]);
     }
 
     public static function getPages(): array

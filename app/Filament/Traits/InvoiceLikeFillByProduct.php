@@ -10,6 +10,7 @@ use App\Models\Brand;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
 
 trait InvoiceLikeFillByProduct
 {
@@ -96,6 +97,12 @@ trait InvoiceLikeFillByProduct
                 function () {
                     static::$brands ??= Brand::with('products:id,name,brand_id')->get();
                     return [
+                        TextInput::make('brand_search')
+                            ->label('بحث عن علامة تجارية')
+                            ->placeholder('اكتب اسم العلامة التجارية...')
+                            ->prefixIcon('heroicon-o-magnifying-glass')
+                            ->live(debounce: 300)
+                            ->columnSpanFull(),
                         Section::make('products')
                             ->columns(4)
                             ->schema(
@@ -109,7 +116,11 @@ trait InvoiceLikeFillByProduct
                                                 ->bulkToggleable()
                                         ])
                                         ->collapsed()
-                                        ->columnSpan(1);
+                                        ->columnSpan(1)
+                                        ->visible(fn(Get $get) => str_contains(
+                                            mb_strtolower($brand),
+                                            mb_strtolower($get('brand_search') ?? '')
+                                        ));
                                 })->toArray()
                             )
                     ];

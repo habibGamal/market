@@ -3,6 +3,9 @@
 namespace App\Filament\Resources\DriverBalanceTrackerResource\Pages;
 
 use App\Filament\Resources\DriverBalanceTrackerResource;
+use App\Models\DriverBalanceTracker;
+use App\Models\Order;
+use App\Models\ReturnOrderItem;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists\Infolist;
@@ -58,6 +61,21 @@ class ViewDriverBalanceTracker extends ViewRecord
                         Components\TextEntry::make('notes')
                             ->label('ملاحظات')
                             ->columnSpanFull(),
+
+                        Components\TextEntry::make('customer_name')
+                            ->label('العميل')
+                            ->getStateUsing(function (DriverBalanceTracker $record): ?string {
+                                if ($record->related_model_type === Order::class) {
+                                    return $record->relatedModel?->customer?->name;
+                                }
+
+                                if ($record->related_model_type === ReturnOrderItem::class) {
+                                    return $record->relatedModel?->order?->customer?->name;
+                                }
+
+                                return null;
+                            })
+                            ->placeholder('—'),
 
                         Components\TextEntry::make('createdBy.name')
                             ->label('تم بواسطة'),

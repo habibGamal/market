@@ -8,6 +8,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ItemsRelationManager extends RelationManager
@@ -15,7 +16,11 @@ class ItemsRelationManager extends RelationManager
     protected static string $relationship = 'items';
 
 
-    protected static ?string $title = 'محتوى الفاتورة';
+    // protected static ?string $title = 'محتوى الفاتورة';
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return "الأصناف ( " . ($ownerRecord->items ? count($ownerRecord->items) : 0) . " )";
+    }
 
     public function form(Form $form): Form
     {

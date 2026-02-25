@@ -103,6 +103,12 @@ class OrderController extends Controller
             }
 
             $order = $this->placeOrderServices->placeOrder($cart);
+
+            if ($request->filled('notes')) {
+                $order->notes = $request->input('notes');
+                $order->save();
+            }
+
             notifyCustomerWithOrderStatus($order);
 
             return response()->json([

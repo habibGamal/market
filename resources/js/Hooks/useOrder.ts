@@ -6,10 +6,10 @@ import { toast } from "sonner";
 export function useOrder() {
     const [loading, setLoading] = useState(false);
 
-    const placeOrder = async () => {
+    const placeOrder = async (notes?: string) => {
         setLoading(true);
         try {
-            const response = await axios.post('/orders');
+            const response = await axios.post('/orders', { notes });
             toast.success(response.data.message);
             // Redirect to the order details page
             router.visit(`/orders/${response.data.order_id}`);

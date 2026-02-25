@@ -52,12 +52,12 @@ class OrderResource extends Resource implements HasShieldPermissions
                         TextEntry::make('profit')
                             ->label('الربح')
                             ->money('EGP')
-                            ->visible(fn () => auth()->user()->can('view_profits_order')),
+                            ->visible(fn() => auth()->user()->can('view_profits_order')),
                         TextEntry::make('netProfit')
                             ->label('صافي الربح')
                             ->money('EGP')
                             ->tooltip('صافي الربح بعد خصم المرتجعات والخصومات')
-                            ->visible(fn () => auth()->user()->can('view_profits_order')),
+                            ->visible(fn() => auth()->user()->can('view_profits_order')),
                         TextEntry::make('status')
                             ->label('حالة الطلب')
                             ->badge(),
@@ -71,6 +71,8 @@ class OrderResource extends Resource implements HasShieldPermissions
                                     ->pluck('brands.name')
                                     ->join('، ');
                             }),
+                        TextEntry::make('notes')
+                            ->label('ملاحظات'),
                         TextEntry::make('created_at')
                             ->label('تاريخ الإنشاء')
                             ->dateTime(),
@@ -118,7 +120,7 @@ class OrderResource extends Resource implements HasShieldPermissions
                             ->select(\DB::raw('COUNT(DISTINCT products.brand_id)'));
                     }
                 ])
-                ->with('returnItems');
+                    ->with('returnItems');
             })
             ->columns([
                 Tables\Columns\TextColumn::make('id')
@@ -157,6 +159,10 @@ class OrderResource extends Resource implements HasShieldPermissions
                     ->label('الحالة')
                     ->sortable()
                     ->badge(),
+                Tables\Columns\TextColumn::make('notes')
+                    ->label('ملاحظات')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
                     ->dateTime()
@@ -204,7 +210,7 @@ class OrderResource extends Resource implements HasShieldPermissions
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\ExportBulkAction::make()
-                    ->exporter(OrderExporter::class),
+                        ->exporter(OrderExporter::class),
                     Tables\Actions\BulkAction::make('assignToDriver')
                         ->label('تعيين مندوب تسليم')
                         ->icon('heroicon-o-truck')

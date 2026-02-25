@@ -4,6 +4,8 @@ import { ShoppingBag } from "lucide-react";
 import { PageTitle } from "@/Components/ui/page-title";
 import type { Product } from "@/types";
 import { useOrder } from "@/Hooks/useOrder";
+import { useState } from "react";
+import { Textarea } from "@/Components/ui/textarea";
 
 interface OrderItem {
     product: Product;
@@ -28,10 +30,11 @@ interface Props {
 
 export default function PlaceOrder({ preview }: Props) {
     const { loading: orderLoading, placeOrder } = useOrder();
+    const [notes, setNotes] = useState("");
 
     const handlePlaceOrder = async () => {
         try {
-            await placeOrder();
+            await placeOrder(notes);
         } catch (error) {
             // Error is handled by the hook
         }
@@ -104,8 +107,22 @@ export default function PlaceOrder({ preview }: Props) {
                             </div>
                         )}
 
+                        <div className="mt-6">
+                            <label className="block text-sm font-medium text-secondary-700 mb-2">
+                                ملاحظات الطلب
+                            </label>
+                            <Textarea
+                                placeholder="أضف أي ملاحظات أو تعليمات خاصة بالطلب..."
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                rows={3}
+                                className="resize-none"
+                                dir="rtl"
+                            />
+                        </div>
+
                         <Button
-                            className="w-full mt-6"
+                            className="w-full mt-4"
                             size="lg"
                             onClick={handlePlaceOrder}
                             disabled={orderLoading}

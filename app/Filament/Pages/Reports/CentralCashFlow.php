@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages\Reports;
 
-use Filament\Pages\Page;
+use Filament\Actions\Action;
 use Filament\Pages\Dashboard as BaseDashboard;
 
 class CentralCashFlow extends BaseDashboard
@@ -18,6 +18,18 @@ class CentralCashFlow extends BaseDashboard
     protected static ?string $title = 'تقرير المركز المالي';
 
     protected static ?int $navigationSort = 1;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('export_pdf')
+                ->label('تصدير PDF')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('primary')
+                ->url(fn () => route('reports.central-cash-flow'))
+                ->openUrlInNewTab(),
+        ];
+    }
 
     public function getWidgets(): array
     {

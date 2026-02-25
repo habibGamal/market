@@ -26,6 +26,14 @@ class OrderStatsOverview extends BaseWidget
 
         $canViewProfits = auth()->user()->can('view_profits_order', \App\Models\Order::class);
 
+        $profitWithoutDiscountPercent = $stats['total_sales'] > 0
+            ? round(($stats['total_profit_without_discount'] / $stats['total_sales']) * 100, 1)
+            : 0;
+
+        $profitPercent = $stats['total_sales'] > 0
+            ? round(($stats['total_profit'] / $stats['total_sales']) * 100, 1)
+            : 0;
+
         return [
             Stat::make('إجمالي الطلبات', number_format($stats['total_orders']))
                 ->description('إجمالي عدد الطلبات')
@@ -39,13 +47,13 @@ class OrderStatsOverview extends BaseWidget
 
             $canViewProfits ?
                 Stat::make('إجمالي الأرباح بدون خصومات', number_format($stats['total_profit_without_discount'], 2) . ' جنيه')
-                    ->description('الأرباح الإجمالية بدون خصومات')
+                    ->description('الأرباح الإجمالية بدون خصومات - ' . $profitWithoutDiscountPercent . '%')
                     ->descriptionIcon('heroicon-m-arrow-trending-up')
                     ->color('warning') : null,
 
             $canViewProfits ?
                 Stat::make('إجمالي الأرباح', number_format($stats['total_profit'], 2) . ' جنيه')
-                    ->description('الأرباح الإجمالية')
+                    ->description('الأرباح الإجمالية - ' . $profitPercent . '%')
                     ->descriptionIcon('heroicon-m-arrow-trending-up')
                     ->color('success') : null,
 

@@ -72,7 +72,16 @@ class ProductResource extends Resource implements HasShieldPermissions
                                     ->label('عدد القطع في (كرتونة / لفة)')
                                     ->numeric()
                                     ->minValue(1)
-                                    ->required(),
+                                    ->required()
+                                    ->reactive()
+                                    ->debounce(500)
+                                    ->afterStateUpdated(
+                                        function (Forms\Set $set, Forms\Get $get, $state) {
+                                            if (is_numeric($state) && $state > 0 && is_numeric($get('packet_price'))) {
+                                                $set('piece_price', ($get('packet_price') / $state));
+                                            }
+                                        }
+                                    ),
                                 Forms\Components\Select::make('packet_alter_name')
                                     ->label('الاسم البديل للعبوة')
                                     ->options([

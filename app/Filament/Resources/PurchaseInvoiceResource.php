@@ -154,7 +154,7 @@ class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermis
                         )->columnSpan(2),
                     ]),
                 TableRepeater::make('items')
-                    ->label('عناصر الفاتورة')
+                    ->label(fn($state) => "الأصناف ( " . ($state ? count($state) : 0) . ")")
                     ->relationship('items', fn($query) => $query->with('product:id,name,packet_to_piece'))
                     ->headers([
                         Header::make('product_name')->label('المنتج')->width('150px'),
@@ -238,6 +238,10 @@ class PurchaseInvoiceResource extends InvoiceResource implements HasShieldPermis
                 Tables\Columns\TextColumn::make('supplier.company_name')
                     ->label('اسم الشركة')
                     ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('items_count')
+                    ->counts('items')
+                    ->label('عدد الأصناف')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('notes')
                     ->label('ملاحظات')
