@@ -102,6 +102,7 @@ trait InvoiceLikeFillByProduct
                             ->placeholder('اكتب اسم العلامة التجارية...')
                             ->prefixIcon('heroicon-o-magnifying-glass')
                             ->live(debounce: 300)
+                            ->dehydrated(false)
                             ->columnSpanFull(),
                         Section::make('products')
                             ->columns(4)
