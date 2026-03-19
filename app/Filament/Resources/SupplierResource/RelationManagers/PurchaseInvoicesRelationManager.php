@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SupplierResource\RelationManagers;
 
+use App\Filament\Resources\PurchaseInvoiceResource\Pages\ViewPurchaseInvoice;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -50,8 +51,9 @@ class PurchaseInvoicesRelationManager extends RelationManager
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\ViewAction::make()->url(fn ($record) => ViewPurchaseInvoice::getUrl(['record' => $record])),
             ])
             ->bulkActions([]);
     }
+
 }

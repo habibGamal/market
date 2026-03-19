@@ -26,6 +26,18 @@ class StockItemExporter extends Exporter
             ExportColumn::make('packets_quantity')
                 ->label('عدد العبوات')
                 ->formatStateUsing(fn($state) => number_format($state, 2)),
+            ExportColumn::make('brand.name')
+                ->label('العلامة التجارية'),
+            ExportColumn::make('last_stock_counting_date')
+                ->label('آخر جرد')
+                ->state(function ($record) {
+                    return $record->stockCountingItems()
+                        ->whereHas('stockCounting', function ($query) {
+                            $query->where('status', \App\Enums\InvoiceStatus::CLOSED);
+                        })
+                        ->latest()
+                        ->first()?->stockCounting?->created_at?->format('Y-m-d');
+                }),
             ExportColumn::make('packets_and_pieces')
                 ->label('العبوات والقطع')
                 ->formatStateUsing(function ($record) {

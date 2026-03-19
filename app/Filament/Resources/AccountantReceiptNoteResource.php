@@ -7,6 +7,7 @@ use App\Filament\Resources\AccountantReceiptNoteResource\Pages;
 use App\Models\AccountantReceiptNote;
 use App\Models\Driver;
 use App\Models\IssueNote;
+use App\Models\ReturnPurchaseInvoice;
 use Filament\Forms;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Form;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Grid;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\TextEntry;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class AccountantReceiptNoteResource extends Resource
 {
@@ -44,7 +46,7 @@ class AccountantReceiptNoteResource extends Resource
                             MorphToSelect\Type::make(IssueNote::class)
                                 ->label('اذن صرف مرتجع مشتريات')
                                 ->modifyOptionsQueryUsing(function ($query) {
-                                    $query->needAccountantReceiptNote();
+                                    $query->needAccountantReceiptNote()->with('returnPurchaseInvoice.supplier');
                                 })
                                 ->titleAttribute('id')
                                 ->getOptionLabelFromRecordUsing(fn (IssueNote $record): string => "#{$record->id} - {$record->returnPurchaseInvoice->supplier->name}"),
@@ -115,6 +117,15 @@ class AccountantReceiptNoteResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function ($query) {
+                $query->with([
+                    'fromModel' => function (MorphTo $morphTo) {
+                        $morphTo->morphWith([
+                            IssueNote::class => ['returnPurchaseInvoice.supplier'],
+                        ]);
+                    },
+                ]);
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('from_model_type')
                     ->label('نوع المستند')
@@ -137,6 +148,37 @@ class AccountantReceiptNoteResource extends Resource
                             [Driver::class],
                             fn($query) => $query->where('name', 'like', "%{$search}%")
                         );
+                    })
+                    ->sortable(query: function ($query, string $direction) {
+                        return $query->orderBy(
+                            Driver::select('name')
+                                ->whereColumn('users.id', 'accountant_receipt_notes.from_model_id')
+                                ->where('from_model_type', Driver::class)
+                                ->limit(1),
+                            $direction
+                        );
+                    }),
+
+
+                Tables\Columns\TextColumn::make('fromModel.returnPurchaseInvoice.supplier.name')
+                    ->label('اسم المورد')
+                    ->searchable(query: function ($query, string $search) {
+                        return $query->whereHasMorph(
+                            'fromModel',
+                            [IssueNote::class],
+                            fn($query) => $query->whereHas('returnPurchaseInvoice.supplier', fn($query) => $query->where('name', 'like', "%{$search}%"))
+                        );
+                    })
+                    ->sortable(query: function ($query, string $direction) {
+                        return $query->orderBy(
+                            IssueNote::select('suppliers.name')
+                                ->join('return_purchase_invoices', 'return_purchase_invoices.issue_note_id', 'issue_notes.id')
+                                ->join('suppliers', 'return_purchase_invoices.supplier_id', 'suppliers.id')
+                                ->whereColumn('issue_notes.id', 'accountant_receipt_notes.from_model_id')
+                                ->where('accountant_receipt_notes.from_model_type', IssueNote::class)
+                                ->limit(1),
+                            $direction
+                        );
                     }),
 
                 Tables\Columns\TextColumn::make('paid')
@@ -147,7 +189,8 @@ class AccountantReceiptNoteResource extends Resource
                 Tables\Columns\TextColumn::make('notes')
                     ->label('ملاحظات')
                     ->limit(50)
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('officer.name')
                     ->label('المسؤول')
