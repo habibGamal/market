@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SupplierResource\RelationManagers;
 
+use App\Filament\Exports\ReturnPurchaseInvoiceExporter;
 use App\Filament\Resources\ReturnPurchaseInvoiceResource\Pages\ViewReturnPurchaseInvoice;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -42,6 +43,11 @@ class ReturnPurchaseInvoicesRelationManager extends RelationManager
             ])
             ->filters([
                 //
+            ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('تصدير')
+                    ->exporter(ReturnPurchaseInvoiceExporter::class),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()->url(fn ($record) => ViewReturnPurchaseInvoice::getUrl(['record' => $record])),

@@ -118,6 +118,8 @@ class SupplierResource extends Resource
         return [
             SupplierResource\RelationManagers\PurchaseInvoicesRelationManager::class,
             SupplierResource\RelationManagers\ReturnPurchaseInvoicesRelationManager::class,
+            SupplierResource\RelationManagers\AccountantIssueNotesRelationManager::class,
+            SupplierResource\RelationManagers\AccountantReceiptNotesRelationManager::class,
         ];
     }
 

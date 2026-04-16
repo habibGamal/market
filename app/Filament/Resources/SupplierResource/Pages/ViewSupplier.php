@@ -49,6 +49,8 @@ class ViewSupplier extends ViewRecord
         return [
             RelationManagers\PurchaseInvoicesRelationManager::class,
             RelationManagers\ReturnPurchaseInvoicesRelationManager::class,
+            RelationManagers\AccountantIssueNotesRelationManager::class,
+            RelationManagers\AccountantReceiptNotesRelationManager::class,
         ];
     }
 }

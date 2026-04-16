@@ -55,7 +55,7 @@ if (!function_exists('settings')) {
      * @param mixed $default
      * @return mixed|\App\Services\SettingsService
      */
-    function settings(string|\App\Enums\SettingKey $key = null, mixed $default = null): mixed
+    function settings(string|\App\Enums\SettingKey|null $key = null, mixed $default = null): mixed
     {
         $settings = app('settings');
 

@@ -64,6 +64,37 @@ class Supplier extends Model
         );
     }
 
+    /**
+     * Accountant issue notes related to this supplier (read-only query scope).
+     * Chain: Supplier → PurchaseInvoice → ReceiptNote → AccountantIssueNote
+     */
+    public function accountantIssueNotes()
+    {
+        return AccountantIssueNote::query()
+            ->where('for_model_type', ReceiptNote::class)
+            ->whereIn('for_model_id', function ($query) {
+                $query->select('receipt_note_id')
+                    ->from('purchase_invoices')
+                    ->where('supplier_id', $this->id)
+                    ->whereNotNull('receipt_note_id');
+            });
+    }
+
+    /**
+     * Accountant receipt notes related to this supplier (read-only query scope).
+     * Chain: Supplier → ReturnPurchaseInvoice → IssueNote → AccountantReceiptNote
+     */
+    public function accountantReceiptNotes()
+    {
+        return AccountantReceiptNote::query()
+            ->where('from_model_type', IssueNote::class)
+            ->whereIn('from_model_id', function ($query) {
+                $query->select('issue_note_id')
+                    ->from('return_purchase_invoices')
+                    ->where('supplier_id', $this->id)
+                    ->whereNotNull('issue_note_id');
+            });
+    }
 
     public function getBalanceAttribute()
     {

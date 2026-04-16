@@ -21,6 +21,24 @@ class RevenueStatsOverview extends BaseWidget
         $this->filterFormData = $filterFormData;
     }
 
+    protected function getTrackedExpensesDescription(array $breakdown): string
+    {
+        if (empty($breakdown)) {
+            return 'إجمالي المصاريف التشغيلية';
+        }
+
+        $parts = collect($breakdown)
+            ->filter(fn ($item) => $item['total'] > 0)
+            ->map(fn ($item) => $item['name'] . ': ' . number_format($item['total'], 2))
+            ->implode(' | ');
+
+        if (empty($parts)) {
+            return 'إجمالي المصاريف التشغيلية';
+        }
+
+        return 'لا يشمل: ' . $parts;
+    }
+
     protected function getStats(): array
     {
         $startDate = $this->filterFormData['start_date'] ?? null;
@@ -55,7 +73,7 @@ class RevenueStatsOverview extends BaseWidget
 
             // Total Expenses
             Stat::make('اجمالي المصروفات', number_format($stats['total_expenses'], 2) . ' جنيه')
-                ->description('إجمالي المصاريف التشغيلية')
+                ->description($this->getTrackedExpensesDescription($stats['tracked_expenses_breakdown']))
                 ->descriptionIcon('heroicon-m-receipt-percent')
                 ->color(Color::Red),
 

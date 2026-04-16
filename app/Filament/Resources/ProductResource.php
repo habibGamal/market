@@ -218,6 +218,12 @@ class ProductResource extends Resource implements HasShieldPermissions
                 Tables\Columns\TextColumn::make('packet_price')
                     ->label('سعر البيع (كرتونة / لفة)')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('profit_percentage')
+                    ->label('نسبة الربحية')
+                    ->state(fn(Product $record): float|null => $record->packet_cost > 0 ? round((($record->packet_price - $record->packet_cost) / $record->packet_cost) * 100, 2) : null)
+                    ->suffix('%')
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderByRaw('(CASE WHEN packet_cost > 0 THEN ((packet_price - packet_cost) / packet_cost) * 100 END) ' . $direction))
+                    ->color(fn(float|null $state): string|null => $state !== null && $state < 0 ? 'danger' : ($state !== null && $state >= 50 ? 'success' : 'warning')),
                 Tables\Columns\TextColumn::make('piece_price')
                     ->label('سعر البيع (علبة/قطعة)')
                     ->sortable(),

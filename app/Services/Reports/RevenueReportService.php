@@ -5,6 +5,7 @@ namespace App\Services\Reports;
 use App\Models\AccountantIssueNote;
 use App\Models\AccountantReceiptNote;
 use App\Models\Expense;
+use App\Models\ExpenseType;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PurchaseInvoice;
@@ -107,26 +108,51 @@ class RevenueReportService
     }
 
     /**
-     * Get total expenses
+     * Get total expenses (excluding tracked expense types)
      */
     public function getTotalExpenses($startDate = null, $endDate = null): float
     {
         $startDate = $startDate ? Carbon::parse($startDate) : now()->startOfMonth();
         $endDate = $endDate ? Carbon::parse($endDate) : now();
 
-        // Approved operating expenses
+        // Get tracked expense type IDs to exclude
+        $trackedExpenseTypeIds = ExpenseType::where('track', true)->pluck('id');
+
+        // Approved operating expenses (excluding tracked types)
         $operatingExpenses = Expense::query()
             ->whereNotNull('approved_by')
+            ->when($trackedExpenseTypeIds->isNotEmpty(), fn ($q) => $q->whereNotIn('expense_type_id', $trackedExpenseTypeIds))
             ->whereBetween('created_at', [$startDate, $endDate])
             ->sum('value');
 
-        // Purchase expenses
-        // $purchaseIssueNotes = AccountantIssueNote::query()
-        //     ->where('for_model_type', PurchaseInvoice::class)
-        //     ->whereBetween('created_at', [$startDate, $endDate])
-        //     ->sum('paid');
-
         return $operatingExpenses;
+    }
+
+    /**
+     * Get tracked expenses breakdown (expenses that are NOT included in total_expenses)
+     */
+    public function getTrackedExpensesBreakdown($startDate = null, $endDate = null): array
+    {
+        $startDate = $startDate ? Carbon::parse($startDate) : now()->startOfMonth();
+        $endDate = $endDate ? Carbon::parse($endDate) : now();
+
+        $trackedExpenseTypes = ExpenseType::where('track', true)->get();
+        $breakdown = [];
+
+        foreach ($trackedExpenseTypes as $type) {
+            $total = Expense::query()
+                ->whereNotNull('approved_by')
+                ->where('expense_type_id', $type->id)
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->sum('value');
+
+            $breakdown[] = [
+                'name' => $type->name,
+                'total' => $total,
+            ];
+        }
+
+        return $breakdown;
     }
 
     /**
@@ -225,6 +251,9 @@ class RevenueReportService
         // Calculate net profit margin percentage
         $netProfitMargin = $netSales ? ($netProfit / $netSales) * 100 : 0;
 
+        // Get tracked expenses breakdown
+        $trackedExpensesBreakdown = $this->getTrackedExpensesBreakdown($startDate, $endDate);
+
         return [
             'net_sales' => $netSales,
             'total_discounts' => $totalDiscounts,
@@ -234,6 +263,7 @@ class RevenueReportService
             'total_expenses' => $totalExpenses,
             'net_profit' => $netProfit,
             'net_profit_margin' => $netProfitMargin,
+            'tracked_expenses_breakdown' => $trackedExpensesBreakdown,
         ];
     }
 }
