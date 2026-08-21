@@ -27,6 +27,7 @@ class OrderExporter extends Exporter
             ,
             ExportColumn::make('created_at')->label('تاريخ الإنشاء'),
             ExportColumn::make('updated_at')->label('تاريخ التحديث'),
+            ExportColumn::make('notes')->label('ملاحظات'),
         ];
     }
 
